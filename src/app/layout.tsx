@@ -3,9 +3,10 @@ import './globals.css';
 import { cn } from '@/lib/utils';
 import { Toaster } from '@/components/ui/toaster';
 import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 
 export const metadata: Metadata = {
-  title: 'Netaneta - Your Guide to Indian Politics',
+  title: 'PolitiFind - Find Politicians In Your Area',
   description:
     'A comprehensive AI-powered political information application for India.',
 };
@@ -25,16 +26,17 @@ export default function RootLayout({
           crossOrigin="anonymous"
         />
         <link
-          href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=PT+Sans:wght@400;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
           rel="stylesheet"
         />
       </head>
       <body
-        className={cn('min-h-screen bg-background font-body antialiased')}
+        className={cn('min-h-screen bg-background font-sans antialiased')}
       >
         <div className="relative flex min-h-screen flex-col">
           <Header />
           <main className="flex-1">{children}</main>
+          <Footer />
         </div>
         <Toaster />
       </body>
