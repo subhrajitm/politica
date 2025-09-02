@@ -1,28 +1,20 @@
 'use client';
 import Link from 'next/link';
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { politicians } from '@/lib/data';
-import PoliticianCard from '@/components/PoliticianCard';
 import { ArrowRight, Search, Quote } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+import PoliticianCard from '@/components/PoliticianCard';
 
 export default function Home() {
   const [searchTerm, setSearchTerm] = useState('');
+  const router = useRouter();
 
-  const trendingProfiles = useMemo(
-    () => politicians.slice(0, 3),
-    []
-  );
+  const trendingProfiles = politicians.slice(0, 3);
 
   const teamMembers = [
     {
@@ -60,6 +52,19 @@ export default function Home() {
     'Data Analyst',
     'Dispatcher',
   ];
+  
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchTerm.trim()) {
+      router.push(`/politicians?q=${encodeURIComponent(searchTerm.trim())}`);
+    } else {
+      router.push('/politicians');
+    }
+  };
+
+  const handleSuggestedSearch = (term: string) => {
+     router.push(`/politicians?q=${encodeURIComponent(term)}`);
+  }
 
   return (
     <div className="flex flex-col min-h-full">
@@ -86,7 +91,7 @@ export default function Home() {
             ))}
           </div>
           <div className="max-w-2xl mx-auto bg-white rounded-lg p-2 shadow-lg">
-            <form className="flex gap-2">
+            <form className="flex gap-2" onSubmit={handleSearch}>
               <div className="relative flex-grow">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                 <Input
@@ -133,27 +138,7 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {trendingProfiles.map((p) => (
-              <Card key={p.id} className="p-6">
-                <CardContent className="p-0 flex items-center gap-4">
-                    <Image
-                      src={p.photoUrl}
-                      alt={p.name}
-                      width={64}
-                      height={64}
-                      className="rounded-full"
-                      data-ai-hint="politician portrait"
-                    />
-                  <div>
-                    <h3 className="font-semibold text-lg">{p.name}</h3>
-                    <p className="text-sm text-muted-foreground">
-                      {p.constituency}
-                    </p>
-                    <p className="text-lg font-bold text-green-600 mt-1">
-                      {p.party}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
+               <PoliticianCard key={p.id} politician={p} />
             ))}
           </div>
         </div>
@@ -182,6 +167,7 @@ export default function Home() {
                     key={term}
                     variant="outline"
                     className="bg-white/20 border-white/50 text-white hover:bg-white/30"
+                    onClick={() => handleSuggestedSearch(term)}
                   >
                     {term}
                   </Button>
@@ -252,10 +238,12 @@ export default function Home() {
         <div className="container mx-auto px-4 text-center md:text-left">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div>
-              <h2 className="text-3xl font-bold">Ready for your next hire?</h2>
-              <p className="max-w-xl opacity-90 mt-2">Along with conventional advertising and below the line activities, organizations and corporate bodies have come to realize that they need to invest.</p>
+              <h2 className="text-3xl font-bold">Stay Informed</h2>
+              <p className="max-w-xl opacity-90 mt-2">Explore the profiles of political leaders and learn more about their work and contributions to public service.</p>
             </div>
-            <Button size="lg" className="bg-gray-800 hover:bg-gray-900 text-white flex-shrink-0">Apply and Start Today</Button>
+            <Link href="/politicians" passHref>
+              <Button size="lg" className="bg-gray-800 hover:bg-gray-900 text-white flex-shrink-0">Explore More Profiles</Button>
+            </Link>
           </div>
         </div>
       </section>

@@ -16,39 +16,38 @@ export default function PoliticianCard({ politician }: PoliticianCardProps) {
     <Link href={`/politicians/${politician.id}`} className="group block">
       <Card
         className={cn(
-          'transition-all duration-300',
+          'transition-all duration-300 h-full',
           'group-hover:shadow-lg group-hover:border-primary/50 group-hover:-translate-y-1'
         )}
       >
-        <CardContent className="p-4">
-          <div className="flex items-center gap-4">
-            <div className="relative w-16 h-16 shrink-0">
+        <CardContent className="p-4 flex flex-col h-full">
+            <div className="relative w-full aspect-[4/3] mb-4">
               <Image
                 src={politician.photoUrl}
                 alt={`Photo of ${politician.name}`}
                 fill
-                className="object-cover rounded-full"
-                sizes="64px"
+                className="object-cover rounded-md"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 data-ai-hint="politician portrait"
               />
             </div>
-            <div className="flex-grow">
-              <h3 className="font-semibold text-lg leading-tight group-hover:text-primary">
-                {politician.name}
-              </h3>
+            <div className='flex-grow'>
+              <div className='flex justify-between items-start gap-2'>
+                <h3 className="font-semibold text-lg leading-tight group-hover:text-primary flex-grow">
+                  {politician.name}
+                </h3>
+                <div className="flex-shrink-0">
+                  <PartyLogo party={politician.party} className="w-8 h-8" />
+                </div>
+              </div>
               <p className="text-sm text-muted-foreground flex items-center gap-1.5 mt-1">
                 <MapPin className="w-3.5 h-3.5" />
                 {politician.constituency}
               </p>
             </div>
-            <div className="flex-shrink-0">
-              <PartyLogo party={politician.party} className="w-10 h-10" />
+            <div className="mt-4 flex items-center justify-between pt-4 border-t">
+              <Badge variant="secondary" className="font-normal">{politician.currentPosition}</Badge>
             </div>
-          </div>
-          <div className="mt-4 flex items-center justify-between">
-             <Badge variant="secondary" className="font-normal">{politician.currentPosition}</Badge>
-             <p className="text-sm font-medium text-primary">{politician.party}</p>
-          </div>
         </CardContent>
       </Card>
     </Link>

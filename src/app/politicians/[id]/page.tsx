@@ -33,7 +33,7 @@ export default function PoliticianPage({ params }: { params: { id: string } }) {
   return (
     <div className="container mx-auto px-4 py-8">
       <Link
-        href="/"
+        href="/politicians"
         className="inline-flex items-center gap-2 text-primary mb-6 hover:underline"
       >
         <ArrowLeft className="w-4 h-4" />
@@ -57,12 +57,12 @@ export default function PoliticianPage({ params }: { params: { id: string } }) {
             </CardHeader>
             <CardContent className="p-6">
               <div className="flex justify-between items-start">
-                <h1 className="font-headline text-3xl font-bold">
+                <h1 className="text-2xl font-bold">
                   {politician.name}
                 </h1>
                 <PartyLogo party={politician.party} className="w-10 h-10" />
               </div>
-              <p className="text-muted-foreground text-lg">
+              <p className="text-muted-foreground text-base">
                 {politician.currentPosition}
               </p>
               <Separator className="my-4" />
@@ -99,7 +99,7 @@ export default function PoliticianPage({ params }: { params: { id: string } }) {
         <div className="lg:col-span-2 space-y-8">
           <Card>
             <CardHeader>
-              <CardTitle className="font-headline flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2">
                 <Briefcase className="w-5 h-5" />
                 Work History
               </CardTitle>
@@ -123,7 +123,7 @@ export default function PoliticianPage({ params }: { params: { id: string } }) {
 
           <Card>
             <CardHeader>
-              <CardTitle className="font-headline">AI-Powered Summary</CardTitle>
+              <CardTitle>AI-Powered Summary</CardTitle>
             </CardHeader>
             <CardContent>
               <AISummary politician={politician} />

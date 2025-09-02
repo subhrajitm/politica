@@ -5,7 +5,7 @@ import { Sheet, SheetContent, SheetTrigger } from './ui/sheet';
 
 export default function Header() {
   const navLinks = [
-    { name: 'Find Politicians', href: '#' },
+    { name: 'Find Politicians', href: '/politicians' },
     { name: 'Our Team', href: '#' },
     { name: 'Blog', href: '#' },
     { name: 'Contacts', href: '#' },
@@ -31,9 +31,11 @@ export default function Header() {
           </nav>
 
           <div className="hidden lg:flex items-center gap-4">
-            <Button variant="ghost" size="icon">
-              <Search className="h-5 w-5 text-gray-600" />
-            </Button>
+            <Link href="/politicians" passHref>
+              <Button variant="ghost" size="icon">
+                <Search className="h-5 w-5 text-gray-600" />
+              </Button>
+            </Link>
             <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
               Contribute
             </Button>
