@@ -558,7 +558,7 @@ export const politicians: Politician[] = [
     photoUrl: 'https://picsum.photos/seed/joram/400/400',
     constituency: 'Sundargarh, Odisha',
     party: 'Bharatiya Janata Party',
-    currentPosition: 'Member of Parliament, Lok Sabha',
+    currentPosition: 'Union Minister of Tribal Affairs',
     contact: {
       email: 'jual.oram@sansad.nic.in',
       phone: '+91-11-23018811',
@@ -567,7 +567,7 @@ export const politicians: Politician[] = [
     workHistory: [
       {
         position: 'Union Minister of Tribal Affairs',
-        tenure: '1999-2004, 2014-2019',
+        tenure: '1999-2004, 2014-2019, 2024-Present',
         contributions:
           'First Union Minister for Tribal Affairs in India. Focused on the welfare and development of tribal communities, including the implementation of the Forest Rights Act.',
       },
@@ -601,6 +601,181 @@ export const politicians: Politician[] = [
         position: 'Member of Parliament, Rajya Sabha',
         tenure: '2000 - 2009',
         contributions: 'Represented Odisha in the upper house, focusing on industrial and economic issues.',
+      },
+    ],
+  },
+  {
+    id: 'ashwini-vaishnaw',
+    name: 'Ashwini Vaishnaw',
+    photoUrl: 'https://picsum.photos/seed/avaishnaw/400/400',
+    constituency: 'Odisha (Rajya Sabha)',
+    party: 'Bharatiya Janata Party',
+    currentPosition: 'Union Minister of Railways, Information & Broadcasting, and Electronics & IT',
+    contact: {
+      email: 'ashwini.vaishnaw@sansad.nic.in',
+      phone: '+91-11-23381833',
+    },
+    educationalBackground: 'M.Tech from IIT Kanpur, MBA from Wharton School',
+    workHistory: [
+      {
+        position: 'Indian Administrative Service (IAS) Officer',
+        tenure: '1994 - 2010',
+        contributions: 'Served as a collector in various districts of Odisha. Also worked in the office of former Prime Minister Atal Bihari Vajpayee.',
+      },
+      {
+        position: 'Union Cabinet Minister',
+        tenure: '2021 - Present',
+        contributions: 'Handling key ministries, focusing on the modernization of Indian Railways, boosting electronics manufacturing (Make in India), and implementing IT policies.',
+      },
+    ],
+  },
+  {
+    id: 'pinarayi-vijayan',
+    name: 'Pinarayi Vijayan',
+    photoUrl: 'https://picsum.photos/seed/pvijayan/400/400',
+    constituency: 'Dharmadam, Kerala',
+    party: 'Communist Party of India (Marxist)',
+    currentPosition: 'Chief Minister of Kerala',
+    contact: {
+      email: 'cm@kerala.gov.in',
+      phone: '+91-471-2333812',
+    },
+    educationalBackground: 'B.A. in Economics',
+    workHistory: [
+      {
+        position: 'State Secretary of the CPI(M) in Kerala',
+        tenure: '1998 - 2015',
+        contributions: 'Led the party organization for 17 years, making him one of the longest-serving state secretaries.',
+      },
+      {
+        position: 'Chief Minister of Kerala',
+        tenure: '2016 - Present',
+        contributions: 'Led the state through the devastating 2018 floods and the COVID-19 pandemic. Focused on public health, education, and infrastructure development through the Kerala Infrastructure Investment Fund Board (KIIFB).',
+      },
+    ],
+  },
+  {
+    id: 'ys-jagan-mohan-reddy',
+    name: 'Y. S. Jagan Mohan Reddy',
+    photoUrl: 'https://picsum.photos/seed/ysjagan/400/400',
+    constituency: 'Pulivendula, Andhra Pradesh',
+    party: 'YSR Congress Party',
+    currentPosition: 'Leader of Opposition, Andhra Pradesh Legislative Assembly',
+    contact: {
+      email: 'ys.jagan@sansad.nic.in',
+      phone: '+91-863-2441234',
+    },
+    educationalBackground: 'Masters in Business Administration',
+    workHistory: [
+      {
+        position: 'Member of Parliament, Lok Sabha',
+        tenure: '2009 - 2014',
+        contributions: 'Represented the Kadapa constituency before forming his own party.',
+      },
+      {
+        position: 'Chief Minister of Andhra Pradesh',
+        tenure: '2019 - 2024',
+        contributions: 'Introduced a wide range of welfare schemes under the "Navaratnalu" banner, focusing on direct benefit transfers for education, health, and farmers\' support. ',
+      },
+    ],
+  },
+  {
+    id: 'n-chandrababu-naidu',
+    name: 'N. Chandrababu Naidu',
+    photoUrl: 'https://picsum.photos/seed/ncbn/400/400',
+    constituency: 'Kuppam, Andhra Pradesh',
+    party: 'Telugu Desam Party',
+    currentPosition: 'Chief Minister of Andhra Pradesh',
+    contact: {
+      email: 'cm@ap.gov.in',
+      phone: '+91-863-2441617',
+    },
+    educationalBackground: 'M.A. in Economics',
+    workHistory: [
+      {
+        position: 'Chief Minister of Andhra Pradesh (United)',
+        tenure: '1995 - 2004',
+        contributions: 'Known for his focus on information technology, he was instrumental in developing Hyderabad into a major IT hub (Cyberabad).',
+      },
+      {
+        position: 'Chief Minister of Andhra Pradesh (Bifurcated)',
+        tenure: '2014 - 2019, 2024 - Present',
+        contributions: 'Focused on building the new capital city of Amaravati and attracting foreign investment to the state after its bifurcation.',
+      },
+    ],
+  },
+  {
+    id: 'k-chandrashekar-rao',
+    name: 'K. Chandrashekar Rao',
+    photoUrl: 'https://picsum.photos/seed/kcr/400/400',
+    constituency: 'Gajwel, Telangana',
+    party: 'Bharat Rashtra Samithi',
+    currentPosition: 'Leader of Opposition, Telangana Legislative Assembly',
+    contact: {
+      email: 'cm.telangana@nic.in',
+      phone: '+91-40-23452933',
+    },
+    educationalBackground: 'M.A. in Telugu Literature',
+    workHistory: [
+      {
+        position: 'Union Cabinet Minister of Labour and Employment',
+        tenure: '2004 - 2006',
+        contributions: 'Served in the central government before intensifying the statehood movement.',
+      },
+      {
+        position: 'Chief Minister of Telangana',
+        tenure: '2014 - 2023',
+        contributions: 'First Chief Minister of Telangana. Led the movement for a separate state. Launched large-scale irrigation projects like Kaleshwaram and welfare schemes like Rythu Bandhu and Mission Bhagiratha.',
+      },
+    ],
+  },
+  {
+    id: 'nitish-kumar',
+    name: 'Nitish Kumar',
+    photoUrl: 'https://picsum.photos/seed/nkumar/400/400',
+    constituency: 'Member of Bihar Legislative Council',
+    party: 'Janata Dal (United)',
+    currentPosition: 'Chief Minister of Bihar',
+    contact: {
+      email: 'cm-bihar@nic.in',
+      phone: '+91-612-2215886',
+    },
+    educationalBackground: 'B.Sc. in Electrical Engineering',
+    workHistory: [
+      {
+        position: 'Union Minister of Railways, Agriculture, and Surface Transport',
+        tenure: '1998 - 2004 (various periods)',
+        contributions: 'Handled multiple key portfolios at the central level, introducing reforms in the railway sector.',
+      },
+      {
+        position: 'Chief Minister of Bihar',
+        tenure: '2005 - Present (with brief interruptions)',
+        contributions: 'Longest-serving Chief Minister of Bihar. Credited with improving law and order ("Sushasan"), infrastructure (roads and electricity), and initiating social reforms like alcohol prohibition and reserving 50% of panchayat seats for women.',
+      },
+    ],
+  },
+  {
+    id: 'himanta-biswa-sarma',
+    name: 'Himanta Biswa Sarma',
+    photoUrl: 'https://picsum.photos/seed/hbsarma/400/400',
+    constituency: 'Jalukbari, Assam',
+    party: 'Bharatiya Janata Party',
+    currentPosition: 'Chief Minister of Assam',
+    contact: {
+      email: 'cm@assam.gov.in',
+      phone: '+91-361-2266666',
+    },
+    educationalBackground: 'Ph.D. in Political Science',
+    workHistory: [
+      {
+        position: 'Cabinet Minister, Government of Assam',
+        tenure: '2001 - 2015',
+        contributions: 'Held several key portfolios including Health, Education, and Finance under the Congress government, overseeing significant development in these sectors.',
+      },
+      {
+        position: 'Chief Minister of Assam',
+        tenure: '2021 - Present',
+        contributions: 'Known for his assertive governance style. Focused on tackling illegal immigration, land reforms, and streamlining government recruitment.',
       },
     ],
   },
