@@ -181,4 +181,159 @@ export const politicians: Politician[] = [
       },
     ],
   },
+  {
+    id: 'amit-shah',
+    name: 'Amit Shah',
+    photoUrl: 'https://picsum.photos/400/400',
+    constituency: 'Gandhinagar, Gujarat',
+    party: 'Bharatiya Janata Party',
+    currentPosition: 'Minister of Home Affairs',
+    contact: {
+      email: 'a.shah@sansad.nic.in',
+      phone: '+91-11-23092462',
+    },
+    educationalBackground: 'B.Sc. in Biochemistry',
+    workHistory: [
+      {
+        position: 'President of the Bharatiya Janata Party',
+        tenure: '2014 - 2020',
+        contributions: 'Led the party to major victories in national and state elections. Oversaw significant expansion of the party\'s membership base.',
+      },
+      {
+        position: 'Minister of Home Affairs',
+        tenure: '2019 - Present',
+        contributions: 'Key figure in the abrogation of Article 370 of the Constitution of India and the enactment of the Citizenship Amendment Act (CAA).',
+      },
+    ],
+  },
+  {
+    id: 'nitin-gadkari',
+    name: 'Nitin Gadkari',
+    photoUrl: 'https://picsum.photos/400/400',
+    constituency: 'Nagpur, Maharashtra',
+    party: 'Bharatiya Janata Party',
+    currentPosition: 'Minister for Road Transport & Highways',
+    contact: {
+      email: 'nitin.gadkari@nic.in',
+      phone: '+91-11-23719023',
+    },
+    educationalBackground: 'M.Com., L.L.B.',
+    workHistory: [
+      {
+        position: 'President of the Bharatiya Janata Party',
+        tenure: '2009 - 2013',
+        contributions: 'Focused on organizational restructuring and grassroots outreach.',
+      },
+      {
+        position: 'Minister for Road Transport & Highways',
+        tenure: '2014 - Present',
+        contributions: 'Spearheaded a massive expansion of India\'s national highway network, including the construction of numerous expressways and the Bharatmala project.',
+      },
+    ],
+  },
+  {
+    id: 'rajnath-singh',
+    name: 'Rajnath Singh',
+    photoUrl: 'https://picsum.photos/400/400',
+    constituency: 'Lucknow, Uttar Pradesh',
+    party: 'Bharatiya Janata Party',
+    currentPosition: 'Minister of Defence',
+    contact: {
+      email: 'rajnath.singh@sansad.nic.in',
+      phone: '+91-11-23012286',
+    },
+    educationalBackground: 'M.Sc. in Physics',
+    workHistory: [
+      {
+        position: 'Chief Minister of Uttar Pradesh',
+        tenure: '2000 - 2002',
+        contributions: 'Focused on improving the state\'s law and order situation.',
+      },
+      {
+        position: 'Minister of Home Affairs',
+        tenure: '2014 - 2019',
+        contributions: 'Handled national security challenges and implemented various police modernization schemes.',
+      },
+      {
+        position: 'Minister of Defence',
+        tenure: '2019 - Present',
+        contributions: 'Overseeing the modernization of the Indian Armed Forces and promoting indigenous defence manufacturing under the Atmanirbhar Bharat initiative.',
+      },
+    ],
+  },
+  {
+    id: 'shashi-tharoor',
+    name: 'Shashi Tharoor',
+    photoUrl: 'https://picsum.photos/400/400',
+    constituency: 'Thiruvananthapuram, Kerala',
+    party: 'Indian National Congress',
+    currentPosition: 'Member of Parliament, Lok Sabha',
+    contact: {
+      email: 'shashi.tharoor@sansad.nic.in',
+      phone: '+91-471-2578899',
+    },
+    educationalBackground: 'Ph.D. in International Relations and Affairs, Tufts University',
+    workHistory: [
+      {
+        position: 'Under-Secretary-General, United Nations',
+        tenure: '2002 - 2007',
+        contributions: 'Served in various high-level roles at the UN for nearly three decades, focusing on communications and public information.',
+      },
+      {
+        position: 'Member of Parliament, Lok Sabha',
+        tenure: '2009 - Present',
+        contributions: 'Known for his eloquent speeches and active participation in parliamentary debates. Has been a vocal advocate for various social and economic issues.',
+      },
+    ],
+  },
+  {
+    id: 'akhilesh-yadav',
+    name: 'Akhilesh Yadav',
+    photoUrl: 'https://picsum.photos/400/400',
+    constituency: 'Kannauj, Uttar Pradesh',
+    party: 'Samajwadi Party',
+    currentPosition: 'Member of Parliament, Lok Sabha',
+    contact: {
+      email: 'akhilesh.yadav@sansad.nic.in',
+      phone: '+91-522-2235454',
+    },
+    educationalBackground: 'M.E. in Civil Environmental Engineering',
+    workHistory: [
+      {
+        position: 'Chief Minister of Uttar Pradesh',
+        tenure: '2012 - 2017',
+        contributions: 'Initiated major infrastructure projects like the Agra-Lucknow Expressway and Lucknow Metro. Launched welfare schemes such as the Samajwadi Pension Yojana.',
+      },
+      {
+        position: 'President of the Samajwadi Party',
+        tenure: '2017 - Present',
+        contributions: 'Leading the party in state and national politics, focusing on issues of social justice and development.',
+      },
+    ],
+  },
+  {
+    id: 'nirmala-sitharaman',
+    name: 'Nirmala Sitharaman',
+    photoUrl: 'https://picsum.photos/400/400',
+    constituency: 'Karnataka (Rajya Sabha)',
+    party: 'Bharatiya Janata Party',
+    currentPosition: 'Minister of Finance and Corporate Affairs',
+    contact: {
+      email: 'nsitharaman@nic.in',
+      phone: '+91-11-23092510',
+    },
+    educationalBackground: 'M.A. in Economics, M.Phil.',
+    workHistory: [
+      {
+        position: 'Minister of Defence',
+        tenure: '2017 - 2019',
+        contributions: 'Second woman to hold the office of Defence Minister in India. Focused on military modernization and procurement.',
+      },
+      {
+        position: 'Minister of Finance and Corporate Affairs',
+        tenure: '2019 - Present',
+        contributions: 'First full-time female Finance Minister of India. Presented several annual budgets, navigated the economic challenges of the COVID-19 pandemic, and implemented various economic reforms.',
+      },
+    ],
+  },
 ];
