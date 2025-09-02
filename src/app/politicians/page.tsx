@@ -22,6 +22,7 @@ function PoliticiansPageContent() {
   const [searchTerm, setSearchTerm] = useState(initialQuery);
   const [partyFilter, setPartyFilter] = useState('all');
   const [stateFilter, setStateFilter] = useState('all');
+  const [genderFilter, setGenderFilter] = useState('all');
 
   const parties = useMemo(() => {
     const allParties = politicians.map((p) => p.party);
@@ -37,6 +38,11 @@ function PoliticiansPageContent() {
       .filter((s): s is string => s !== null);
     return ['all', ...Array.from(new Set(allStates)).sort()];
   }, []);
+
+  const genders = useMemo(() => {
+    const allGenders = politicians.map((p) => p.personalDetails.gender);
+    return ['all', ...Array.from(new Set(allGenders)).sort()];
+  }, []);
   
   const filteredPoliticians = useMemo(() => {
     return politicians.filter((p) => {
@@ -49,52 +55,66 @@ function PoliticiansPageContent() {
 
       const constituencyState = p.constituency.split(', ')[1]?.trim();
       const stateMatch = stateFilter === 'all' || constituencyState === stateFilter;
+
+      const genderMatch = genderFilter === 'all' || p.personalDetails.gender === genderFilter;
       
-      return (nameMatch || positionMatch || constituencyMatch) && partyMatch && stateMatch;
+      return (nameMatch || positionMatch || constituencyMatch) && partyMatch && stateMatch && genderMatch;
     });
-  }, [searchTerm, partyFilter, stateFilter]);
+  }, [searchTerm, partyFilter, stateFilter, genderFilter]);
 
   return (
-    <div className="container mx-auto px-4 py-6">
-      <div className="mb-6 text-center">
-        <h1 className="text-3xl md:text-4xl font-bold mb-2">Politician Directory</h1>
-        <p className="text-base text-muted-foreground">
+    <div className="container mx-auto px-4 py-4">
+      <div className="mb-4 text-center">
+        <h1 className="text-3xl md:text-4xl font-bold mb-1">Politician Directory</h1>
+        <p className="text-sm text-muted-foreground">
           Browse and search for political leaders across India.
         </p>
       </div>
 
-      <div className="mb-6 p-4 bg-card border rounded-lg sticky top-16 z-10 shadow-sm">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div className="mb-4 p-3 bg-card border rounded-lg sticky top-16 z-10 shadow-sm">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
           <div className="relative md:col-span-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
               type="text"
-              placeholder="Search by name, role, or constituency..."
-              className="w-full pl-9"
+              placeholder="Search..."
+              className="w-full pl-8 text-xs h-8"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
           <Select value={partyFilter} onValueChange={setPartyFilter}>
-            <SelectTrigger>
+            <SelectTrigger className="text-xs h-8">
               <SelectValue placeholder="Filter by party" />
             </SelectTrigger>
             <SelectContent>
               {parties.map((party) => (
-                <SelectItem key={party} value={party}>
+                <SelectItem key={party} value={party} className="text-xs">
                   {party === 'all' ? 'All Parties' : party}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
           <Select value={stateFilter} onValueChange={setStateFilter}>
-            <SelectTrigger>
+            <SelectTrigger className="text-xs h-8">
               <SelectValue placeholder="Filter by state" />
             </SelectTrigger>
             <SelectContent>
               {states.map((state) => (
-                <SelectItem key={state} value={state}>
+                <SelectItem key={state} value={state} className="text-xs">
                   {state === 'all' ? 'All States' : state}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+           <Select value={genderFilter} onValueChange={setGenderFilter}>
+            <SelectTrigger className="text-xs h-8">
+              <SelectValue placeholder="Filter by gender" />
+            </SelectTrigger>
+            <SelectContent>
+              {genders.map((gender) => (
+                <SelectItem key={gender} value={gender} className="text-xs">
+                  {gender === 'all' ? 'All Genders' : gender}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -103,7 +123,7 @@ function PoliticiansPageContent() {
       </div>
 
       {filteredPoliticians.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
           {filteredPoliticians.map((p) => (
             <PoliticianCard key={p.id} politician={p} />
           ))}
