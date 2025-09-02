@@ -24,8 +24,8 @@ export default function AISummary({ politician }: AISummaryProps) {
 
     try {
       const workHistoryString =
-        politician.workHistory && politician.workHistory.length > 0
-          ? politician.workHistory
+        politician.positions.history && politician.positions.history.length > 0
+          ? politician.positions.history
               .map(
                 (job) =>
                   `${job.position} (${job.tenure}): ${job.contributions}`
@@ -34,11 +34,11 @@ export default function AISummary({ politician }: AISummaryProps) {
           : 'No work history available.';
 
       const result = await generatePoliticianSummary({
-        name: politician.name,
+        name: politician.name.fullName,
         constituency: politician.constituency,
         party: politician.party,
-        currentPosition: politician.currentPosition,
-        educationalBackground: politician.educationalBackground,
+        currentPosition: politician.positions.current.position,
+        educationalBackground: politician.education.map(e => `${e.degree} from ${e.institution}`).join(', '),
         workHistory: workHistoryString,
       });
 
@@ -57,11 +57,11 @@ export default function AISummary({ politician }: AISummaryProps) {
 
   return (
     <div className="space-y-4">
-      <p className="text-muted-foreground">
+      <p className="text-muted-foreground text-sm">
         Get a concise, AI-generated overview of the politician's career,
         stances, and key actions.
       </p>
-      <Button onClick={handleGenerateSummary} disabled={loading}>
+      <Button onClick={handleGenerateSummary} disabled={loading} size="sm">
         {loading ? (
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
         ) : (
@@ -79,7 +79,7 @@ export default function AISummary({ politician }: AISummaryProps) {
       )}
 
       {summary && (
-        <div className="p-4 border rounded-lg bg-secondary/30">
+        <div className="p-4 border rounded-lg bg-secondary/30 text-sm">
           <p className="whitespace-pre-wrap">{summary}</p>
         </div>
       )}

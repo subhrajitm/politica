@@ -41,8 +41,8 @@ function PoliticiansPageContent() {
   const filteredPoliticians = useMemo(() => {
     return politicians.filter((p) => {
       const searchLower = searchTerm.toLowerCase();
-      const nameMatch = p.name.toLowerCase().includes(searchLower);
-      const positionMatch = p.currentPosition.toLowerCase().includes(searchLower);
+      const nameMatch = p.name.fullName.toLowerCase().includes(searchLower);
+      const positionMatch = p.positions.current.position.toLowerCase().includes(searchLower);
       const constituencyMatch = p.constituency.toLowerCase().includes(searchLower);
       
       const partyMatch = partyFilter === 'all' || p.party === partyFilter;

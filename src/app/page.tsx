@@ -38,8 +38,8 @@ export default function Home() {
     if (searchTerm.trim().length > 1) {
       const filtered = politicians.filter(
         (p) =>
-          p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          p.currentPosition.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          p.name.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          p.positions.current.position.toLowerCase().includes(searchTerm.toLowerCase()) ||
           p.constituency.toLowerCase().includes(searchTerm.toLowerCase())
       );
       setSuggestions(filtered);
@@ -93,7 +93,7 @@ export default function Home() {
               <Image
                 key={p.id}
                 src={p.photoUrl}
-                alt={p.name}
+                alt={p.name.fullName}
                 width={40}
                 height={40}
                 className="rounded-full border-2 border-primary-foreground/80"
@@ -138,7 +138,7 @@ export default function Home() {
                       >
                         <Image
                           src={p.photoUrl}
-                          alt={p.name}
+                          alt={p.name.fullName}
                           width={40}
                           height={40}
                           className="rounded-full"
@@ -146,10 +146,10 @@ export default function Home() {
                         />
                         <div>
                           <p className="font-semibold text-gray-800">
-                            {p.name}
+                            {p.name.fullName}
                           </p>
                           <p className="text-sm text-gray-500">
-                            {p.currentPosition}
+                            {p.positions.current.position}
                           </p>
                         </div>
                       </Link>
@@ -193,7 +193,7 @@ export default function Home() {
                     <div className="flex items-center gap-4 mb-4">
                       <Image
                         src={p.photoUrl}
-                        alt={p.name}
+                        alt={p.name.fullName}
                         width={56}
                         height={56}
                         className="rounded-full"
@@ -201,10 +201,10 @@ export default function Home() {
                       />
                       <div>
                         <h3 className="font-bold text-base">
-                          {p.name}
+                          {p.name.fullName}
                         </h3>
                         <p className="text-xs text-muted-foreground">
-                          {p.currentPosition}
+                          {p.positions.current.position}
                         </p>
                       </div>
                     </div>

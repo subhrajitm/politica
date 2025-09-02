@@ -24,7 +24,7 @@ export default function PoliticianCard({ politician }: PoliticianCardProps) {
             <div className="relative w-full aspect-[4/3] mb-3">
               <Image
                 src={politician.photoUrl}
-                alt={`Photo of ${politician.name}`}
+                alt={`Photo of ${politician.name.fullName}`}
                 fill
                 className="object-cover rounded-md"
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -34,7 +34,7 @@ export default function PoliticianCard({ politician }: PoliticianCardProps) {
             <div className='flex-grow'>
               <div className='flex justify-between items-start gap-2'>
                 <h3 className="font-semibold text-base leading-tight group-hover:text-primary flex-grow">
-                  {politician.name}
+                  {politician.name.fullName}
                 </h3>
                 <div className="flex-shrink-0">
                   <PartyLogo party={politician.party} className="w-7 h-7" />
@@ -46,7 +46,7 @@ export default function PoliticianCard({ politician }: PoliticianCardProps) {
               </p>
             </div>
             <div className="mt-3 flex items-center justify-between pt-3 border-t">
-              <Badge variant="secondary" className="font-normal text-xs">{politician.currentPosition}</Badge>
+              <Badge variant="secondary" className="font-normal text-xs">{politician.positions.current.position}</Badge>
             </div>
         </CardContent>
       </Card>
