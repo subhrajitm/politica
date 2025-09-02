@@ -1,17 +1,21 @@
 'use client';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { politicians } from '@/lib/data';
+import type { Politician } from '@/lib/data';
 import { ArrowRight, Search, Quote } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 
 export default function Home() {
   const [searchTerm, setSearchTerm] = useState('');
+  const [suggestions, setSuggestions] = useState<Politician[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const router = useRouter();
+  const searchContainerRef = useRef<HTMLDivElement>(null);
 
   const trendingProfiles = politicians.slice(0, 4);
 
@@ -30,6 +34,34 @@ export default function Home() {
     'Financial Advisor',
   ];
 
+  useEffect(() => {
+    if (searchTerm.trim().length > 1) {
+      const filtered = politicians.filter((p) =>
+        p.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setSuggestions(filtered);
+      setShowSuggestions(true);
+    } else {
+      setSuggestions([]);
+      setShowSuggestions(false);
+    }
+  }, [searchTerm]);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        searchContainerRef.current &&
+        !searchContainerRef.current.contains(event.target as Node)
+      ) {
+        setShowSuggestions(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [searchContainerRef]);
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchTerm.trim()) {
@@ -41,7 +73,6 @@ export default function Home() {
     router.push(`/politicians?q=${encodeURIComponent(term)}`);
   };
 
-
   return (
     <div className="flex flex-col min-h-full">
       <section className="bg-gradient-to-br from-primary via-purple-600 to-indigo-600 text-primary-foreground relative">
@@ -51,7 +82,8 @@ export default function Home() {
             Find Politicians In Your Area
           </h1>
           <p className="text-lg md:text-xl max-w-3xl mx-auto mb-8">
-            Discover who represents you and get information on over 14 million public officials worldwide.
+            Discover who represents you and get information on over 14 million
+            public officials worldwide.
           </p>
           <div className="flex justify-center mb-8 -space-x-4">
             {politicians.slice(0, 5).map((p) => (
@@ -68,6 +100,7 @@ export default function Home() {
           </div>
           <div
             className="max-w-2xl mx-auto relative"
+            ref={searchContainerRef}
           >
             <div className="bg-white rounded-lg p-2 shadow-lg">
               <form className="flex gap-2" onSubmit={handleSearch}>
@@ -82,11 +115,46 @@ export default function Home() {
                     autoComplete="off"
                   />
                 </div>
-                <Button type="submit" className="bg-green-500 hover:bg-green-600 text-white">
+                <Button
+                  type="submit"
+                  className="bg-green-500 hover:bg-green-600 text-white"
+                >
                   Search
                 </Button>
               </form>
             </div>
+            {showSuggestions && suggestions.length > 0 && (
+              <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-lg z-10 text-left overflow-hidden">
+                <ul>
+                  {suggestions.map((p) => (
+                    <li key={p.id}>
+                      <Link
+                        href={`/politicians/${p.id}`}
+                        className="flex items-center gap-4 p-3 hover:bg-gray-100"
+                        onClick={() => setShowSuggestions(false)}
+                      >
+                        <Image
+                          src={p.photoUrl}
+                          alt={p.name}
+                          width={40}
+                          height={40}
+                          className="rounded-full"
+                          data-ai-hint="politician photo"
+                        />
+                        <div>
+                          <p className="font-semibold text-gray-800">
+                            {p.name}
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            {p.currentPosition}
+                          </p>
+                        </div>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -117,29 +185,37 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {trendingProfiles.map((p) => (
               <Link key={p.id} href={`/politicians/${p.id}`} className="block">
-                 <Card className="group overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-                   <CardContent className="p-6">
-                     <div className="flex items-center gap-4 mb-4">
-                       <Image
-                          src={p.photoUrl}
-                          alt={p.name}
-                          width={64}
-                          height={64}
-                          className="rounded-full"
-                          data-ai-hint="politician photo"
-                        />
-                        <div>
-                          <h3 className="font-bold text-lg">{p.currentPosition}</h3>
-                          <p className="text-sm text-muted-foreground">{p.constituency}</p>
-                        </div>
-                     </div>
-                     <div className="flex justify-between items-center bg-green-50 p-4 rounded-md">
-                       <span className="text-green-700 font-bold text-lg">$197,300</span>
-                       <span className="text-sm text-gray-500">Avg. salary</span>
-                     </div>
-                   </CardContent>
-                 </Card>
-               </Link>
+                <Card className="group overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-4 mb-4">
+                      <Image
+                        src={p.photoUrl}
+                        alt={p.name}
+                        width={64}
+                        height={64}
+                        className="rounded-full"
+                        data-ai-hint="politician photo"
+                      />
+                      <div>
+                        <h3 className="font-bold text-lg">
+                          {p.currentPosition}
+                        </h3>
+                        <p className="text-sm text-muted-foreground">
+                          {p.constituency}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-center bg-green-50 p-4 rounded-md">
+                      <span className="text-green-700 font-bold text-lg">
+                        $197,300
+                      </span>
+                      <span className="text-sm text-gray-500">
+                        Avg. salary
+                      </span>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
             ))}
           </div>
         </div>
@@ -157,7 +233,9 @@ export default function Home() {
                   Explore Suggested Searches
                 </h2>
                 <p className="text-muted-foreground max-w-md">
-                  Find your next representative by exploring popular roles and positions. We've compiled a list of common searches to get you started.
+                  Find your next representative by exploring popular roles and
+                  positions. We've compiled a list of common searches to get
+                  you started.
                 </p>
               </div>
               <div className="lg:w-1/2">
@@ -188,7 +266,8 @@ export default function Home() {
               <div className="flex-1">
                 <Quote className="text-primary w-8 h-8 mb-4 transform -scale-x-100" />
                 <p className="text-xl md:text-2xl font-medium text-gray-800 leading-relaxed">
-                  Our platform is so easy to use. We've been able to connect with dozens of representatives in the past year.
+                  Our platform is so easy to use. We've been able to connect
+                  with dozens of representatives in the past year.
                 </p>
                 <div className="mt-6">
                   <p className="font-semibold">Lubaek Ildiko</p>
@@ -214,24 +293,25 @@ export default function Home() {
 
       <section className="pb-16 pt-8">
         <div className="container mx-auto px-4">
-            <div className="bg-gradient-to-br from-primary to-indigo-600 text-primary-foreground rounded-lg p-8 lg:p-12">
-              <div className="flex flex-col md:flex-row justify-between items-center gap-6 text-center md:text-left">
-                <div>
-                  <h2 className="text-3xl font-bold">Ready to Get Involved?</h2>
-                  <p className="max-w-xl opacity-90 mt-2">
-                    Contribute to our platform and help us keep the directory accurate and up-to-date for everyone.
-                  </p>
-                </div>
-                <Link href="#" passHref>
-                  <Button
-                    size="lg"
-                    className="bg-white hover:bg-gray-100 text-primary flex-shrink-0"
-                  >
-                    Contribute Now
-                  </Button>
-                </Link>
+          <div className="bg-gradient-to-br from-primary to-indigo-600 text-primary-foreground rounded-lg p-8 lg:p-12">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-6 text-center md:text-left">
+              <div>
+                <h2 className="text-3xl font-bold">Ready to Get Involved?</h2>
+                <p className="max-w-xl opacity-90 mt-2">
+                  Contribute to our platform and help us keep the directory
+                  accurate and up-to-date for everyone.
+                </p>
               </div>
+              <Link href="#" passHref>
+                <Button
+                  size="lg"
+                  className="bg-white hover:bg-gray-100 text-primary flex-shrink-0"
+                >
+                  Contribute Now
+                </Button>
+              </Link>
             </div>
+          </div>
         </div>
       </section>
     </div>
