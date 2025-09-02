@@ -39,12 +39,6 @@ import {
   TabsTrigger,
 } from '@/components/ui/tabs';
 
-export function generateStaticParams() {
-  return politicians.map((p) => ({
-    id: p.id,
-  }));
-}
-
 function InfoItem({ icon: Icon, label, value, href }: { icon: React.ElementType, label: string, value: React.ReactNode, href?: string }) {
   const content = (
     <div className="flex items-start gap-3">
