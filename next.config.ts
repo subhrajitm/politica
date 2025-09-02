@@ -1,7 +1,7 @@
 import type {NextConfig} from 'next';
-import { config } as dotenv from 'dotenv';
+import { config } from 'dotenv';
 
-dotenv.config();
+config();
 
 const nextConfig: NextConfig = {
   /* config options here */
