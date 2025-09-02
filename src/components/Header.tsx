@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Search, Menu } from 'lucide-react';
 import { Button } from './ui/button';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from './ui/sheet';
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from './ui/sheet';
 import { LogoIcon } from '@/lib/icons';
 
 export default function Header() {
@@ -49,14 +49,14 @@ export default function Header() {
               </SheetTrigger>
               <SheetContent side="right" className="w-[280px]">
                 <SheetHeader className="text-left">
-                  <SheetTitle>
-                     <Link href="/" className="flex items-center gap-2 text-xl font-bold text-gray-800 mb-4">
-                        <LogoIcon className="h-6 w-6 text-primary" />
-                        PolitiFind
-                      </Link>
-                  </SheetTitle>
+                   <SheetTitle className="sr-only">Menu</SheetTitle>
+                   <SheetDescription className="sr-only">Main navigation menu</SheetDescription>
+                   <Link href="/" className="flex items-center gap-2 text-xl font-bold text-gray-800 mb-4">
+                      <LogoIcon className="h-6 w-6 text-primary" />
+                      PolitiFind
+                    </Link>
                 </SheetHeader>
-                <nav className="flex flex-col gap-4 mt-8">
+                <nav className="flex flex-col gap-4 mt-4">
                   {navLinks.map((link) => (
                     <Link key={link.name} href={link.href} className="text-base font-medium text-gray-600 hover:text-primary">
                       {link.name}
