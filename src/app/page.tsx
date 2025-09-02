@@ -20,24 +20,27 @@ export default function Home() {
   const trendingProfiles = politicians.slice(0, 4);
 
   const suggestedSearches = [
-    'Senator',
-    'Project Manager',
-    'Sales',
-    'Developer',
-    'Personal Assistant',
-    'Board member',
-    'HR Assistant',
-    'Entrepreneur',
-    'Director',
-    'IT Support',
-    'Governor',
-    'Financial Advisor',
+    'Prime Minister',
+    'Chief Minister',
+    'Minister of Defence',
+    'Minister of Home Affairs',
+    'Member of Parliament',
+    'Lok Sabha',
+    'Rajya Sabha',
+    'Uttar Pradesh',
+    'Maharashtra',
+    'Odisha',
+    'Kerala',
+    'West Bengal',
   ];
 
   useEffect(() => {
     if (searchTerm.trim().length > 1) {
-      const filtered = politicians.filter((p) =>
-        p.name.toLowerCase().includes(searchTerm.toLowerCase())
+      const filtered = politicians.filter(
+        (p) =>
+          p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          p.currentPosition.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          p.constituency.toLowerCase().includes(searchTerm.toLowerCase())
       );
       setSuggestions(filtered);
       setShowSuggestions(true);
@@ -82,8 +85,8 @@ export default function Home() {
             Find Politicians In Your Area
           </h1>
           <p className="text-lg md:text-xl max-w-3xl mx-auto mb-8">
-            Discover who represents you and get information on over 14 million
-            public officials worldwide.
+            Discover who represents you with our comprehensive directory of public
+            officials in India.
           </p>
           <div className="flex justify-center mb-8 -space-x-4">
             {politicians.slice(0, 5).map((p) => (
@@ -117,7 +120,7 @@ export default function Home() {
                 </div>
                 <Button
                   type="submit"
-                  className="bg-green-500 hover:bg-green-600 text-white"
+                  className="bg-primary hover:bg-primary/90"
                 >
                   Search
                 </Button>
@@ -162,11 +165,11 @@ export default function Home() {
       <section className="py-12 bg-background border-b">
         <div className="container mx-auto">
           <div className="flex flex-wrap justify-center items-center gap-x-8 gap-y-4 text-gray-500 font-semibold">
-            <span>Capitol Hill</span>
-            <span>StateGov</span>
-            <span>GovTrack</span>
-            <span>USA.gov</span>
-            <span>OpenSecrets</span>
+            <span>Parliament of India</span>
+            <span>Election Commission</span>
+            <span>MyNeta</span>
+            <span>PRS India</span>
+            <span>Data.gov.in</span>
           </div>
         </div>
       </section>
@@ -198,19 +201,19 @@ export default function Home() {
                       />
                       <div>
                         <h3 className="font-bold text-lg">
-                          {p.currentPosition}
+                          {p.name}
                         </h3>
                         <p className="text-sm text-muted-foreground">
-                          {p.constituency}
+                          {p.currentPosition}
                         </p>
                       </div>
                     </div>
-                    <div className="flex justify-between items-center bg-green-50 p-4 rounded-md">
-                      <span className="text-green-700 font-bold text-lg">
-                        $197,300
+                     <div className="flex justify-between items-center bg-primary/10 p-3 rounded-md">
+                      <span className="text-primary font-semibold text-sm">
+                        {p.party}
                       </span>
                       <span className="text-sm text-gray-500">
-                        Avg. salary
+                        {p.constituency.split(',')[1]}
                       </span>
                     </div>
                   </CardContent>
@@ -234,7 +237,7 @@ export default function Home() {
                 </h2>
                 <p className="text-muted-foreground max-w-md">
                   Find your next representative by exploring popular roles and
-                  positions. We've compiled a list of common searches to get
+                  constituencies. We've compiled a list of common searches to get
                   you started.
                 </p>
               </div>
@@ -266,20 +269,19 @@ export default function Home() {
               <div className="flex-1">
                 <Quote className="text-primary w-8 h-8 mb-4 transform -scale-x-100" />
                 <p className="text-xl md:text-2xl font-medium text-gray-800 leading-relaxed">
-                  Our platform is so easy to use. We've been able to connect
-                  with dozens of representatives in the past year.
+                  This platform is an invaluable resource for understanding the political landscape. It's incredibly easy to use and informative.
                 </p>
                 <div className="mt-6">
-                  <p className="font-semibold">Lubaek Ildiko</p>
+                  <p className="font-semibold">Priya Sharma</p>
                   <p className="text-sm text-muted-foreground">
-                    CEO at Example Inc.
+                    Political Analyst
                   </p>
                 </div>
               </div>
               <div className="flex-shrink-0">
                 <Image
-                  src="https://picsum.photos/seed/lubaek/150/150"
-                  alt="Lubaek Ildiko"
+                  src="https://picsum.photos/seed/priya/150/150"
+                  alt="Priya Sharma"
                   width={150}
                   height={150}
                   className="rounded-full"
