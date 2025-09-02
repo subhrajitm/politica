@@ -1,6 +1,4 @@
-'use client';
 
-import { useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
@@ -38,6 +36,7 @@ import {
   TabsList,
   TabsTrigger,
 } from '@/components/ui/tabs';
+import PoliticianTracker from './PoliticianTracker';
 
 function InfoItem({ icon: Icon, label, value, href }: { icon: React.ElementType, label: string, value: React.ReactNode, href?: string }) {
   const content = (
@@ -59,24 +58,6 @@ function InfoItem({ icon: Icon, label, value, href }: { icon: React.ElementType,
 export default function PoliticianPage({ params }: { params: { id: string } }) {
   const politician = politicians.find((p) => p.id === params.id);
 
-  useEffect(() => {
-    if (politician) {
-      try {
-        const viewed: string[] = JSON.parse(
-          localStorage.getItem('recentlyViewed') || '[]'
-        );
-        const updatedViewed = [
-          politician.id,
-          ...viewed.filter((id) => id !== politician.id),
-        ].slice(0, 4); // Keep only the 4 most recent
-        localStorage.setItem('recentlyViewed', JSON.stringify(updatedViewed));
-      } catch (error) {
-        console.error("Failed to update recently viewed in localStorage", error);
-      }
-    }
-  }, [politician]);
-
-
   if (!politician) {
     notFound();
   }
@@ -84,6 +65,8 @@ export default function PoliticianPage({ params }: { params: { id: string } }) {
   const age = differenceInYears(new Date(), new Date(politician.personalDetails.dateOfBirth));
 
   return (
+    <>
+    <PoliticianTracker politicianId={politician.id} />
     <div className="container mx-auto px-4 py-4 max-w-6xl">
       <Link
         href="/politicians"
@@ -271,5 +254,6 @@ export default function PoliticianPage({ params }: { params: { id: string } }) {
         </main>
       </div>
     </div>
+    </>
   );
 }
