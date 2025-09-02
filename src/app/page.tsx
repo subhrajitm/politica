@@ -1,18 +1,21 @@
 'use client';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { politicians } from '@/lib/data';
+import { politicians, Politician } from '@/lib/data';
 import { ArrowRight, Search, Quote } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import PoliticianCard from '@/components/PoliticianCard';
+import { PartyLogo } from '@/components/PartyLogo';
 
 export default function Home() {
   const [searchTerm, setSearchTerm] = useState('');
+  const [suggestions, setSuggestions] = useState<Politician[]>([]);
   const router = useRouter();
+  const searchContainerRef = useRef<HTMLDivElement>(null);
 
   const trendingProfiles = politicians.slice(0, 3);
 
@@ -52,19 +55,46 @@ export default function Home() {
     'Data Analyst',
     'Dispatcher',
   ];
-  
+
+  useEffect(() => {
+    if (searchTerm.trim().length > 1) {
+      const filtered = politicians.filter((p) =>
+        p.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setSuggestions(filtered.slice(0, 5)); // Limit to 5 suggestions
+    } else {
+      setSuggestions([]);
+    }
+  }, [searchTerm]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        searchContainerRef.current &&
+        !searchContainerRef.current.contains(event.target as Node)
+      ) {
+        setSuggestions([]);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchTerm.trim()) {
       router.push(`/politicians?q=${encodeURIComponent(searchTerm.trim())}`);
+      setSuggestions([]);
     } else {
       router.push('/politicians');
     }
   };
 
   const handleSuggestedSearch = (term: string) => {
-     router.push(`/politicians?q=${encodeURIComponent(term)}`);
-  }
+    router.push(`/politicians?q=${encodeURIComponent(term)}`);
+  };
 
   return (
     <div className="flex flex-col min-h-full">
@@ -90,22 +120,63 @@ export default function Home() {
               />
             ))}
           </div>
-          <div className="max-w-2xl mx-auto bg-white rounded-lg p-2 shadow-lg">
-            <form className="flex gap-2" onSubmit={handleSearch}>
-              <div className="relative flex-grow">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                <Input
-                  type="text"
-                  placeholder="Politician name or role"
-                  className="w-full pl-10 border-none focus:ring-0 text-gray-900"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-              <Button type="submit" className="bg-gray-800 hover:bg-gray-900">
-                Search
-              </Button>
-            </form>
+          <div
+            ref={searchContainerRef}
+            className="max-w-2xl mx-auto relative"
+          >
+            <div className="bg-white rounded-lg p-2 shadow-lg">
+              <form className="flex gap-2" onSubmit={handleSearch}>
+                <div className="relative flex-grow">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <Input
+                    type="text"
+                    placeholder="Politician name or role"
+                    className="w-full pl-10 border-none focus:ring-0 text-gray-900"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    autoComplete="off"
+                  />
+                </div>
+                <Button type="submit" className="bg-gray-800 hover:bg-gray-900">
+                  Search
+                </Button>
+              </form>
+            </div>
+            {suggestions.length > 0 && (
+              <Card className="absolute top-full w-full mt-2 text-left z-20">
+                <CardContent className="p-2">
+                  <ul className="flex flex-col gap-1">
+                    {suggestions.map((politician) => (
+                      <li key={politician.id}>
+                        <Link
+                          href={`/politicians/${politician.id}`}
+                          className="flex items-center gap-4 p-2 rounded-md hover:bg-accent"
+                          onClick={() => setSuggestions([])}
+                        >
+                          <Image
+                            src={politician.photoUrl}
+                            alt={politician.name}
+                            width={40}
+                            height={40}
+                            className="rounded-full"
+                            data-ai-hint="politician photo"
+                          />
+                          <div className="flex-grow">
+                            <p className="font-semibold text-card-foreground">
+                              {politician.name}
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              {politician.currentPosition}
+                            </p>
+                          </div>
+                          <PartyLogo party={politician.party} className="w-8 h-8 flex-shrink-0" />
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            )}
           </div>
           <p className="text-sm mt-4 opacity-80">
             Search for politicians across India
@@ -138,7 +209,7 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {trendingProfiles.map((p) => (
-               <PoliticianCard key={p.id} politician={p} />
+              <PoliticianCard key={p.id} politician={p} />
             ))}
           </div>
         </div>
@@ -211,26 +282,36 @@ export default function Home() {
           </div>
         </div>
       </section>
-      
+
       <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
-            <Card className="p-8 lg:p-12">
-              <div className="flex flex-col md:flex-row items-center gap-8">
-                <div className="flex-1">
-                  <Quote className="text-primary w-8 h-8 mb-4" />
-                  <p className="text-xl md:text-2xl font-medium text-gray-800 leading-relaxed">
-                    Our platform is so easy to use. We've hired about 40-50 different people worldwide in the past two years.
+          <Card className="p-8 lg:p-12">
+            <div className="flex flex-col md:flex-row items-center gap-8">
+              <div className="flex-1">
+                <Quote className="text-primary w-8 h-8 mb-4" />
+                <p className="text-xl md:text-2xl font-medium text-gray-800 leading-relaxed">
+                  Our platform is so easy to use. We've hired about 40-50
+                  different people worldwide in the past two years.
+                </p>
+                <div className="mt-4">
+                  <p className="font-semibold">Lubaek Ildiko</p>
+                  <p className="text-sm text-muted-foreground">
+                    CEO at Example Inc.
                   </p>
-                  <div className="mt-4">
-                    <p className="font-semibold">Lubaek Ildiko</p>
-                    <p className="text-sm text-muted-foreground">CEO at Example Inc.</p>
-                  </div>
-                </div>
-                <div className="flex-shrink-0">
-                  <Image src="https://picsum.photos/seed/ceo/120/120" alt="Lubaek Ildiko" width={120} height={120} className="rounded-full" data-ai-hint="person photo" />
                 </div>
               </div>
-            </Card>
+              <div className="flex-shrink-0">
+                <Image
+                  src="https://picsum.photos/seed/ceo/120/120"
+                  alt="Lubaek Ildiko"
+                  width={120}
+                  height={120}
+                  className="rounded-full"
+                  data-ai-hint="person photo"
+                />
+              </div>
+            </div>
+          </Card>
         </div>
       </section>
 
@@ -239,10 +320,18 @@ export default function Home() {
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div>
               <h2 className="text-3xl font-bold">Stay Informed</h2>
-              <p className="max-w-xl opacity-90 mt-2">Explore the profiles of political leaders and learn more about their work and contributions to public service.</p>
+              <p className="max-w-xl opacity-90 mt-2">
+                Explore the profiles of political leaders and learn more about
+                their work and contributions to public service.
+              </p>
             </div>
             <Link href="/politicians" passHref>
-              <Button size="lg" className="bg-gray-800 hover:bg-gray-900 text-white flex-shrink-0">Explore More Profiles</Button>
+              <Button
+                size="lg"
+                className="bg-gray-800 hover:bg-gray-900 text-white flex-shrink-0"
+              >
+                Explore More Profiles
+              </Button>
             </Link>
           </div>
         </div>
