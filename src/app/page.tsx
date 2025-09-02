@@ -98,7 +98,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-full">
-      <section className="bg-gradient-hero bg-grain text-primary-foreground py-20 px-4">
+      <section className="bg-gradient-hero text-primary-foreground py-20 px-4">
         <div className="container mx-auto text-center">
           <h1 className="text-4xl md:text-6xl font-bold mb-4">
             Find politicians in your area
@@ -315,7 +315,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-16 bg-gradient-hero bg-grain text-primary-foreground">
+      <section className="py-16 bg-gradient-hero text-primary-foreground">
         <div className="container mx-auto px-4 text-center md:text-left">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div>
