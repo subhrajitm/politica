@@ -23,7 +23,7 @@ export const politicians: Politician[] = [
   {
     id: 'narendra-modi',
     name: 'Narendra Modi',
-    photoUrl: 'https://picsum.photos/400/400',
+    photoUrl: 'https://picsum.photos/seed/picsum/400/400',
     constituency: 'Varanasi, Uttar Pradesh',
     party: 'Bharatiya Janata Party',
     currentPosition: 'Prime Minister of India',
@@ -50,8 +50,8 @@ export const politicians: Politician[] = [
   {
     id: 'rahul-gandhi',
     name: 'Rahul Gandhi',
-    photoUrl: 'https://picsum.photos/400/400',
-    constituency: 'Wayanad, Kerala',
+    photoUrl: 'https://picsum.photos/seed/rahul/400/400',
+    constituency: 'Raebareli, Uttar Pradesh',
     party: 'Indian National Congress',
     currentPosition: 'Member of Parliament, Lok Sabha',
     contact: {
@@ -77,7 +77,7 @@ export const politicians: Politician[] = [
   {
     id: 'arvind-kejriwal',
     name: 'Arvind Kejriwal',
-    photoUrl: 'https://picsum.photos/400/400',
+    photoUrl: 'https://picsum.photos/seed/kejriwal/400/400',
     constituency: 'New Delhi',
     party: 'Aam Aadmi Party',
     currentPosition: 'Chief Minister of Delhi',
@@ -104,7 +104,7 @@ export const politicians: Politician[] = [
   {
     id: 'mamata-banerjee',
     name: 'Mamata Banerjee',
-    photoUrl: 'https://picsum.photos/400/400',
+    photoUrl: 'https://picsum.photos/seed/mamata/400/400',
     constituency: 'Bhabanipur, West Bengal',
     party: 'All India Trinamool Congress',
     currentPosition: 'Chief Minister of West Bengal',
@@ -131,7 +131,7 @@ export const politicians: Politician[] = [
   {
     id: 'yogi-adityanath',
     name: 'Yogi Adityanath',
-    photoUrl: 'https://picsum.photos/400/400',
+    photoUrl: 'https://picsum.photos/seed/yogi/400/400',
     constituency: 'Gorakhpur Urban, Uttar Pradesh',
     party: 'Bharatiya Janata Party',
     currentPosition: 'Chief Minister of Uttar Pradesh',
@@ -158,10 +158,10 @@ export const politicians: Politician[] = [
   {
     id: 'smriti-irani',
     name: 'Smriti Irani',
-    photoUrl: 'https://picsum.photos/400/400',
+    photoUrl: 'https://picsum.photos/seed/smriti/400/400',
     constituency: 'Amethi, Uttar Pradesh',
     party: 'Bharatiya Janata Party',
-    currentPosition: 'Minister of Women and Child Development',
+    currentPosition: 'Minister of Women and Child Development, Minister of Minority Affairs',
     contact: {
       email: 'smriti.irani@sansad.nic.in',
       phone: '+91-11-23012314',
@@ -184,10 +184,10 @@ export const politicians: Politician[] = [
   {
     id: 'amit-shah',
     name: 'Amit Shah',
-    photoUrl: 'https://picsum.photos/400/400',
+    photoUrl: 'https://picsum.photos/seed/amit/400/400',
     constituency: 'Gandhinagar, Gujarat',
     party: 'Bharatiya Janata Party',
-    currentPosition: 'Minister of Home Affairs',
+    currentPosition: 'Minister of Home Affairs and Minister of Co-operation',
     contact: {
       email: 'a.shah@sansad.nic.in',
       phone: '+91-11-23092462',
@@ -209,7 +209,7 @@ export const politicians: Politician[] = [
   {
     id: 'nitin-gadkari',
     name: 'Nitin Gadkari',
-    photoUrl: 'https://picsum.photos/400/400',
+    photoUrl: 'https://picsum.photos/seed/gadkari/400/400',
     constituency: 'Nagpur, Maharashtra',
     party: 'Bharatiya Janata Party',
     currentPosition: 'Minister for Road Transport & Highways',
@@ -234,7 +234,7 @@ export const politicians: Politician[] = [
   {
     id: 'rajnath-singh',
     name: 'Rajnath Singh',
-    photoUrl: 'https://picsum.photos/400/400',
+    photoUrl: 'https://picsum.photos/seed/rajnath/400/400',
     constituency: 'Lucknow, Uttar Pradesh',
     party: 'Bharatiya Janata Party',
     currentPosition: 'Minister of Defence',
@@ -264,7 +264,7 @@ export const politicians: Politician[] = [
   {
     id: 'shashi-tharoor',
     name: 'Shashi Tharoor',
-    photoUrl: 'https://picsum.photos/400/400',
+    photoUrl: 'https://picsum.photos/seed/tharoor/400/400',
     constituency: 'Thiruvananthapuram, Kerala',
     party: 'Indian National Congress',
     currentPosition: 'Member of Parliament, Lok Sabha',
@@ -289,10 +289,10 @@ export const politicians: Politician[] = [
   {
     id: 'akhilesh-yadav',
     name: 'Akhilesh Yadav',
-    photoUrl: 'https://picsum.photos/400/400',
+    photoUrl: 'https://picsum.photos/seed/akhilesh/400/400',
     constituency: 'Kannauj, Uttar Pradesh',
     party: 'Samajwadi Party',
-    currentPosition: 'Member of Parliament, Lok Sabha',
+    currentPosition: 'Member of Parliament, Lok Sabha; Leader of the Opposition',
     contact: {
       email: 'akhilesh.yadav@sansad.nic.in',
       phone: '+91-522-2235454',
@@ -314,7 +314,7 @@ export const politicians: Politician[] = [
   {
     id: 'nirmala-sitharaman',
     name: 'Nirmala Sitharaman',
-    photoUrl: 'https://picsum.photos/400/400',
+    photoUrl: 'https://picsum.photos/seed/nirmala/400/400',
     constituency: 'Karnataka (Rajya Sabha)',
     party: 'Bharatiya Janata Party',
     currentPosition: 'Minister of Finance and Corporate Affairs',
@@ -333,6 +333,99 @@ export const politicians: Politician[] = [
         position: 'Minister of Finance and Corporate Affairs',
         tenure: '2019 - Present',
         contributions: 'First full-time female Finance Minister of India. Presented several annual budgets, navigated the economic challenges of the COVID-19 pandemic, and implemented various economic reforms.',
+      },
+    ],
+  },
+  {
+    id: 'sharad-pawar',
+    name: 'Sharad Pawar',
+    photoUrl: 'https://picsum.photos/seed/pawar/400/400',
+    constituency: 'Maharashtra (Rajya Sabha)',
+    party: 'Nationalist Congress Party (Sharadchandra Pawar)',
+    currentPosition: 'Member of Parliament, Rajya Sabha',
+    contact: {
+      email: 'sharad.pawar@sansad.nic.in',
+      phone: '+91-11-23794499',
+    },
+    educationalBackground: 'Commerce Graduate',
+    workHistory: [
+      {
+        position: 'Chief Minister of Maharashtra',
+        tenure: '1978–1980, 1988–1991, 1993–1995',
+        contributions:
+          'Served multiple terms, focusing on agricultural reforms and industrial development in the state.',
+      },
+      {
+        position: 'Minister of Defence',
+        tenure: '1991–1993',
+        contributions:
+          'Handled national security and defence policy during a critical period.',
+      },
+      {
+        position: 'Minister of Agriculture',
+        tenure: '2004–2014',
+        contributions:
+          'Oversaw national agricultural policies, including farm loan waivers and schemes to boost crop production.',
+      },
+    ],
+  },
+  {
+    id: 'uddhav-thackeray',
+    name: 'Uddhav Thackeray',
+    photoUrl: 'https://picsum.photos/seed/uddhav/400/400',
+    constituency: 'Member of Maharashtra Legislative Council',
+    party: 'Shiv Sena (Uddhav Balasaheb Thackeray)',
+    currentPosition: 'Party President',
+    contact: {
+      email: 'uddhav.thackeray@nic.in',
+      phone: '+91-22-22025151',
+    },
+    educationalBackground: 'Graduate from JJ School of Art',
+    workHistory: [
+      {
+        position: 'Chief Minister of Maharashtra',
+        tenure: '2019 - 2022',
+        contributions:
+          'Led the Maha Vikas Aghadi coalition government. Managed the state\'s response to the COVID-19 pandemic.',
+      },
+      {
+        position: 'President of Shiv Sena',
+        tenure: '2013 - Present',
+        contributions:
+          'Took over the leadership of the party from his father, Bal Thackeray. Has since led the party through various state and national elections.',
+      },
+    ],
+  },
+  {
+    id: 'mk-stalin',
+    name: 'M. K. Stalin',
+    photoUrl: 'https://picsum.photos/seed/stalin/400/400',
+    constituency: 'Kolathur, Tamil Nadu',
+    party: 'Dravida Munnetra Kazhagam',
+    currentPosition: 'Chief Minister of Tamil Nadu',
+    contact: {
+      email: 'cm.tn@nic.in',
+      phone: '+91-44-25672345',
+    },
+    educationalBackground: 'B.A. in History',
+    workHistory: [
+      {
+        position: 'Mayor of Chennai',
+        tenure: '1996 - 2002',
+        contributions:
+          'Initiated several infrastructure projects in the city.',
+      },
+      {
+        position: 'Deputy Chief Minister of Tamil Nadu',
+        tenure: '2009 - 2011',
+        contributions:
+          'Handled key portfolios and assisted in state administration.',
+      },
+      {
+        position: 'Chief Minister of Tamil Nadu',
+        tenure: '2021 - Present',
+        contributions:
+          'Launched various welfare schemes, focusing on women\'s empowerment and social justice.',
       },
     ],
   },

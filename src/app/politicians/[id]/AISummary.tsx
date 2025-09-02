@@ -23,12 +23,15 @@ export default function AISummary({ politician }: AISummaryProps) {
     setSummary(null);
 
     try {
-      const workHistoryString = politician.workHistory
-        .map(
-          (job) =>
-            `${job.position} (${job.tenure}): ${job.contributions}`
-        )
-        .join('\n');
+      const workHistoryString =
+        politician.workHistory && politician.workHistory.length > 0
+          ? politician.workHistory
+              .map(
+                (job) =>
+                  `${job.position} (${job.tenure}): ${job.contributions}`
+              )
+              .join('\n')
+          : 'No work history available.';
 
       const result = await generatePoliticianSummary({
         name: politician.name,
