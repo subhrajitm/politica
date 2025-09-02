@@ -1,3 +1,4 @@
+
 import Link from 'next/link';
 import { Facebook, Twitter, Github } from 'lucide-react';
 import { Button } from './ui/button';
@@ -24,7 +25,7 @@ export default function Footer() {
               <li><Link href="#" className="text-muted-foreground hover:text-primary">About Us</Link></li>
               <li><Link href="#" className="text-muted-foreground hover:text-primary">Our Team</Link></li>
               <li><Link href="#" className="text-muted-foreground hover:text-primary">Blog</Link></li>
-              <li><Link href="#" className="text-muted-foreground hover:text-primary">Contact Us</Link></li>
+              <li><Link href="/contact" className="text-muted-foreground hover:text-primary">Contact Us</Link></li>
             </ul>
           </div>
           

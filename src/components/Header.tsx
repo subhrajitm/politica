@@ -12,7 +12,7 @@ export default function Header() {
     { name: 'Browse by State', href: '/browse/states' },
     { name: 'Browse by Map', href: '/browse/map' },
     { name: 'Blog', href: '#' },
-    { name: 'Contact', href: '#' },
+    { name: 'Contact', href: '/contact' },
   ];
 
   return (
