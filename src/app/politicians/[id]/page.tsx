@@ -1,3 +1,6 @@
+'use client';
+
+import { useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
@@ -27,7 +30,6 @@ import { differenceInYears } from 'date-fns';
 import { politicians } from '@/lib/data';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import { PartyLogo } from '@/components/PartyLogo';
 import AISummary from './AISummary';
 import {
@@ -62,6 +64,24 @@ function InfoItem({ icon: Icon, label, value, href }: { icon: React.ElementType,
 
 export default function PoliticianPage({ params }: { params: { id: string } }) {
   const politician = politicians.find((p) => p.id === params.id);
+
+  useEffect(() => {
+    if (politician) {
+      try {
+        const viewed: string[] = JSON.parse(
+          localStorage.getItem('recentlyViewed') || '[]'
+        );
+        const updatedViewed = [
+          politician.id,
+          ...viewed.filter((id) => id !== politician.id),
+        ].slice(0, 4); // Keep only the 4 most recent
+        localStorage.setItem('recentlyViewed', JSON.stringify(updatedViewed));
+      } catch (error) {
+        console.error("Failed to update recently viewed in localStorage", error);
+      }
+    }
+  }, [politician]);
+
 
   if (!politician) {
     notFound();

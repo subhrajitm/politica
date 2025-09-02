@@ -7,13 +7,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { politicians } from '@/lib/data';
 import type { Politician } from '@/lib/data';
-import { ArrowRight, Search, Quote } from 'lucide-react';
+import { ArrowRight, Search, Quote, History } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 
 export default function Home() {
   const [searchTerm, setSearchTerm] = useState('');
   const [suggestions, setSuggestions] = useState<Politician[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [recentlyViewed, setRecentlyViewed] = useState<Politician[]>([]);
   const router = useRouter();
   const searchContainerRef = useRef<HTMLDivElement>(null);
 
@@ -33,6 +34,28 @@ export default function Home() {
     'Kerala',
     'West Bengal',
   ];
+  
+  useEffect(() => {
+    try {
+      const viewedIds: string[] = JSON.parse(
+        localStorage.getItem('recentlyViewed') || '[]'
+      );
+      if (viewedIds.length > 0) {
+        const viewedPoliticians = politicians.filter((p) =>
+          viewedIds.includes(p.id)
+        );
+        // Sort them in the order they were viewed
+        const sorted = viewedIds
+          .map((id) => viewedPoliticians.find((p) => p.id === id))
+          .filter((p): p is Politician => !!p);
+        setRecentlyViewed(sorted);
+      }
+    } catch (error) {
+        console.error("Failed to parse recently viewed from localStorage", error);
+        localStorage.removeItem('recentlyViewed');
+    }
+  }, []);
+
 
   useEffect(() => {
     if (searchTerm.trim().length > 1) {
@@ -79,7 +102,7 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-full">
       <section className="bg-gradient-to-br from-primary via-purple-600 to-indigo-600 text-primary-foreground relative">
-        <div className="absolute inset-0 bg-[url(/grain.svg)] bg-repeat opacity-20 mix-blend-screen"></div>
+        <div className="absolute inset-0 bg-repeat opacity-20 mix-blend-screen"></div>
         <div className="container mx-auto text-center py-16 lg:py-24 px-4 relative">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
             Find Politicians In Your Area
@@ -223,6 +246,53 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {recentlyViewed.length > 0 && (
+        <section className="py-12 bg-background">
+          <div className="container mx-auto px-4">
+            <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+              <History className="w-6 h-6" />
+              Recently Viewed
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {recentlyViewed.map((p) => (
+                <Link key={p.id} href={`/politicians/${p.id}`} className="block">
+                  <Card className="group overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-4 mb-4">
+                        <Image
+                          src={p.photoUrl}
+                          alt={p.name.fullName}
+                          width={56}
+                          height={56}
+                          className="rounded-full"
+                          data-ai-hint="politician photo"
+                        />
+                        <div>
+                          <h3 className="font-bold text-base">
+                            {p.name.fullName}
+                          </h3>
+                          <p className="text-xs text-muted-foreground">
+                            {p.positions.current.position}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex justify-between items-center bg-primary/10 p-2 rounded-md">
+                        <span className="text-primary font-semibold text-xs">
+                          {p.party}
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          {p.constituency.split(',')[1]}
+                        </span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       <section className="py-12 bg-background">
         <div className="container mx-auto px-4">
