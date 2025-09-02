@@ -21,6 +21,7 @@ export type Politician = {
     address: string;
     email: string;
     phone: string;
+    website?: string;
   };
   photoUrl: string;
   family: {
@@ -50,6 +51,42 @@ export type Politician = {
     issue: string;
     stance: string;
   }[];
+  votingRecords: {
+    bill: string;
+    vote: 'Yea' | 'Nay' | 'Abstain';
+    date: string;
+  }[];
+  legislativeAchievements: {
+    achievement: string;
+    year: string;
+  }[];
+  ratings: {
+    group: string;
+    rating: string;
+  }[];
+  campaignFinance: {
+    totalReceipts: string;
+    totalDisbursements: string;
+    cashOnHand: string;
+    debt: string;
+    topContributors: { name: string; amount: string }[];
+  };
+  relationships: {
+    name: string;
+    type: 'Political' | 'Corporate' | 'Personal';
+    relationship: string;
+  }[];
+  newsMentions: {
+    source: string;
+    title: string;
+    url: string;
+    date: string;
+  }[];
+  speeches: {
+    title: string;
+    url: string;
+    date: string;
+  }[];
   socialMedia: {
     twitter?: string;
     facebook?: string;
@@ -73,6 +110,7 @@ export const politicians: Politician[] = [
       address: '7, Lok Kalyan Marg, New Delhi',
       email: 'n.modi@sansad.nic.in',
       phone: '+91-11-23012312',
+      website: 'https://www.pmindia.gov.in/en/'
     },
     photoUrl: 'https://picsum.photos/seed/nmodi/400/400',
     family: {
@@ -96,6 +134,7 @@ export const politicians: Politician[] = [
       current: {
         position: 'Prime Minister of India',
         assumedOffice: '2014-05-26',
+        committees: ['Chairman of NITI Aayog']
       },
       history: [
         {
@@ -120,6 +159,33 @@ export const politicians: Politician[] = [
         { issue: 'Economy', stance: 'Focus on liberalization, foreign investment, and privatization.' },
         { issue: 'Foreign Policy', stance: 'Proactive "Neighborhood First" policy and strengthened ties with major world powers.' },
     ],
+    votingRecords: [
+      { bill: 'Goods and Services Tax (GST) Bill', vote: 'Yea', date: '2016-08-08' },
+      { bill: 'Citizenship Amendment Bill, 2019', vote: 'Yea', date: '2019-12-11' }
+    ],
+    legislativeAchievements: [
+        { achievement: 'Goods and Services Tax (GST) implementation', year: '2017' },
+        { achievement: 'Insolvency and Bankruptcy Code', year: '2016'}
+    ],
+    ratings: [
+        { group: 'World Economic Forum', rating: 'High approval for economic policies' }
+    ],
+    campaignFinance: {
+      totalReceipts: 'N/A',
+      totalDisbursements: 'N/A',
+      cashOnHand: 'N/A',
+      debt: 'N/A',
+      topContributors: [{ name: 'BJP Party Fund', amount: 'N/A'}]
+    },
+    relationships: [
+        { name: 'Amit Shah', type: 'Political', relationship: 'Close aide and Home Minister' }
+    ],
+    newsMentions: [
+        { source: 'The Times of India', title: 'PM Modi announces new infrastructure projects', url: '#', date: '2023-10-20' }
+    ],
+    speeches: [
+        { title: 'Independence Day Address', url: '#', date: '2023-08-15' }
+    ],
     socialMedia: {
       twitter: 'https://twitter.com/narendramodi',
       facebook: 'https://www.facebook.com/narendramodi'
@@ -141,6 +207,7 @@ export const politicians: Politician[] = [
       address: '12, Tughlak Lane, New Delhi',
       email: 'r.gandhi@sansad.nic.in',
       phone: '+91-11-23012313',
+      website: 'https://www.rahulgandhi.in/'
     },
     photoUrl: 'https://picsum.photos/seed/rgandhi/400/400',
     family: {},
@@ -162,6 +229,7 @@ export const politicians: Politician[] = [
       current: {
         position: 'Member of Parliament, Lok Sabha',
         assumedOffice: '2024-06-04',
+        committees: ['Member, Standing Committee on Defence']
       },
       history: [
         {
@@ -186,6 +254,32 @@ export const politicians: Politician[] = [
     policyStances: [
         { issue: 'Social Justice', stance: 'Advocates for wealth redistribution and caste-based census.' },
         { issue: 'Economy', stance: 'Critical of GST implementation, supports welfare programs like NYAY.' },
+    ],
+    votingRecords: [
+      { bill: 'Goods and Services Tax (GST) Bill', vote: 'Abstain', date: '2016-08-08' },
+      { bill: 'Citizenship Amendment Bill, 2019', vote: 'Nay', date: '2019-12-11' }
+    ],
+    legislativeAchievements: [
+        { achievement: 'Raised issues related to farmer rights and employment', year: 'Ongoing' }
+    ],
+    ratings: [
+        { group: 'PRS Legislative Research', rating: 'Active participation in parliamentary debates' }
+    ],
+    campaignFinance: {
+      totalReceipts: 'N/A',
+      totalDisbursements: 'N/A',
+      cashOnHand: 'N/A',
+      debt: 'N/A',
+      topContributors: [{ name: 'INC Party Fund', amount: 'N/A'}]
+    },
+    relationships: [
+        { name: 'Sonia Gandhi', type: 'Political', relationship: 'Mother and former party president' }
+    ],
+    newsMentions: [
+        { source: 'The Hindu', title: 'Rahul Gandhi leads Bharat Jodo Nyay Yatra', url: '#', date: '2024-01-15' }
+    ],
+    speeches: [
+        { title: 'Speech on unemployment in Parliament', url: '#', date: '2023-07-20' }
     ],
      socialMedia: {
       twitter: 'https://twitter.com/RahulGandhi',
@@ -226,6 +320,7 @@ export const politicians: Politician[] = [
       current: {
         position: 'Minister of Home Affairs and Minister of Co-operation',
         assumedOffice: '2019-05-31',
+        committees: ['Chairman, Parliamentary Committee on Official Language']
       },
       history: [
         {
@@ -249,6 +344,27 @@ export const politicians: Politician[] = [
         { issue: 'National Security', stance: 'Strong stance on internal security, led the abrogation of Article 370.' },
         { issue: 'Citizenship', stance: 'Spearheaded the Citizenship Amendment Act (CAA).'},
     ],
+    votingRecords: [
+      { bill: 'Abrogation of Article 370', vote: 'Yea', date: '2019-08-05' },
+      { bill: 'Citizenship Amendment Bill, 2019', vote: 'Yea', date: '2019-12-11' }
+    ],
+    legislativeAchievements: [
+      { achievement: 'Abrogation of Article 370 of the Constitution of India', year: '2019' },
+      { achievement: 'Citizenship Amendment Act', year: '2019' }
+    ],
+    ratings: [],
+    campaignFinance: {
+      totalReceipts: 'N/A',
+      totalDisbursements: 'N/A',
+      cashOnHand: 'N/A',
+      debt: 'N/A',
+      topContributors: []
+    },
+    relationships: [
+      { name: 'Narendra Modi', type: 'Political', relationship: 'Prime Minister and long-time associate'}
+    ],
+    newsMentions: [],
+    speeches: [],
     socialMedia: {
       twitter: 'https://twitter.com/AmitShah',
       facebook: 'https://www.facebook.com/AmitShah.Official'
@@ -312,6 +428,22 @@ export const politicians: Politician[] = [
         { issue: 'Governance', stance: 'Focus on anti-corruption (Jan Lokpal Bill) and citizen-centric services.' },
         { issue: 'Welfare', stance: 'Implemented free electricity and water schemes, improved public schools and healthcare (Mohalla Clinics).'},
     ],
+    votingRecords: [],
+    legislativeAchievements: [
+        { achievement: 'Establishment of Mohalla Clinics', year: '2015' },
+        { achievement: 'Reforms in Delhi government schools', year: 'Ongoing' }
+    ],
+    ratings: [],
+    campaignFinance: {
+      totalReceipts: 'N/A',
+      totalDisbursements: 'N/A',
+      cashOnHand: 'N/A',
+      debt: 'N/A',
+      topContributors: []
+    },
+    relationships: [],
+    newsMentions: [],
+    speeches: [],
     socialMedia: {
       twitter: 'https://twitter.com/ArvindKejriwal',
       facebook: 'https://www.facebook.com/AAPkaArvind'
