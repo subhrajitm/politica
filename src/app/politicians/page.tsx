@@ -43,13 +43,14 @@ function PoliticiansPageContent() {
       const searchLower = searchTerm.toLowerCase();
       const nameMatch = p.name.toLowerCase().includes(searchLower);
       const positionMatch = p.currentPosition.toLowerCase().includes(searchLower);
+      const constituencyMatch = p.constituency.toLowerCase().includes(searchLower);
       
       const partyMatch = partyFilter === 'all' || p.party === partyFilter;
 
       const constituencyState = p.constituency.split(', ')[1]?.trim();
       const stateMatch = stateFilter === 'all' || constituencyState === stateFilter;
       
-      return (nameMatch || positionMatch) && partyMatch && stateMatch;
+      return (nameMatch || positionMatch || constituencyMatch) && partyMatch && stateMatch;
     });
   }, [searchTerm, partyFilter, stateFilter]);
 
@@ -68,7 +69,7 @@ function PoliticiansPageContent() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
             <Input
               type="text"
-              placeholder="Search by name or role..."
+              placeholder="Search by name, role, or constituency..."
               className="w-full pl-10"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
