@@ -1,18 +1,18 @@
 'use client';
 import Link from 'next/link';
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { politicians, Politician } from '@/lib/data';
-import { ArrowRight, Search, Quote, Briefcase, MapPin } from 'lucide-react';
+import { politicians } from '@/lib/data';
+import { ArrowRight, Search, Quote } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 
 export default function Home() {
   const [searchTerm, setSearchTerm] = useState('');
   const router = useRouter();
-  
+
   const trendingProfiles = politicians.slice(0, 4);
 
   const suggestedSearches = [
@@ -29,14 +29,16 @@ export default function Home() {
     'Governor',
     'Financial Advisor',
   ];
-  
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    // Logic to handle search will be added later
+    if (searchTerm.trim()) {
+      router.push(`/politicians?q=${encodeURIComponent(searchTerm.trim())}`);
+    }
   };
 
   const handleSuggestedSearch = (term: string) => {
-    // Logic to handle search will be added later
+    router.push(`/politicians?q=${encodeURIComponent(term)}`);
   };
 
 
@@ -52,7 +54,7 @@ export default function Home() {
             Discover who represents you and get information on over 14 million public officials worldwide.
           </p>
           <div className="flex justify-center mb-8 -space-x-4">
-            {politicians.slice(0, 4).map((p) => (
+            {politicians.slice(0, 5).map((p) => (
               <Image
                 key={p.id}
                 src={p.photoUrl}
@@ -106,7 +108,7 @@ export default function Home() {
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-3xl font-bold">Trending Profiles</h2>
             <Link
-              href="#"
+              href="/politicians"
               className="flex items-center gap-2 text-primary font-semibold"
             >
               See all profiles <ArrowRight className="w-4 h-4" />
@@ -114,28 +116,30 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {trendingProfiles.map((p) => (
-               <Card key={p.id} className="group overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-                 <CardContent className="p-6">
-                   <div className="flex items-center gap-4 mb-4">
-                     <Image
-                        src={p.photoUrl}
-                        alt={p.name}
-                        width={64}
-                        height={64}
-                        className="rounded-full"
-                        data-ai-hint="politician photo"
-                      />
-                      <div>
-                        <h3 className="font-bold text-lg">{p.currentPosition}</h3>
-                        <p className="text-sm text-muted-foreground">{p.constituency}</p>
-                      </div>
-                   </div>
-                   <div className="flex justify-between items-center bg-green-50 p-4 rounded-md">
-                     <span className="text-green-700 font-bold text-lg">$197,300</span>
-                     <span className="text-sm text-gray-500">Avg. salary</span>
-                   </div>
-                 </CardContent>
-               </Card>
+              <Link key={p.id} href={`/politicians/${p.id}`} className="block">
+                 <Card className="group overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                   <CardContent className="p-6">
+                     <div className="flex items-center gap-4 mb-4">
+                       <Image
+                          src={p.photoUrl}
+                          alt={p.name}
+                          width={64}
+                          height={64}
+                          className="rounded-full"
+                          data-ai-hint="politician photo"
+                        />
+                        <div>
+                          <h3 className="font-bold text-lg">{p.currentPosition}</h3>
+                          <p className="text-sm text-muted-foreground">{p.constituency}</p>
+                        </div>
+                     </div>
+                     <div className="flex justify-between items-center bg-green-50 p-4 rounded-md">
+                       <span className="text-green-700 font-bold text-lg">$197,300</span>
+                       <span className="text-sm text-gray-500">Avg. salary</span>
+                     </div>
+                   </CardContent>
+                 </Card>
+               </Link>
             ))}
           </div>
         </div>
