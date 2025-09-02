@@ -18,6 +18,7 @@ export default {
     extend: {
       backgroundImage: {
         'gradient-hero': 'linear-gradient(120deg, #4f46e5 0%, #a259ff 100%)',
+        'grain': "url('/grain.svg')",
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
