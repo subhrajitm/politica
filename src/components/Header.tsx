@@ -8,7 +8,7 @@ export default function Header() {
   const navLinks = [
     { name: 'Find Politicians', href: '/politicians' },
     { name: 'Browse by Role', href: '/browse' },
-    { name: 'Our Team', href: '#' },
+    { name: 'Browse by State', href: '/browse/states' },
     { name: 'Blog', href: '#' },
     { name: 'Contact', href: '#' },
   ];

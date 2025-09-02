@@ -1,7 +1,8 @@
 
+
 'use client';
 
-import { useState, useMemo, Suspense } from 'react';
+import { useState, useMemo, Suspense, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { differenceInYears } from 'date-fns';
 import { politicians } from '@/lib/data';
@@ -20,14 +21,22 @@ import AgeSlider from '@/components/AgeSlider';
 function PoliticiansPageContent() {
   const searchParams = useSearchParams();
   const initialQuery = searchParams.get('q') || '';
+  const initialState = searchParams.get('state') || 'all';
   
   const [searchTerm, setSearchTerm] = useState(initialQuery);
   const [partyFilter, setPartyFilter] = useState('all');
-  const [stateFilter, setStateFilter] = useState('all');
+  const [stateFilter, setStateFilter] = useState(initialState);
   const [genderFilter, setGenderFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const [ageRange, setAgeRange] = useState<[number, number]>([25, 100]);
 
+  useEffect(() => {
+    // When the component mounts, check if 'state' param exists and set it.
+    const stateParam = searchParams.get('state');
+    if (stateParam) {
+      setStateFilter(stateParam);
+    }
+  }, [searchParams]);
 
   const parties = useMemo(() => {
     const allParties = politicians.map((p) => p.party);
