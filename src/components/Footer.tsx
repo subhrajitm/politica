@@ -34,6 +34,7 @@ export default function Footer() {
               <li><Link href="/politicians" className="text-muted-foreground hover:text-primary">Find Politicians</Link></li>
               <li><Link href="/browse" className="text-muted-foreground hover:text-primary">Browse by Role</Link></li>
               <li><Link href="/browse/states" className="text-muted-foreground hover:text-primary">Browse by State</Link></li>
+               <li><Link href="/browse/map" className="text-muted-foreground hover:text-primary">Browse by Map</Link></li>
               <li><Link href="#" className="text-muted-foreground hover:text-primary">Contribute</Link></li>
               <li><Link href="#" className="text-muted-foreground hover:text-primary">API Access</Link></li>
             </ul>

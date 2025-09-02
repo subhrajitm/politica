@@ -9,6 +9,7 @@ export default function Header() {
     { name: 'Find Politicians', href: '/politicians' },
     { name: 'Browse by Role', href: '/browse' },
     { name: 'Browse by State', href: '/browse/states' },
+    { name: 'Browse by Map', href: '/browse/map' },
     { name: 'Blog', href: '#' },
     { name: 'Contact', href: '#' },
   ];
