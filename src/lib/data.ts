@@ -23,7 +23,7 @@ export const politicians: Politician[] = [
   {
     id: 'narendra-modi',
     name: 'Narendra Modi',
-    photoUrl: 'https://picsum.photos/seed/picsum/400/400',
+    photoUrl: 'https://picsum.photos/seed/nmodi/400/400',
     constituency: 'Varanasi, Uttar Pradesh',
     party: 'Bharatiya Janata Party',
     currentPosition: 'Prime Minister of India',
@@ -50,7 +50,7 @@ export const politicians: Politician[] = [
   {
     id: 'rahul-gandhi',
     name: 'Rahul Gandhi',
-    photoUrl: 'https://picsum.photos/seed/rahul/400/400',
+    photoUrl: 'https://picsum.photos/seed/rgandhi/400/400',
     constituency: 'Raebareli, Uttar Pradesh',
     party: 'Indian National Congress',
     currentPosition: 'Member of Parliament, Lok Sabha',
@@ -77,7 +77,7 @@ export const politicians: Politician[] = [
   {
     id: 'arvind-kejriwal',
     name: 'Arvind Kejriwal',
-    photoUrl: 'https://picsum.photos/seed/kejriwal/400/400',
+    photoUrl: 'https://picsum.photos/seed/akejriwal/400/400',
     constituency: 'New Delhi',
     party: 'Aam Aadmi Party',
     currentPosition: 'Chief Minister of Delhi',
@@ -104,7 +104,7 @@ export const politicians: Politician[] = [
   {
     id: 'mamata-banerjee',
     name: 'Mamata Banerjee',
-    photoUrl: 'https://picsum.photos/seed/mamata/400/400',
+    photoUrl: 'https://picsum.photos/seed/mbanerjee/400/400',
     constituency: 'Bhabanipur, West Bengal',
     party: 'All India Trinamool Congress',
     currentPosition: 'Chief Minister of West Bengal',
@@ -131,7 +131,7 @@ export const politicians: Politician[] = [
   {
     id: 'yogi-adityanath',
     name: 'Yogi Adityanath',
-    photoUrl: 'https://picsum.photos/seed/yogi/400/400',
+    photoUrl: 'https://picsum.photos/seed/yadityanath/400/400',
     constituency: 'Gorakhpur Urban, Uttar Pradesh',
     party: 'Bharatiya Janata Party',
     currentPosition: 'Chief Minister of Uttar Pradesh',
@@ -158,10 +158,11 @@ export const politicians: Politician[] = [
   {
     id: 'smriti-irani',
     name: 'Smriti Irani',
-    photoUrl: 'https://picsum.photos/seed/smriti/400/400',
+    photoUrl: 'https://picsum.photos/seed/sirani/400/400',
     constituency: 'Amethi, Uttar Pradesh',
     party: 'Bharatiya Janata Party',
-    currentPosition: 'Minister of Women and Child Development, Minister of Minority Affairs',
+    currentPosition:
+      'Minister of Women and Child Development, Minister of Minority Affairs',
     contact: {
       email: 'smriti.irani@sansad.nic.in',
       phone: '+91-11-23012314',
@@ -184,7 +185,7 @@ export const politicians: Politician[] = [
   {
     id: 'amit-shah',
     name: 'Amit Shah',
-    photoUrl: 'https://picsum.photos/seed/amit/400/400',
+    photoUrl: 'https://picsum.photos/seed/ashah/400/400',
     constituency: 'Gandhinagar, Gujarat',
     party: 'Bharatiya Janata Party',
     currentPosition: 'Minister of Home Affairs and Minister of Co-operation',
@@ -197,19 +198,21 @@ export const politicians: Politician[] = [
       {
         position: 'President of the Bharatiya Janata Party',
         tenure: '2014 - 2020',
-        contributions: 'Led the party to major victories in national and state elections. Oversaw significant expansion of the party\'s membership base.',
+        contributions:
+          'Led the party to major victories in national and state elections. Oversaw significant expansion of the party\'s membership base.',
       },
       {
         position: 'Minister of Home Affairs',
         tenure: '2019 - Present',
-        contributions: 'Key figure in the abrogation of Article 370 of the Constitution of India and the enactment of the Citizenship Amendment Act (CAA).',
+        contributions:
+          'Key figure in the abrogation of Article 370 of the Constitution of India and the enactment of the Citizenship Amendment Act (CAA).',
       },
     ],
   },
   {
     id: 'nitin-gadkari',
     name: 'Nitin Gadkari',
-    photoUrl: 'https://picsum.photos/seed/gadkari/400/400',
+    photoUrl: 'https://picsum.photos/seed/ngadkari/400/400',
     constituency: 'Nagpur, Maharashtra',
     party: 'Bharatiya Janata Party',
     currentPosition: 'Minister for Road Transport & Highways',
@@ -222,19 +225,21 @@ export const politicians: Politician[] = [
       {
         position: 'President of the Bharatiya Janata Party',
         tenure: '2009 - 2013',
-        contributions: 'Focused on organizational restructuring and grassroots outreach.',
+        contributions:
+          'Focused on organizational restructuring and grassroots outreach.',
       },
       {
         position: 'Minister for Road Transport & Highways',
         tenure: '2014 - Present',
-        contributions: 'Spearheaded a massive expansion of India\'s national highway network, including the construction of numerous expressways and the Bharatmala project.',
+        contributions:
+          'Spearheaded a massive expansion of India\'s national highway network, including the construction of numerous expressways and the Bharatmala project.',
       },
     ],
   },
   {
     id: 'rajnath-singh',
     name: 'Rajnath Singh',
-    photoUrl: 'https://picsum.photos/seed/rajnath/400/400',
+    photoUrl: 'https://picsum.photos/seed/rsingh/400/400',
     constituency: 'Lucknow, Uttar Pradesh',
     party: 'Bharatiya Janata Party',
     currentPosition: 'Minister of Defence',
@@ -247,24 +252,27 @@ export const politicians: Politician[] = [
       {
         position: 'Chief Minister of Uttar Pradesh',
         tenure: '2000 - 2002',
-        contributions: 'Focused on improving the state\'s law and order situation.',
+        contributions:
+          'Focused on improving the state\'s law and order situation.',
       },
       {
         position: 'Minister of Home Affairs',
         tenure: '2014 - 2019',
-        contributions: 'Handled national security challenges and implemented various police modernization schemes.',
+        contributions:
+          'Handled national security challenges and implemented various police modernization schemes.',
       },
       {
         position: 'Minister of Defence',
         tenure: '2019 - Present',
-        contributions: 'Overseeing the modernization of the Indian Armed Forces and promoting indigenous defence manufacturing under the Atmanirbhar Bharat initiative.',
+        contributions:
+          'Overseeing the modernization of the Indian Armed Forces and promoting indigenous defence manufacturing under the Atmanirbhar Bharat initiative.',
       },
     ],
   },
   {
     id: 'shashi-tharoor',
     name: 'Shashi Tharoor',
-    photoUrl: 'https://picsum.photos/seed/tharoor/400/400',
+    photoUrl: 'https://picsum.photos/seed/stharoor/400/400',
     constituency: 'Thiruvananthapuram, Kerala',
     party: 'Indian National Congress',
     currentPosition: 'Member of Parliament, Lok Sabha',
@@ -272,24 +280,27 @@ export const politicians: Politician[] = [
       email: 'shashi.tharoor@sansad.nic.in',
       phone: '+91-471-2578899',
     },
-    educationalBackground: 'Ph.D. in International Relations and Affairs, Tufts University',
+    educationalBackground:
+      'Ph.D. in International Relations and Affairs, Tufts University',
     workHistory: [
       {
         position: 'Under-Secretary-General, United Nations',
         tenure: '2002 - 2007',
-        contributions: 'Served in various high-level roles at the UN for nearly three decades, focusing on communications and public information.',
+        contributions:
+          'Served in various high-level roles at the UN for nearly three decades, focusing on communications and public information.',
       },
       {
         position: 'Member of Parliament, Lok Sabha',
         tenure: '2009 - Present',
-        contributions: 'Known for his eloquent speeches and active participation in parliamentary debates. Has been a vocal advocate for various social and economic issues.',
+        contributions:
+          'Known for his eloquent speeches and active participation in parliamentary debates. Has been a vocal advocate for various social and economic issues.',
       },
     ],
   },
   {
     id: 'akhilesh-yadav',
     name: 'Akhilesh Yadav',
-    photoUrl: 'https://picsum.photos/seed/akhilesh/400/400',
+    photoUrl: 'https://picsum.photos/seed/ayadav/400/400',
     constituency: 'Kannauj, Uttar Pradesh',
     party: 'Samajwadi Party',
     currentPosition: 'Member of Parliament, Lok Sabha; Leader of the Opposition',
@@ -302,19 +313,21 @@ export const politicians: Politician[] = [
       {
         position: 'Chief Minister of Uttar Pradesh',
         tenure: '2012 - 2017',
-        contributions: 'Initiated major infrastructure projects like the Agra-Lucknow Expressway and Lucknow Metro. Launched welfare schemes such as the Samajwadi Pension Yojana.',
+        contributions:
+          'Initiated major infrastructure projects like the Agra-Lucknow Expressway and Lucknow Metro. Launched welfare schemes such as the Samajwadi Pension Yojana.',
       },
       {
         position: 'President of the Samajwadi Party',
         tenure: '2017 - Present',
-        contributions: 'Leading the party in state and national politics, focusing on issues of social justice and development.',
+        contributions:
+          'Leading the party in state and national politics, focusing on issues of social justice and development.',
       },
     ],
   },
   {
     id: 'nirmala-sitharaman',
     name: 'Nirmala Sitharaman',
-    photoUrl: 'https://picsum.photos/seed/nirmala/400/400',
+    photoUrl: 'https://picsum.photos/seed/nsitharaman/400/400',
     constituency: 'Karnataka (Rajya Sabha)',
     party: 'Bharatiya Janata Party',
     currentPosition: 'Minister of Finance and Corporate Affairs',
@@ -327,19 +340,21 @@ export const politicians: Politician[] = [
       {
         position: 'Minister of Defence',
         tenure: '2017 - 2019',
-        contributions: 'Second woman to hold the office of Defence Minister in India. Focused on military modernization and procurement.',
+        contributions:
+          'Second woman to hold the office of Defence Minister in India. Focused on military modernization and procurement.',
       },
       {
         position: 'Minister of Finance and Corporate Affairs',
         tenure: '2019 - Present',
-        contributions: 'First full-time female Finance Minister of India. Presented several annual budgets, navigated the economic challenges of the COVID-19 pandemic, and implemented various economic reforms.',
+        contributions:
+          'First full-time female Finance Minister of India. Presented several annual budgets, navigated the economic challenges of the COVID-19 pandemic, and implemented various economic reforms.',
       },
     ],
   },
   {
     id: 'sharad-pawar',
     name: 'Sharad Pawar',
-    photoUrl: 'https://picsum.photos/seed/pawar/400/400',
+    photoUrl: 'https://picsum.photos/seed/spawar/400/400',
     constituency: 'Maharashtra (Rajya Sabha)',
     party: 'Nationalist Congress Party (Sharadchandra Pawar)',
     currentPosition: 'Member of Parliament, Rajya Sabha',
@@ -372,7 +387,7 @@ export const politicians: Politician[] = [
   {
     id: 'uddhav-thackeray',
     name: 'Uddhav Thackeray',
-    photoUrl: 'https://picsum.photos/seed/uddhav/400/400',
+    photoUrl: 'https://picsum.photos/seed/uthackeray/400/400',
     constituency: 'Member of Maharashtra Legislative Council',
     party: 'Shiv Sena (Uddhav Balasaheb Thackeray)',
     currentPosition: 'Party President',
@@ -399,7 +414,7 @@ export const politicians: Politician[] = [
   {
     id: 'mk-stalin',
     name: 'M. K. Stalin',
-    photoUrl: 'https://picsum.photos/seed/stalin/400/400',
+    photoUrl: 'https://picsum.photos/seed/mkstalin/400/400',
     constituency: 'Kolathur, Tamil Nadu',
     party: 'Dravida Munnetra Kazhagam',
     currentPosition: 'Chief Minister of Tamil Nadu',
@@ -426,6 +441,166 @@ export const politicians: Politician[] = [
         tenure: '2021 - Present',
         contributions:
           'Launched various welfare schemes, focusing on women\'s empowerment and social justice.',
+      },
+    ],
+  },
+  {
+    id: 'supriya-sule',
+    name: 'Supriya Sule',
+    photoUrl: 'https://picsum.photos/seed/ssule/400/400',
+    constituency: 'Baramati, Maharashtra',
+    party: 'Nationalist Congress Party (Sharadchandra Pawar)',
+    currentPosition: 'Member of Parliament, Lok Sabha',
+    contact: {
+      email: 'supriya.sule@sansad.nic.in',
+      phone: '+91-2112-222222',
+    },
+    educationalBackground: 'B.Sc. in Microbiology',
+    workHistory: [
+      {
+        position: 'Member of Parliament, Rajya Sabha',
+        tenure: '2006 - 2009',
+        contributions:
+          'Participated in various parliamentary committees, focusing on rural development and women\'s issues.',
+      },
+      {
+        position: 'Member of Parliament, Lok Sabha',
+        tenure: '2009 - Present',
+        contributions:
+          'Recognized multiple times as a top-performing parliamentarian. Known for her active participation in debates and raising issues concerning her constituency and the state.',
+      },
+    ],
+  },
+  {
+    id: 'mohan-charan-majhi',
+    name: 'Mohan Charan Majhi',
+    photoUrl: 'https://picsum.photos/seed/mcmajhi/400/400',
+    constituency: 'Keonjhar, Odisha',
+    party: 'Bharatiya Janata Party',
+    currentPosition: 'Chief Minister of Odisha',
+    contact: {
+      email: 'cm.od@nic.in',
+      phone: '+91-674-2536763',
+    },
+    educationalBackground: 'B.A., L.L.B.',
+    workHistory: [
+      {
+        position: 'Member of the Odisha Legislative Assembly',
+        tenure: '2000-2009, 2019-Present',
+        contributions:
+          'Served multiple terms as an MLA, focusing on tribal rights and development in the Keonjhar region. Held the position of Government Deputy Chief Whip from 2005-2009.',
+      },
+      {
+        position: 'Chief Minister of Odisha',
+        tenure: '2024 - Present',
+        contributions:
+          'Became the first Chief Minister from the BJP in Odisha, leading the state after a significant electoral victory.',
+      },
+    ],
+  },
+  {
+    id: 'naveen-patnaik',
+    name: 'Naveen Patnaik',
+    photoUrl: 'https://picsum.photos/seed/npatnaik/400/400',
+    constituency: 'Hinjili, Odisha',
+    party: 'Biju Janata Dal',
+    currentPosition: 'Leader of Opposition, Odisha Legislative Assembly',
+    contact: {
+      email: 'naveen.patnaik@nic.in',
+      phone: '+91-674-2531100',
+    },
+    educationalBackground: 'B.A.',
+    workHistory: [
+      {
+        position: 'Union Minister for Steel and Mines',
+        tenure: '1998 - 2000',
+        contributions:
+          'Served as a cabinet minister in the Government of India before entering state politics.',
+      },
+      {
+        position: 'Chief Minister of Odisha',
+        tenure: '2000 - 2024',
+        contributions:
+          'One of India\'s longest-serving chief ministers. Oversaw significant poverty reduction, disaster management models acclaimed by the UN, and various welfare schemes like KALIA and BSKY.',
+      },
+    ],
+  },
+  {
+    id: 'dharmendra-pradhan',
+    name: 'Dharmendra Pradhan',
+    photoUrl: 'https://picsum.photos/seed/dpradhan/400/400',
+    constituency: 'Sambalpur, Odisha',
+    party: 'Bharatiya Janata Party',
+    currentPosition: 'Union Minister of Education',
+    contact: {
+      email: 'd.pradhan@sansad.nic.in',
+      phone: '+91-11-23782387',
+    },
+    educationalBackground: 'M.A. in Anthropology',
+    workHistory: [
+      {
+        position: 'Minister of Petroleum & Natural Gas and Steel',
+        tenure: '2017 - 2021',
+        contributions:
+          'Led the Ujjwala Yojana, a major scheme to provide LPG connections to women from below-poverty-line families.',
+      },
+      {
+        position: 'Minister of Education and Skill Development',
+        tenure: '2021 - Present',
+        contributions:
+          'Overseeing the implementation of the National Education Policy (NEP) 2020, aimed at transforming India\'s educational landscape.',
+      },
+    ],
+  },
+  {
+    id: 'jual-oram',
+    name: 'Jual Oram',
+    photoUrl: 'https://picsum.photos/seed/joram/400/400',
+    constituency: 'Sundargarh, Odisha',
+    party: 'Bharatiya Janata Party',
+    currentPosition: 'Member of Parliament, Lok Sabha',
+    contact: {
+      email: 'jual.oram@sansad.nic.in',
+      phone: '+91-11-23018811',
+    },
+    educationalBackground: 'Diploma in Electrical Engineering',
+    workHistory: [
+      {
+        position: 'Union Minister of Tribal Affairs',
+        tenure: '1999-2004, 2014-2019',
+        contributions:
+          'First Union Minister for Tribal Affairs in India. Focused on the welfare and development of tribal communities, including the implementation of the Forest Rights Act.',
+      },
+      {
+        position: 'Member of Parliament, Lok Sabha',
+        tenure: '1998-2009, 2014-Present',
+        contributions:
+          'A senior tribal leader representing the Sundargarh constituency for multiple terms.',
+      },
+    ],
+  },
+  {
+    id: 'baijayant-panda',
+    name: 'Baijayant "Jay" Panda',
+    photoUrl: 'https://picsum.photos/seed/jpanda/400/400',
+    constituency: 'Kendrapara, Odisha',
+    party: 'Bharatiya Janata Party',
+    currentPosition: 'National Vice President & Spokesperson, BJP',
+    contact: {
+      email: 'jay.panda@sansad.nic.in',
+      phone: '+91-11-23795353',
+    },
+    educationalBackground: 'B.S. in Engineering, Management Minor, Michigan Technological University',
+    workHistory: [
+      {
+        position: 'Member of Parliament, Lok Sabha',
+        tenure: '2009 - 2019',
+        contributions: 'Known for his active use of social media for constituent engagement and for being one of the most active parliamentarians in debates.',
+      },
+      {
+        position: 'Member of Parliament, Rajya Sabha',
+        tenure: '2000 - 2009',
+        contributions: 'Represented Odisha in the upper house, focusing on industrial and economic issues.',
       },
     ],
   },
