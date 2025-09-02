@@ -80,22 +80,22 @@ export default function Home() {
     <div className="flex flex-col min-h-full">
       <section className="bg-gradient-to-br from-primary via-purple-600 to-indigo-600 text-primary-foreground relative">
         <div className="absolute inset-0 bg-[url(/grain.svg)] bg-repeat opacity-20 mix-blend-screen"></div>
-        <div className="container mx-auto text-center py-20 lg:py-32 px-4 relative">
-          <h1 className="text-4xl md:text-6xl font-bold mb-4">
+        <div className="container mx-auto text-center py-16 lg:py-24 px-4 relative">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">
             Find Politicians In Your Area
           </h1>
-          <p className="text-lg md:text-xl max-w-3xl mx-auto mb-8">
+          <p className="text-lg max-w-3xl mx-auto mb-6">
             Discover who represents you with our comprehensive directory of public
             officials in India.
           </p>
-          <div className="flex justify-center mb-8 -space-x-4">
+          <div className="flex justify-center mb-6 -space-x-4">
             {politicians.slice(0, 5).map((p) => (
               <Image
                 key={p.id}
                 src={p.photoUrl}
                 alt={p.name}
-                width={48}
-                height={48}
+                width={40}
+                height={40}
                 className="rounded-full border-2 border-primary-foreground/80"
                 data-ai-hint="politician photo"
               />
@@ -162,9 +162,9 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-12 bg-background border-b">
+      <section className="py-8 bg-background border-b">
         <div className="container mx-auto">
-          <div className="flex flex-wrap justify-center items-center gap-x-8 gap-y-4 text-gray-500 font-semibold">
+          <div className="flex flex-wrap justify-center items-center gap-x-8 gap-y-2 text-gray-500 text-sm font-semibold">
             <span>Parliament of India</span>
             <span>Election Commission</span>
             <span>MyNeta</span>
@@ -174,45 +174,45 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-16">
+      <section className="py-12">
         <div className="container mx-auto px-4">
-          <div className="flex justify-between items-center mb-8">
-            <h2 className="text-3xl font-bold">Trending Profiles</h2>
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold">Trending Profiles</h2>
             <Link
               href="/politicians"
-              className="flex items-center gap-2 text-primary font-semibold"
+              className="flex items-center gap-2 text-primary font-semibold text-sm"
             >
               See all profiles <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {trendingProfiles.map((p) => (
               <Link key={p.id} href={`/politicians/${p.id}`} className="block">
                 <Card className="group overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-                  <CardContent className="p-6">
+                  <CardContent className="p-4">
                     <div className="flex items-center gap-4 mb-4">
                       <Image
                         src={p.photoUrl}
                         alt={p.name}
-                        width={64}
-                        height={64}
+                        width={56}
+                        height={56}
                         className="rounded-full"
                         data-ai-hint="politician photo"
                       />
                       <div>
-                        <h3 className="font-bold text-lg">
+                        <h3 className="font-bold text-base">
                           {p.name}
                         </h3>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-xs text-muted-foreground">
                           {p.currentPosition}
                         </p>
                       </div>
                     </div>
-                     <div className="flex justify-between items-center bg-primary/10 p-3 rounded-md">
-                      <span className="text-primary font-semibold text-sm">
+                     <div className="flex justify-between items-center bg-primary/10 p-2 rounded-md">
+                      <span className="text-primary font-semibold text-xs">
                         {p.party}
                       </span>
-                      <span className="text-sm text-gray-500">
+                      <span className="text-xs text-gray-500">
                         {p.constituency.split(',')[1]}
                       </span>
                     </div>
@@ -224,31 +224,32 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-16 bg-background">
+      <section className="py-12 bg-background">
         <div className="container mx-auto px-4">
-          <Card className="p-8 lg:p-12 border-none shadow-none bg-muted/50">
+          <Card className="p-6 lg:p-8 border-none shadow-none bg-muted/50">
             <div className="flex flex-col lg:flex-row gap-8 items-center">
               <div className="lg:w-1/2">
-                <span className="text-primary font-semibold mb-2 block text-sm">
+                <span className="text-primary font-semibold mb-2 block text-xs">
                   POPULAR SEARCHES
                 </span>
-                <h2 className="text-3xl font-bold mb-4">
+                <h2 className="text-2xl font-bold mb-3">
                   Explore Suggested Searches
                 </h2>
-                <p className="text-muted-foreground max-w-md">
+                <p className="text-muted-foreground text-sm max-w-md">
                   Find your next representative by exploring popular roles and
                   constituencies. We've compiled a list of common searches to get
                   you started.
                 </p>
               </div>
               <div className="lg:w-1/2">
-                <div className="bg-white p-6 rounded-lg shadow-sm">
-                  <div className="flex flex-wrap gap-3">
+                <div className="bg-white p-4 rounded-lg shadow-sm">
+                  <div className="flex flex-wrap gap-2">
                     {suggestedSearches.map((term) => (
                       <Button
                         key={term}
                         variant="outline"
-                        className="bg-primary/10 border-primary/20 text-primary hover:bg-primary/20"
+                        size="sm"
+                        className="bg-primary/10 border-primary/20 text-primary hover:bg-primary/20 text-xs"
                         onClick={() => handleSuggestedSearch(term)}
                       >
                         {term}
@@ -262,28 +263,28 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-16">
+      <section className="py-12">
         <div className="container mx-auto px-4">
-          <Card className="p-8 lg:p-12 border-none bg-transparent shadow-none">
+          <Card className="p-6 lg:p-8 border-none bg-transparent shadow-none">
             <div className="flex flex-col md:flex-row items-center gap-8">
               <div className="flex-1">
-                <Quote className="text-primary w-8 h-8 mb-4 transform -scale-x-100" />
-                <p className="text-xl md:text-2xl font-medium text-gray-800 leading-relaxed">
+                <Quote className="text-primary w-6 h-6 mb-3 transform -scale-x-100" />
+                <p className="text-lg md:text-xl font-medium text-gray-800 leading-relaxed">
                   This platform is an invaluable resource for understanding the political landscape. It's incredibly easy to use and informative.
                 </p>
-                <div className="mt-6">
-                  <p className="font-semibold">Priya Sharma</p>
-                  <p className="text-sm text-muted-foreground">
+                <div className="mt-4">
+                  <p className="font-semibold text-sm">Priya Sharma</p>
+                  <p className="text-xs text-muted-foreground">
                     Political Analyst
                   </p>
                 </div>
               </div>
               <div className="flex-shrink-0">
                 <Image
-                  src="https://picsum.photos/seed/priya/150/150"
+                  src="https://picsum.photos/seed/priya/120/120"
                   alt="Priya Sharma"
-                  width={150}
-                  height={150}
+                  width={120}
+                  height={120}
                   className="rounded-full"
                   data-ai-hint="person illustration"
                 />
@@ -293,13 +294,13 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="pb-16 pt-8">
+      <section className="pb-12 pt-6">
         <div className="container mx-auto px-4">
-          <div className="bg-gradient-to-br from-primary to-indigo-600 text-primary-foreground rounded-lg p-8 lg:p-12">
+          <div className="bg-gradient-to-br from-primary to-indigo-600 text-primary-foreground rounded-lg p-8">
             <div className="flex flex-col md:flex-row justify-between items-center gap-6 text-center md:text-left">
               <div>
-                <h2 className="text-3xl font-bold">Ready to Get Involved?</h2>
-                <p className="max-w-xl opacity-90 mt-2">
+                <h2 className="text-2xl font-bold">Ready to Get Involved?</h2>
+                <p className="max-w-xl opacity-90 mt-2 text-sm">
                   Contribute to our platform and help us keep the directory
                   accurate and up-to-date for everyone.
                 </p>

@@ -55,22 +55,22 @@ function PoliticiansPageContent() {
   }, [searchTerm, partyFilter, stateFilter]);
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-8 text-center">
-        <h1 className="text-4xl md:text-5xl font-bold mb-2">Politician Directory</h1>
-        <p className="text-lg text-muted-foreground">
+    <div className="container mx-auto px-4 py-6">
+      <div className="mb-6 text-center">
+        <h1 className="text-3xl md:text-4xl font-bold mb-2">Politician Directory</h1>
+        <p className="text-base text-muted-foreground">
           Browse and search for political leaders across India.
         </p>
       </div>
 
-      <div className="mb-8 p-4 bg-card border rounded-lg sticky top-20 z-10 shadow-sm">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="mb-6 p-4 bg-card border rounded-lg sticky top-16 z-10 shadow-sm">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div className="relative md:col-span-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
               type="text"
               placeholder="Search by name, role, or constituency..."
-              className="w-full pl-10"
+              className="w-full pl-9"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -103,14 +103,14 @@ function PoliticiansPageContent() {
       </div>
 
       {filteredPoliticians.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {filteredPoliticians.map((p) => (
             <PoliticianCard key={p.id} politician={p} />
           ))}
         </div>
       ) : (
-        <div className="text-center py-16">
-          <p className="text-xl text-muted-foreground">No politicians found matching your criteria.</p>
+        <div className="text-center py-12">
+          <p className="text-lg text-muted-foreground">No politicians found matching your criteria.</p>
         </div>
       )}
     </div>

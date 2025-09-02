@@ -15,15 +15,15 @@ export default function Header() {
   return (
     <header className="bg-background/80 backdrop-blur-sm border-b sticky top-0 z-20">
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-20">
-          <Link href="/" className="flex items-center gap-2 text-2xl font-bold text-gray-800">
-            <LogoIcon className="h-7 w-7 text-primary" />
+        <div className="flex items-center justify-between h-16">
+          <Link href="/" className="flex items-center gap-2 text-xl font-bold text-gray-800">
+            <LogoIcon className="h-6 w-6 text-primary" />
             PolitiFind
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-8">
+          <nav className="hidden lg:flex items-center gap-6">
             {navLinks.map((link) => (
-              <Link key={link.name} href={link.href} className="text-sm font-medium text-gray-600 hover:text-primary">
+              <Link key={link.name} href={link.href} className="text-xs font-medium text-gray-600 hover:text-primary">
                 {link.name}
               </Link>
             ))}
@@ -31,9 +31,9 @@ export default function Header() {
 
           <div className="hidden lg:flex items-center gap-2">
             <Button variant="ghost" size="icon">
-              <Search className="h-5 w-5 text-gray-600" />
+              <Search className="h-4 w-4 text-gray-600" />
             </Button>
-            <Button>
+            <Button size="sm">
               Contribute
             </Button>
           </div>
@@ -42,7 +42,7 @@ export default function Header() {
             <Sheet>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon">
-                  <Menu className="h-6 w-6" />
+                  <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
               <SheetContent side="right">

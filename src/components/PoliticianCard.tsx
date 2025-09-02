@@ -20,8 +20,8 @@ export default function PoliticianCard({ politician }: PoliticianCardProps) {
           'group-hover:shadow-lg group-hover:border-primary/50 group-hover:-translate-y-1'
         )}
       >
-        <CardContent className="p-4 flex flex-col h-full">
-            <div className="relative w-full aspect-[4/3] mb-4">
+        <CardContent className="p-3 flex flex-col h-full">
+            <div className="relative w-full aspect-[4/3] mb-3">
               <Image
                 src={politician.photoUrl}
                 alt={`Photo of ${politician.name}`}
@@ -33,20 +33,20 @@ export default function PoliticianCard({ politician }: PoliticianCardProps) {
             </div>
             <div className='flex-grow'>
               <div className='flex justify-between items-start gap-2'>
-                <h3 className="font-semibold text-lg leading-tight group-hover:text-primary flex-grow">
+                <h3 className="font-semibold text-base leading-tight group-hover:text-primary flex-grow">
                   {politician.name}
                 </h3>
                 <div className="flex-shrink-0">
-                  <PartyLogo party={politician.party} className="w-8 h-8" />
+                  <PartyLogo party={politician.party} className="w-7 h-7" />
                 </div>
               </div>
-              <p className="text-sm text-muted-foreground flex items-center gap-1.5 mt-1">
-                <MapPin className="w-3.5 h-3.5" />
+              <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+                <MapPin className="w-3 h-3" />
                 {politician.constituency}
               </p>
             </div>
-            <div className="mt-4 flex items-center justify-between pt-4 border-t">
-              <Badge variant="secondary" className="font-normal">{politician.currentPosition}</Badge>
+            <div className="mt-3 flex items-center justify-between pt-3 border-t">
+              <Badge variant="secondary" className="font-normal text-xs">{politician.currentPosition}</Badge>
             </div>
         </CardContent>
       </Card>

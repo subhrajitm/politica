@@ -31,17 +31,17 @@ export default function PoliticianPage({ params }: { params: { id: string } }) {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-6">
       <Link
         href="/politicians"
-        className="inline-flex items-center gap-2 text-primary mb-6 hover:underline"
+        className="inline-flex items-center gap-2 text-primary mb-4 hover:underline text-sm"
       >
         <ArrowLeft className="w-4 h-4" />
         <span>Back to All Politicians</span>
       </Link>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-1 space-y-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-1 space-y-6">
           <Card className="overflow-hidden">
             <CardHeader className="p-0">
               <div className="relative w-full aspect-square">
@@ -55,18 +55,18 @@ export default function PoliticianPage({ params }: { params: { id: string } }) {
                 />
               </div>
             </CardHeader>
-            <CardContent className="p-6">
+            <CardContent className="p-4">
               <div className="flex justify-between items-start">
-                <h1 className="text-2xl font-bold">
+                <h1 className="text-xl font-bold">
                   {politician.name}
                 </h1>
-                <PartyLogo party={politician.party} className="w-10 h-10" />
+                <PartyLogo party={politician.party} className="w-8 h-8" />
               </div>
-              <p className="text-muted-foreground text-base">
+              <p className="text-muted-foreground text-sm">
                 {politician.currentPosition}
               </p>
-              <Separator className="my-4" />
-              <div className="space-y-3 text-sm">
+              <Separator className="my-3" />
+              <div className="space-y-2 text-sm">
                 <div className="flex items-center gap-3">
                   <MapPin className="w-4 h-4 text-muted-foreground" />
                   <span>{politician.constituency}</span>
@@ -89,32 +89,32 @@ export default function PoliticianPage({ params }: { params: { id: string } }) {
                   <span>{politician.contact.phone}</span>
                 </div>
               </div>
-              <Badge className="mt-4 w-full justify-center" variant="outline">
+              <Badge className="mt-3 w-full justify-center" variant="outline">
                 {politician.party}
               </Badge>
             </CardContent>
           </Card>
         </div>
 
-        <div className="lg:col-span-2 space-y-8">
+        <div className="lg:col-span-2 space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 text-xl">
                 <Briefcase className="w-5 h-5" />
                 Work History
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-6">
+              <div className="space-y-4">
                 {politician.workHistory.map((item, index) => (
-                  <div key={index} className="relative pl-6">
+                  <div key={index} className="relative pl-5">
                     <div className="absolute left-0 top-1 h-full border-l-2 border-border"></div>
-                    <div className="absolute left-[-5px] top-1.5 w-3 h-3 rounded-full bg-primary"></div>
-                    <p className="font-semibold">{item.position}</p>
-                    <p className="text-sm text-muted-foreground">
+                    <div className="absolute left-[-4px] top-1.5 w-2 h-2 rounded-full bg-primary"></div>
+                    <p className="font-semibold text-sm">{item.position}</p>
+                    <p className="text-xs text-muted-foreground">
                       {item.tenure}
                     </p>
-                    <p className="mt-1">{item.contributions}</p>
+                    <p className="mt-1 text-sm">{item.contributions}</p>
                   </div>
                 ))}
               </div>
@@ -123,7 +123,7 @@ export default function PoliticianPage({ params }: { params: { id: string } }) {
 
           <Card>
             <CardHeader>
-              <CardTitle>AI-Powered Summary</CardTitle>
+              <CardTitle className="text-xl">AI-Powered Summary</CardTitle>
             </CardHeader>
             <CardContent>
               <AISummary politician={politician} />
