@@ -190,9 +190,15 @@ export class PoliticianService {
   // Create a new politician
   static async createPolitician(politicianData: Omit<Politician, 'id'>): Promise<string> {
     try {
+      console.log('Creating politician with data:', JSON.stringify(politicianData, null, 2));
+      
+      // Generate a unique ID for the politician
+      const politicianId = `pol_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+      
       const { data, error } = await supabase
         .from('politicians')
         .insert({
+          id: politicianId,
           full_name: politicianData.name.fullName,
           aliases: politicianData.name.aliases,
           date_of_birth: politicianData.personalDetails.dateOfBirth,
@@ -211,20 +217,29 @@ export class PoliticianService {
           constituency: politicianData.constituency,
           current_position: politicianData.positions.current.position,
           assumed_office: politicianData.positions.current.assumedOffice,
-          committees: politicianData.positions.current.committees
+          committees: politicianData.positions.current.committees,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
         })
         .select('id')
         .single()
 
-      if (error) throw error
+      if (error) {
+        console.error('Supabase error creating politician:', error);
+        throw new Error(`Database error: ${error.message || 'Unknown database error'}`);
+      }
 
       // Insert related data
-      await this.insertRelatedData(data.id, politicianData)
+      await this.insertRelatedData(politicianId, politicianData)
 
-      return data.id
+      return politicianId
     } catch (error) {
       console.error('Error creating politician:', error)
-      throw error
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error(`Unknown error creating politician: ${JSON.stringify(error)}`);
+      }
     }
   }
 
@@ -310,6 +325,8 @@ export class PoliticianService {
   // Insert related data for a politician
   private static async insertRelatedData(politicianId: string, politicianData: Omit<Politician, 'id'>): Promise<void> {
     try {
+      console.log('Inserting related data for politician:', politicianId);
+      
       // Insert work history
       if (politicianData.positions.history.length > 0) {
         const workHistoryData = politicianData.positions.history.map(work => ({
@@ -318,7 +335,11 @@ export class PoliticianService {
           tenure: work.tenure,
           contributions: work.contributions
         }))
-        await supabase.from('work_history').insert(workHistoryData)
+        const { error: workHistoryError } = await supabase.from('work_history').insert(workHistoryData)
+        if (workHistoryError) {
+          console.error('Error inserting work history:', workHistoryError);
+          throw new Error(`Failed to insert work history: ${workHistoryError.message}`);
+        }
       }
 
       // Insert education
@@ -329,7 +350,11 @@ export class PoliticianService {
           degree: edu.degree,
           year: edu.year
         }))
-        await supabase.from('education').insert(educationData)
+        const { error: educationError } = await supabase.from('education').insert(educationData)
+        if (educationError) {
+          console.error('Error inserting education:', educationError);
+          throw new Error(`Failed to insert education: ${educationError.message}`);
+        }
       }
 
       // Insert electoral history

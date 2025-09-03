@@ -56,6 +56,15 @@ export default function NewPoliticianPage() {
       if (!fullName || !party || !constituency || !currentPosition) {
         throw new Error('Please fill in full name, party, constituency, and current position.');
       }
+      
+      // Validate required fields
+      if (party === 'Other' && !customParty) {
+        throw new Error('Please enter a custom party name when selecting "Other".');
+      }
+      
+      if (nationality === 'Other' && !customNationality) {
+        throw new Error('Please enter a custom nationality when selecting "Other".');
+      }
 
       const newPolitician: Omit<Politician, 'id'> = {
         name: {
@@ -67,21 +76,21 @@ export default function NewPoliticianPage() {
         },
         personalDetails: {
           dateOfBirth: dateOfBirth || '1970-01-01',
-          placeOfBirth: placeOfBirth || '',
+          placeOfBirth: placeOfBirth || 'Unknown',
           gender: gender || 'Unknown',
-          nationality: nationality === 'Other' ? customNationality : nationality || '',
+          nationality: nationality === 'Other' ? customNationality : nationality || 'Unknown',
           languages: languages
             .split(',')
             .map(l => l.trim())
-            .filter(Boolean),
+            .filter(Boolean) || ['English'],
         },
         contact: {
-          address: address || '',
-          email: email || '',
-          phone: phone || '',
+          address: address || 'Unknown',
+          email: email || 'unknown@example.com',
+          phone: phone || 'Unknown',
           website: website || undefined,
         },
-        photoUrl: photoUrl || '',
+        photoUrl: photoUrl || 'https://via.placeholder.com/400x400?text=No+Photo',
         family: {
           spouse: spouse || undefined,
           children: children
@@ -95,7 +104,7 @@ export default function NewPoliticianPage() {
         positions: {
           current: {
             position: currentPosition,
-            assumedOffice: assumedOffice || '',
+            assumedOffice: assumedOffice || '1970-01-01',
             committees: committees
               .split(',')
               .map(c => c.trim())
@@ -124,9 +133,12 @@ export default function NewPoliticianPage() {
         },
       };
 
-      await PoliticianService.createPolitician(newPolitician);
+      console.log('Submitting politician data:', newPolitician);
+      const politicianId = await PoliticianService.createPolitician(newPolitician);
+      console.log('Politician created successfully with ID:', politicianId);
       router.push('/admin/politicians');
     } catch (err: any) {
+      console.error('Error creating politician:', err);
       setError(err?.message || 'Failed to create politician');
     } finally {
       setSubmitting(false);
