@@ -3,6 +3,7 @@ import './globals.css';
 import { cn } from '@/lib/utils';
 import { Toaster } from '@/components/ui/toaster';
 import AdminLayoutWrapper from '@/components/AdminLayoutWrapper';
+import DynamicTitle from '@/components/DynamicTitle';
 
 export const metadata: Metadata = {
   title: 'PolitiFind - Find Politicians In Your Area',
@@ -33,6 +34,7 @@ export default function RootLayout({
         className={cn('min-h-screen bg-background font-sans antialiased')}
       >
         <div className="relative flex min-h-screen flex-col">
+          <DynamicTitle />
           <AdminLayoutWrapper>
             <main className="flex-1">{children}</main>
           </AdminLayoutWrapper>

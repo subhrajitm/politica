@@ -174,10 +174,15 @@ END;
 $$ language 'plpgsql';
 
 -- Create trigger to automatically update updated_at
-CREATE TRIGGER update_politicians_updated_at 
-    BEFORE UPDATE ON politicians 
-    FOR EACH ROW 
-    EXECUTE FUNCTION update_updated_at_column();
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_politicians_updated_at') THEN
+        CREATE TRIGGER update_politicians_updated_at 
+            BEFORE UPDATE ON politicians 
+            FOR EACH ROW 
+            EXECUTE FUNCTION update_updated_at_column();
+    END IF;
+END $$;
 
 -- Enable Row Level Security (RLS) - but with permissive policies for now
 ALTER TABLE politicians ENABLE ROW LEVEL SECURITY;
@@ -198,56 +203,163 @@ ALTER TABLE social_media ENABLE ROW LEVEL SECURITY;
 -- These can be tightened later for production
 
 -- Politicians table - allow all operations for now
-CREATE POLICY "Allow all operations on politicians" ON politicians
-    FOR ALL USING (true) WITH CHECK (true);
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow all operations on politicians' AND tablename = 'politicians') THEN
+        CREATE POLICY "Allow all operations on politicians" ON politicians
+            FOR ALL USING (true) WITH CHECK (true);
+    END IF;
+END $$;
 
 -- Work history table
-CREATE POLICY "Allow all operations on work_history" ON work_history
-    FOR ALL USING (true) WITH CHECK (true);
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow all operations on work_history' AND tablename = 'work_history') THEN
+        CREATE POLICY "Allow all operations on work_history" ON work_history
+            FOR ALL USING (true) WITH CHECK (true);
+    END IF;
+END $$;
 
 -- Education table
-CREATE POLICY "Allow all operations on education" ON education
-    FOR ALL USING (true) WITH CHECK (true);
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow all operations on education' AND tablename = 'education') THEN
+        CREATE POLICY "Allow all operations on education" ON education
+            FOR ALL USING (true) WITH CHECK (true);
+    END IF;
+END $$;
 
 -- Electoral history table
-CREATE POLICY "Allow all operations on electoral_history" ON electoral_history
-    FOR ALL USING (true) WITH CHECK (true);
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow all operations on electoral_history' AND tablename = 'electoral_history') THEN
+        CREATE POLICY "Allow all operations on electoral_history" ON electoral_history
+            FOR ALL USING (true) WITH CHECK (true);
+    END IF;
+END $$;
 
 -- Policy stances table
-CREATE POLICY "Allow all operations on policy_stances" ON policy_stances
-    FOR ALL USING (true) WITH CHECK (true);
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow all operations on policy_stances' AND tablename = 'policy_stances') THEN
+        CREATE POLICY "Allow all operations on policy_stances" ON policy_stances
+            FOR ALL USING (true) WITH CHECK (true);
+    END IF;
+END $$;
 
 -- Voting records table
-CREATE POLICY "Allow all operations on voting_records" ON voting_records
-    FOR ALL USING (true) WITH CHECK (true);
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow all operations on voting_records' AND tablename = 'voting_records') THEN
+        CREATE POLICY "Allow all operations on voting_records" ON voting_records
+            FOR ALL USING (true) WITH CHECK (true);
+    END IF;
+END $$;
 
 -- Legislative achievements table
-CREATE POLICY "Allow all operations on legislative_achievements" ON legislative_achievements
-    FOR ALL USING (true) WITH CHECK (true);
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow all operations on legislative_achievements' AND tablename = 'legislative_achievements') THEN
+        CREATE POLICY "Allow all operations on legislative_achievements" ON legislative_achievements
+            FOR ALL USING (true) WITH CHECK (true);
+    END IF;
+END $$;
 
 -- Ratings table
-CREATE POLICY "Allow all operations on ratings" ON ratings
-    FOR ALL USING (true) WITH CHECK (true);
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow all operations on ratings' AND tablename = 'ratings') THEN
+        CREATE POLICY "Allow all operations on ratings" ON ratings
+            FOR ALL USING (true) WITH CHECK (true);
+    END IF;
+END $$;
 
 -- Campaign finance table
-CREATE POLICY "Allow all operations on campaign_finance" ON campaign_finance
-    FOR ALL USING (true) WITH CHECK (true);
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow all operations on campaign_finance' AND tablename = 'campaign_finance') THEN
+        CREATE POLICY "Allow all operations on campaign_finance" ON campaign_finance
+            FOR ALL USING (true) WITH CHECK (true);
+    END IF;
+END $$;
 
 -- Relationships table
-CREATE POLICY "Allow all operations on relationships" ON relationships
-    FOR ALL USING (true) WITH CHECK (true);
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow all operations on relationships' AND tablename = 'relationships') THEN
+        CREATE POLICY "Allow all operations on relationships" ON relationships
+            FOR ALL USING (true) WITH CHECK (true);
+    END IF;
+END $$;
 
 -- News mentions table
-CREATE POLICY "Allow all operations on news_mentions" ON news_mentions
-    FOR ALL USING (true) WITH CHECK (true);
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow all operations on news_mentions' AND tablename = 'news_mentions') THEN
+        CREATE POLICY "Allow all operations on news_mentions" ON news_mentions
+            FOR ALL USING (true) WITH CHECK (true);
+    END IF;
+END $$;
 
 -- Speeches table
-CREATE POLICY "Allow all operations on speeches" ON speeches
-    FOR ALL USING (true) WITH CHECK (true);
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow all operations on speeches' AND tablename = 'speeches') THEN
+        CREATE POLICY "Allow all operations on speeches" ON speeches
+            FOR ALL USING (true) WITH CHECK (true);
+    END IF;
+END $$;
 
 -- Social media table
-CREATE POLICY "Allow all operations on social_media" ON social_media
-    FOR ALL USING (true) WITH CHECK (true);
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow all operations on social_media' AND tablename = 'social_media') THEN
+        CREATE POLICY "Allow all operations on social_media" ON social_media
+            FOR ALL USING (true) WITH CHECK (true);
+    END IF;
+END $$;
 
 -- Note: These policies allow all operations for now to enable migration
 -- In production, you should tighten these policies for security
+
+-- Create settings table for site configuration
+CREATE TABLE IF NOT EXISTS settings (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  key TEXT UNIQUE NOT NULL,
+  value TEXT NOT NULL,
+  description TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Insert default settings
+INSERT INTO settings (key, value, description) VALUES
+  ('site_name', 'PolitiFind', 'The name of the website'),
+  ('site_description', 'Find Politicians In Your Area', 'The description of the website'),
+  ('contact_email', 'contact@politifind.com', 'Contact email address'),
+  ('require_approval', 'true', 'Whether to require admin approval for new submissions'),
+  ('enable_public_contributions', 'false', 'Whether to enable public contributions')
+ON CONFLICT (key) DO NOTHING;
+
+-- Create trigger for settings table
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_settings_updated_at') THEN
+        CREATE TRIGGER update_settings_updated_at 
+            BEFORE UPDATE ON settings 
+            FOR EACH ROW 
+            EXECUTE FUNCTION update_updated_at_column();
+    END IF;
+END $$;
+
+-- Enable RLS on settings table
+ALTER TABLE settings ENABLE ROW LEVEL SECURITY;
+
+-- Create policy for settings table
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow all operations on settings' AND tablename = 'settings') THEN
+        CREATE POLICY "Allow all operations on settings" ON settings
+            FOR ALL USING (true) WITH CHECK (true);
+    END IF;
+END $$;
