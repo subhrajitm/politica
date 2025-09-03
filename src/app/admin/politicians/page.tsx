@@ -67,8 +67,8 @@ export default function AdminPoliticiansPage() {
 
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-center py-12">
+          <div className="w-full px-6 py-8 h-full overflow-y-auto">
+      <div className="flex items-center justify-center py-12">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
           <span className="ml-2 text-lg">Loading politicians...</span>
         </div>
@@ -77,7 +77,7 @@ export default function AdminPoliticiansPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="w-full px-6 py-8 h-full overflow-y-auto">
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-3xl font-bold">Manage Politicians</h1>

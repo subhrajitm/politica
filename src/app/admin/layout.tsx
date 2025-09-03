@@ -19,8 +19,8 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
   ];
 
   return (
-    <SidebarProvider>
-      <div className="flex min-h-screen bg-muted/40">
+    <SidebarProvider key="admin-layout">
+      <div className="absolute inset-0 flex h-screen bg-muted/40 w-full">
         <Sidebar collapsible="icon" className="hidden lg:block">
           <div className="flex flex-col h-full">
             <div className="h-14 flex items-center px-4 border-b">
@@ -61,7 +61,7 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
             </div>
           </div>
         </Sidebar>
-        <main className="flex-1 flex flex-col">
+        <main className="flex-1 flex flex-col min-w-0 w-full overflow-y-auto h-full">
            {children}
         </main>
       </div>

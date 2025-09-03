@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Users, PlusCircle, Activity, FileText } from 'lucide-react';
+import { Users, PlusCircle, Activity, FileText, Eye, Edit } from 'lucide-react';
 import { PoliticianService } from '@/lib/politicianService';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -34,7 +34,7 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+      <div className="w-full px-6 py-8 h-full overflow-y-auto">
         <div className="text-center">
           <p>Loading dashboard...</p>
         </div>
@@ -43,13 +43,15 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+    <div className="w-full px-6 py-8 h-full overflow-y-auto">
       <div className="flex items-center justify-between space-y-2">
         <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
         <div className="flex items-center space-x-2">
-          <Button>
-            <PlusCircle className="mr-2 h-4 w-4" /> Add New Politician
-          </Button>
+          <Link href="/admin/politicians/new">
+            <Button>
+              <PlusCircle className="mr-2 h-4 w-4" /> Add New Politician
+            </Button>
+          </Link>
         </div>
       </div>
       
@@ -86,7 +88,7 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      <div>
+      <div className="mt-8">
         <Card>
           <CardHeader>
             <CardTitle>Recently Added Politicians</CardTitle>
@@ -100,6 +102,7 @@ export default function DashboardPage() {
                   <TableHead>Party</TableHead>
                   <TableHead>Position</TableHead>
                   <TableHead>Constituency</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -114,6 +117,22 @@ export default function DashboardPage() {
                     </TableCell>
                     <TableCell>{p.positions.current.position}</TableCell>
                     <TableCell>{p.constituency}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <Link href={`/politicians/${p.id}`}>
+                          <Button variant="outline" size="sm">
+                            <Eye className="w-4 h-4 mr-1" />
+                            View
+                          </Button>
+                        </Link>
+                        <Link href={`/admin/politicians/${p.id}/edit`}>
+                          <Button variant="outline" size="sm">
+                            <Edit className="w-4 h-4 mr-1" />
+                            Edit
+                          </Button>
+                        </Link>
+                      </div>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>

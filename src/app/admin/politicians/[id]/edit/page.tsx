@@ -9,6 +9,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import { Loader2, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
@@ -44,6 +46,8 @@ export default function EditPoliticianPage() {
   const [children, setChildren] = useState('');
   const [twitter, setTwitter] = useState('');
   const [facebook, setFacebook] = useState('');
+  const [customParty, setCustomParty] = useState('');
+  const [customNationality, setCustomNationality] = useState('');
 
   useEffect(() => {
     if (politicianId) {
@@ -79,6 +83,8 @@ export default function EditPoliticianPage() {
         setChildren(data.personalDetails.children?.join(', ') || '');
         setTwitter(data.socialMedia?.twitter || '');
         setFacebook(data.socialMedia?.facebook || '');
+        setCustomParty(data.party && !['Democratic Party', 'Republican Party', 'Independent', 'Green Party', 'Libertarian Party', 'Conservative Party', 'Labour Party', 'Liberal Democrats', 'Scottish National Party', 'Plaid Cymru', 'Sinn Féin', 'Democratic Unionist Party', 'Alliance Party', 'Social Democratic and Labour Party', 'Ulster Unionist Party'].includes(data.party) ? data.party : '');
+        setCustomNationality(data.personalDetails.nationality && !['American', 'British', 'Canadian', 'Australian', 'Indian', 'Chinese', 'Japanese', 'German', 'French', 'Italian', 'Spanish', 'Russian', 'Brazilian', 'Mexican', 'South African'].includes(data.personalDetails.nationality) ? data.personalDetails.nationality : '');
       }
     } catch (error) {
       console.error('Error loading politician:', error);
@@ -103,7 +109,7 @@ export default function EditPoliticianPage() {
           fullName,
           aliases: aliases ? aliases.split(',').map(s => s.trim()).filter(Boolean) : [],
         },
-        party,
+        party: party === 'Other' ? customParty : party,
         constituency,
         positions: {
           ...politician.positions,
@@ -119,7 +125,7 @@ export default function EditPoliticianPage() {
           dateOfBirth,
           placeOfBirth,
           gender,
-          nationality,
+          nationality: nationality === 'Other' ? customNationality : nationality,
           languages: languages ? languages.split(',').map(s => s.trim()).filter(Boolean) : [],
           spouse,
           children: children ? children.split(',').map(s => s.trim()).filter(Boolean) : [],
@@ -151,8 +157,8 @@ export default function EditPoliticianPage() {
 
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-center py-12">
+          <div className="w-full px-6 py-8 h-full overflow-y-auto">
+      <div className="flex items-center justify-center py-12">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
           <span className="ml-2 text-lg">Loading politician...</span>
         </div>
@@ -162,8 +168,8 @@ export default function EditPoliticianPage() {
 
   if (!politician) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center py-12">
+          <div className="w-full px-6 py-8 h-full overflow-y-auto">
+      <div className="text-center py-12">
           <h1 className="text-2xl font-bold text-red-600">Politician not found</h1>
           <p className="text-muted-foreground mt-2">The politician you're looking for doesn't exist.</p>
           <Link href="/admin/politicians">
@@ -178,7 +184,7 @@ export default function EditPoliticianPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="w-full px-6 py-8 h-full overflow-y-auto">
       <div className="mb-6">
         <Link href="/admin/politicians">
           <Button variant="outline" className="mb-4">
@@ -205,26 +211,62 @@ export default function EditPoliticianPage() {
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   required
+                  minLength={2}
+                  maxLength={100}
+                  placeholder="Enter full legal name"
                 />
+                <p className="text-xs text-muted-foreground">{fullName.length}/100 characters</p>
               </div>
               <div>
                 <Label htmlFor="aliases">Aliases (comma-separated)</Label>
-                <Input
+                <Textarea
                   id="aliases"
                   value={aliases}
                   onChange={(e) => setAliases(e.target.value)}
                   placeholder="e.g., John Doe, J. Doe"
+                  rows={2}
+                  maxLength={200}
                 />
+                <p className="text-xs text-muted-foreground">{aliases.length}/200 characters</p>
               </div>
               <div>
                 <Label htmlFor="party">Party *</Label>
-                <Input
-                  id="party"
-                  value={party}
-                  onChange={(e) => setParty(e.target.value)}
-                  required
-                />
+                <Select value={party} onValueChange={setParty} required>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select political party" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Democratic Party">Democratic Party</SelectItem>
+                    <SelectItem value="Republican Party">Republican Party</SelectItem>
+                    <SelectItem value="Independent">Independent</SelectItem>
+                    <SelectItem value="Green Party">Green Party</SelectItem>
+                    <SelectItem value="Libertarian Party">Libertarian Party</SelectItem>
+                    <SelectItem value="Conservative Party">Conservative Party</SelectItem>
+                    <SelectItem value="Labour Party">Labour Party</SelectItem>
+                    <SelectItem value="Liberal Democrats">Liberal Democrats</SelectItem>
+                    <SelectItem value="Scottish National Party">Scottish National Party</SelectItem>
+                    <SelectItem value="Plaid Cymru">Plaid Cymru</SelectItem>
+                    <SelectItem value="Sinn Féin">Sinn Féin</SelectItem>
+                    <SelectItem value="Democratic Unionist Party">Democratic Unionist Party</SelectItem>
+                    <SelectItem value="Alliance Party">Alliance Party</SelectItem>
+                    <SelectItem value="Social Democratic and Labour Party">Social Democratic and Labour Party</SelectItem>
+                    <SelectItem value="Ulster Unionist Party">Ulster Unionist Party</SelectItem>
+                    <SelectItem value="Other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
+              {party === 'Other' && (
+                <div>
+                  <Label htmlFor="customParty">Custom Party Name *</Label>
+                  <Input
+                    id="customParty"
+                    value={customParty}
+                    onChange={(e) => setCustomParty(e.target.value)}
+                    placeholder="Enter party name"
+                    required
+                  />
+                </div>
+              )}
               <div>
                 <Label htmlFor="constituency">Constituency *</Label>
                 <Input
@@ -256,18 +298,20 @@ export default function EditPoliticianPage() {
                 <Label htmlFor="assumedOffice">Assumed Office</Label>
                 <Input
                   id="assumedOffice"
+                  type="month"
                   value={assumedOffice}
                   onChange={(e) => setAssumedOffice(e.target.value)}
-                  placeholder="e.g., January 2020"
+                  placeholder="e.g., 2020-01"
                 />
               </div>
               <div>
                 <Label htmlFor="committees">Committees (comma-separated)</Label>
-                <Input
+                <Textarea
                   id="committees"
                   value={committees}
                   onChange={(e) => setCommittees(e.target.value)}
                   placeholder="e.g., Finance, Education"
+                  rows={2}
                 />
               </div>
             </CardContent>
@@ -298,28 +342,64 @@ export default function EditPoliticianPage() {
               </div>
               <div>
                 <Label htmlFor="gender">Gender</Label>
-                <Input
-                  id="gender"
-                  value={gender}
-                  onChange={(e) => setGender(e.target.value)}
-                  placeholder="e.g., Male, Female, Other"
-                />
+                <Select value={gender} onValueChange={setGender}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select gender" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Male">Male</SelectItem>
+                    <SelectItem value="Female">Female</SelectItem>
+                    <SelectItem value="Other">Other</SelectItem>
+                    <SelectItem value="Prefer not to say">Prefer not to say</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div>
                 <Label htmlFor="nationality">Nationality</Label>
-                <Input
-                  id="nationality"
-                  value={nationality}
-                  onChange={(e) => setNationality(e.target.value)}
-                />
+                <Select value={nationality} onValueChange={setNationality}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select nationality" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="American">American</SelectItem>
+                    <SelectItem value="British">British</SelectItem>
+                    <SelectItem value="Canadian">Canadian</SelectItem>
+                    <SelectItem value="Australian">Australian</SelectItem>
+                    <SelectItem value="Indian">Indian</SelectItem>
+                    <SelectItem value="Chinese">Chinese</SelectItem>
+                    <SelectItem value="Japanese">Japanese</SelectItem>
+                    <SelectItem value="German">German</SelectItem>
+                    <SelectItem value="French">French</SelectItem>
+                    <SelectItem value="Italian">Italian</SelectItem>
+                    <SelectItem value="Spanish">Spanish</SelectItem>
+                    <SelectItem value="Russian">Russian</SelectItem>
+                    <SelectItem value="Brazilian">Brazilian</SelectItem>
+                    <SelectItem value="Mexican">Mexican</SelectItem>
+                    <SelectItem value="South African">South African</SelectItem>
+                    <SelectItem value="Other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
+              {nationality === 'Other' && (
+                <div>
+                  <Label htmlFor="customNationality">Custom Nationality *</Label>
+                  <Input
+                    id="customNationality"
+                    value={customNationality}
+                    onChange={(e) => setCustomNationality(e.target.value)}
+                    placeholder="Enter nationality"
+                    required
+                  />
+                </div>
+              )}
               <div>
                 <Label htmlFor="languages">Languages (comma-separated)</Label>
-                <Input
+                <Textarea
                   id="languages"
                   value={languages}
                   onChange={(e) => setLanguages(e.target.value)}
                   placeholder="e.g., English, Spanish"
+                  rows={2}
                 />
               </div>
             </CardContent>
@@ -333,10 +413,12 @@ export default function EditPoliticianPage() {
             <CardContent className="space-y-4">
               <div>
                 <Label htmlFor="address">Address</Label>
-                <Input
+                <Textarea
                   id="address"
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
+                  rows={3}
+                  placeholder="Enter full address"
                 />
               </div>
               <div>
@@ -352,16 +434,20 @@ export default function EditPoliticianPage() {
                 <Label htmlFor="phone">Phone</Label>
                 <Input
                   id="phone"
+                  type="tel"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
+                  placeholder="+1 (555) 123-4567"
                 />
               </div>
               <div>
                 <Label htmlFor="website">Website</Label>
                 <Input
                   id="website"
+                  type="url"
                   value={website}
                   onChange={(e) => setWebsite(e.target.value)}
+                  placeholder="https://example.com"
                 />
               </div>
             </CardContent>
@@ -377,6 +463,7 @@ export default function EditPoliticianPage() {
                 <Label htmlFor="photoUrl">Photo URL</Label>
                 <Input
                   id="photoUrl"
+                  type="url"
                   value={photoUrl}
                   onChange={(e) => setPhotoUrl(e.target.value)}
                   placeholder="https://example.com/photo.jpg"
@@ -392,11 +479,12 @@ export default function EditPoliticianPage() {
               </div>
               <div>
                 <Label htmlFor="children">Children (comma-separated)</Label>
-                <Input
+                <Textarea
                   id="children"
                   value={children}
                   onChange={(e) => setChildren(e.target.value)}
                   placeholder="e.g., John Jr, Jane"
+                  rows={2}
                 />
               </div>
             </CardContent>
@@ -421,6 +509,7 @@ export default function EditPoliticianPage() {
                 <Label htmlFor="facebook">Facebook Page</Label>
                 <Input
                   id="facebook"
+                  type="url"
                   value={facebook}
                   onChange={(e) => setFacebook(e.target.value)}
                   placeholder="https://facebook.com/username"
@@ -437,7 +526,7 @@ export default function EditPoliticianPage() {
         )}
 
         <div className="mt-6 flex gap-4">
-          <Button type="submit" disabled={submitting}>
+          <Button type="submit" disabled={submitting} className="min-w-[140px]">
             {submitting ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -452,6 +541,11 @@ export default function EditPoliticianPage() {
               Cancel
             </Button>
           </Link>
+        </div>
+        
+        <div className="mt-4 text-sm text-muted-foreground">
+          <p>* Required fields</p>
+          <p>All changes will be saved immediately when you click Update Politician</p>
         </div>
       </form>
     </div>
