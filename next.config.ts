@@ -25,6 +25,12 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'www.geonames.org',
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
 };
