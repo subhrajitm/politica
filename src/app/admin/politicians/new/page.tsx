@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Sparkles } from 'lucide-react';
 
 export default function NewPoliticianPage() {
   const router = useRouter();
@@ -42,6 +42,7 @@ export default function NewPoliticianPage() {
   const [facebook, setFacebook] = useState('');
   const [customParty, setCustomParty] = useState('');
   const [customNationality, setCustomNationality] = useState('');
+  const [aiLoading, setAiLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -129,6 +130,49 @@ export default function NewPoliticianPage() {
     }
   }
 
+  async function handleAIAutofill() {
+    if (!fullName || fullName.trim().length < 2) {
+      setError('Please enter a valid name before using AI Autofill.');
+      return;
+    }
+    try {
+      setAiLoading(true);
+      setError(null);
+      const res = await fetch('/api/ai/autofill', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: fullName }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json?.error || 'AI autofill failed');
+      const d = json.data || {};
+      if (d.fullName) setFullName(d.fullName);
+      if (d.party) setParty(d.party);
+      if (d.constituency) setConstituency(d.constituency);
+      if (d.currentPosition) setCurrentPosition(d.currentPosition);
+      if (d.assumedOffice) setAssumedOffice(d.assumedOffice);
+      if (d.dateOfBirth) setDateOfBirth(d.dateOfBirth);
+      if (d.placeOfBirth) setPlaceOfBirth(d.placeOfBirth);
+      if (d.gender) setGender(d.gender);
+      if (d.nationality) setNationality(d.nationality);
+      if (Array.isArray(d.languages)) setLanguages(d.languages.join(', '));
+      if (Array.isArray(d.committees)) setCommittees(d.committees.join(', '));
+      if (d.address) setAddress(d.address);
+      if (d.email) setEmail(d.email);
+      if (d.phone) setPhone(d.phone);
+      if (d.website) setWebsite(d.website);
+      if (d.photoUrl) setPhotoUrl(d.photoUrl);
+      if (d.spouse) setSpouse(d.spouse);
+      if (Array.isArray(d.children)) setChildren(d.children.join(', '));
+      if (d.twitter) setTwitter(d.twitter);
+      if (d.facebook) setFacebook(d.facebook);
+    } catch (err: any) {
+      setError(err?.message || 'AI autofill failed');
+    } finally {
+      setAiLoading(false);
+    }
+  }
+
   return (
     <div className="w-full px-6 py-8 h-full overflow-y-auto">
       <div className="mb-6">
@@ -142,18 +186,33 @@ export default function NewPoliticianPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
+            <div className="flex items-end gap-2">
               <Label htmlFor="fullName">Full Name *</Label>
-              <Input
-                id="fullName"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                required
-                minLength={2}
-                maxLength={100}
-                placeholder="Enter full legal name"
-              />
-              <p className="text-xs text-muted-foreground">{fullName.length}/100 characters</p>
+              <div className="flex-1">
+                <Input
+                  id="fullName"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  required
+                  minLength={2}
+                  maxLength={100}
+                  placeholder="Enter full legal name"
+                />
+                <p className="text-xs text-muted-foreground">{fullName.length}/100 characters</p>
+              </div>
+              <Button type="button" variant="outline" onClick={handleAIAutofill} disabled={aiLoading || !fullName}>
+                {aiLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Autofilling...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    AI Autofill
+                  </>
+                )}
+              </Button>
             </div>
             <div>
               <Label htmlFor="aliases">Aliases (comma-separated)</Label>
