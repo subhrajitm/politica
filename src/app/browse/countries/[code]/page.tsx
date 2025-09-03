@@ -41,13 +41,20 @@ export default function CountryStatesPage() {
       {states.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
           {states.map((s) => (
-            <Card key={s.name} className="p-4 h-full">
-              <div className="flex items-center gap-3">
-                <div>
-                  <h2 className="font-semibold">{s.name}</h2>
+            <Link
+              key={s.name}
+              href={`/politicians?state=${encodeURIComponent(s.name)}`}
+              className="block group"
+            >
+              <Card className="p-4 h-full transition-all duration-300 group-hover:shadow-lg group-hover:border-primary/50 group-hover:-translate-y-0.5">
+                <div className="flex items-center gap-3">
+                  <div>
+                    <h2 className="font-semibold group-hover:text-primary">{s.name}</h2>
+                    <p className="text-xs text-muted-foreground">View politicians in this state</p>
+                  </div>
                 </div>
-              </div>
-            </Card>
+              </Card>
+            </Link>
           ))}
         </div>
       ) : (
