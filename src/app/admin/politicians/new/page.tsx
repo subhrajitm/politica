@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { PoliticianService } from '@/lib/politicianService';
 import type { Politician } from '@/lib/types';
@@ -43,6 +43,9 @@ export default function NewPoliticianPage() {
   const [customParty, setCustomParty] = useState('');
   const [customNationality, setCustomNationality] = useState('');
   const [aiLoading, setAiLoading] = useState(false);
+  const [aiAutofillName, setAiAutofillName] = useState('');
+
+
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -131,8 +134,8 @@ export default function NewPoliticianPage() {
   }
 
   async function handleAIAutofill() {
-    if (!fullName || fullName.trim().length < 2) {
-      setError('Please enter a valid name before using AI Autofill.');
+    if (!aiAutofillName || aiAutofillName.trim().length < 2) {
+      setError('Please enter a valid name in the AI Autofill field.');
       return;
     }
     try {
@@ -141,20 +144,41 @@ export default function NewPoliticianPage() {
       const res = await fetch('/api/ai/autofill', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: fullName }),
+        body: JSON.stringify({ name: aiAutofillName }),
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json?.error || 'AI autofill failed');
       const d = json.data || {};
-      if (d.fullName) setFullName(d.fullName);
-      if (d.party) setParty(d.party);
+      // Always set the full name from AI response or use the autofill name
+      setFullName(d.fullName || aiAutofillName);
+      // Handle party selection - check if it's a predefined party or custom
+      if (d.party) {
+        const predefinedParties = ['Democratic Party', 'Republican Party', 'Independent', 'Green Party', 'Libertarian Party', 'Conservative Party', 'Labour Party', 'Liberal Democrats', 'Scottish National Party', 'Plaid Cymru', 'Sinn Féin', 'Democratic Unionist Party', 'Alliance Party', 'Social Democratic and Labour Party', 'Ulster Unionist Party'];
+        if (predefinedParties.includes(d.party)) {
+          setParty(d.party);
+          setCustomParty('');
+        } else {
+          setParty('Other');
+          setCustomParty(d.party);
+        }
+      }
       if (d.constituency) setConstituency(d.constituency);
       if (d.currentPosition) setCurrentPosition(d.currentPosition);
       if (d.assumedOffice) setAssumedOffice(d.assumedOffice);
       if (d.dateOfBirth) setDateOfBirth(d.dateOfBirth);
       if (d.placeOfBirth) setPlaceOfBirth(d.placeOfBirth);
       if (d.gender) setGender(d.gender);
-      if (d.nationality) setNationality(d.nationality);
+      // Handle nationality selection - check if it's a predefined nationality or custom
+      if (d.nationality) {
+        const predefinedNationalities = ['American', 'British', 'Canadian', 'Australian', 'Indian', 'Chinese', 'Japanese', 'German', 'French', 'Italian', 'Spanish', 'Russian', 'Brazilian', 'Mexican', 'South African'];
+        if (predefinedNationalities.includes(d.nationality)) {
+          setNationality(d.nationality);
+          setCustomNationality('');
+        } else {
+          setNationality('Other');
+          setCustomNationality(d.nationality);
+        }
+      }
       if (Array.isArray(d.languages)) setLanguages(d.languages.join(', '));
       if (Array.isArray(d.committees)) setCommittees(d.committees.join(', '));
       if (d.address) setAddress(d.address);
@@ -166,6 +190,10 @@ export default function NewPoliticianPage() {
       if (Array.isArray(d.children)) setChildren(d.children.join(', '));
       if (d.twitter) setTwitter(d.twitter);
       if (d.facebook) setFacebook(d.facebook);
+      
+      // Clear the AI autofill field after successful autofill
+      setAiAutofillName('');
+      setError(null);
     } catch (err: any) {
       setError(err?.message || 'AI autofill failed');
     } finally {
@@ -186,33 +214,52 @@ export default function NewPoliticianPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="flex items-end gap-2">
+            <div>
               <Label htmlFor="fullName">Full Name *</Label>
-              <div className="flex-1">
+              <Input
+                id="fullName"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                required
+                minLength={2}
+                maxLength={100}
+                placeholder="Enter full legal name"
+              />
+              <p className="text-xs text-muted-foreground">{fullName.length}/100 characters</p>
+            </div>
+            <div>
+              <Label htmlFor="aiAutofill">AI Autofill</Label>
+              <div className="flex gap-2">
                 <Input
-                  id="fullName"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  required
-                  minLength={2}
-                  maxLength={100}
-                  placeholder="Enter full legal name"
+                  id="aiAutofill"
+                  value={aiAutofillName}
+                  onChange={(e) => setAiAutofillName(e.target.value)}
+                  placeholder="Enter politician name for AI autofill"
+                  disabled={aiLoading}
                 />
-                <p className="text-xs text-muted-foreground">{fullName.length}/100 characters</p>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={handleAIAutofill} 
+                  disabled={aiLoading}
+                  className="min-w-[120px]"
+                >
+                  {aiLoading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Autofilling...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="h-4 w-4 mr-2" />
+                      Autofill
+                    </>
+                  )}
+                </Button>
               </div>
-              <Button type="button" variant="outline" onClick={handleAIAutofill} disabled={aiLoading || !fullName}>
-                {aiLoading ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Autofilling...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="h-4 w-4 mr-2" />
-                    AI Autofill
-                  </>
-                )}
-              </Button>
+              <p className="text-xs text-muted-foreground mt-1">
+                Enter a politician's name and click Autofill to populate fields with AI research
+              </p>
             </div>
             <div>
               <Label htmlFor="aliases">Aliases (comma-separated)</Label>
@@ -228,6 +275,7 @@ export default function NewPoliticianPage() {
             </div>
             <div>
               <Label htmlFor="party">Party</Label>
+
               <Select value={party} onValueChange={setParty} required>
                 <SelectTrigger>
                   <SelectValue placeholder="Select political party" />

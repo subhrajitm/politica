@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, ArrowLeft } from 'lucide-react';
+import { Loader2, ArrowLeft, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 
 export default function EditPoliticianPage() {
@@ -48,6 +48,10 @@ export default function EditPoliticianPage() {
   const [facebook, setFacebook] = useState('');
   const [customParty, setCustomParty] = useState('');
   const [customNationality, setCustomNationality] = useState('');
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiAutofillName, setAiAutofillName] = useState('');
+
+
 
   useEffect(() => {
     if (politicianId) {
@@ -64,14 +68,12 @@ export default function EditPoliticianPage() {
         // Populate form fields
         setFullName(data.name.fullName || '');
         setAliases(data.name.aliases?.join(', ') || '');
-        setParty(data.party || '');
         setConstituency(data.constituency || '');
         setCurrentPosition(data.positions.current.position || '');
         setAssumedOffice(data.positions.current.assumedOffice || '');
         setDateOfBirth(data.personalDetails.dateOfBirth || '');
         setPlaceOfBirth(data.personalDetails.placeOfBirth || '');
         setGender(data.personalDetails.gender || '');
-        setNationality(data.personalDetails.nationality || '');
         setLanguages(data.personalDetails.languages?.join(', ') || '');
         setCommittees(data.positions.current.committees?.join(', ') || '');
         setAddress(data.contact.address || '');
@@ -83,14 +85,97 @@ export default function EditPoliticianPage() {
         setChildren(data.personalDetails.children?.join(', ') || '');
         setTwitter(data.socialMedia?.twitter || '');
         setFacebook(data.socialMedia?.facebook || '');
-        setCustomParty(data.party && !['Democratic Party', 'Republican Party', 'Independent', 'Green Party', 'Libertarian Party', 'Conservative Party', 'Labour Party', 'Liberal Democrats', 'Scottish National Party', 'Plaid Cymru', 'Sinn Féin', 'Democratic Unionist Party', 'Alliance Party', 'Social Democratic and Labour Party', 'Ulster Unionist Party'].includes(data.party) ? data.party : '');
-        setCustomNationality(data.personalDetails.nationality && !['American', 'British', 'Canadian', 'Australian', 'Indian', 'Chinese', 'Japanese', 'German', 'French', 'Italian', 'Spanish', 'Russian', 'Brazilian', 'Mexican', 'South African'].includes(data.personalDetails.nationality) ? data.personalDetails.nationality : '');
+        // Handle custom party logic
+        const predefinedParties = ['Democratic Party', 'Republican Party', 'Independent', 'Green Party', 'Libertarian Party', 'Conservative Party', 'Labour Party', 'Liberal Democrats', 'Scottish National Party', 'Plaid Cymru', 'Sinn Féin', 'Democratic Unionist Party', 'Alliance Party', 'Social Democratic and Labour Party', 'Ulster Unionist Party'];
+        if (data.party && !predefinedParties.includes(data.party)) {
+          setCustomParty(data.party);
+          setParty('Other');
+        } else {
+          setParty(data.party || '');
+        }
+        // Handle custom nationality logic
+        const predefinedNationalities = ['American', 'British', 'Canadian', 'Australian', 'Indian', 'Chinese', 'Japanese', 'German', 'French', 'Italian', 'Spanish', 'Russian', 'Brazilian', 'Mexican', 'South African'];
+        if (data.personalDetails.nationality && !predefinedNationalities.includes(data.personalDetails.nationality)) {
+          setCustomNationality(data.personalDetails.nationality);
+          setNationality('Other');
+        } else {
+          setNationality(data.personalDetails.nationality || '');
+        }
       }
     } catch (error) {
       console.error('Error loading politician:', error);
       setError('Failed to load politician data');
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleAIAutofill() {
+    if (!aiAutofillName || aiAutofillName.trim().length < 2) {
+      setError('Please enter a valid name in the AI Autofill field.');
+      return;
+    }
+    try {
+      setAiLoading(true);
+      setError(null);
+      const res = await fetch('/api/ai/autofill', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: aiAutofillName }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json?.error || 'AI autofill failed');
+      const d = json.data || {};
+      
+      // Update form fields with AI data
+      if (d.fullName) setFullName(d.fullName);
+      // Handle party selection - check if it's a predefined party or custom
+      if (d.party) {
+        const predefinedParties = ['Democratic Party', 'Republican Party', 'Independent', 'Green Party', 'Libertarian Party', 'Conservative Party', 'Labour Party', 'Liberal Democrats', 'Scottish National Party', 'Plaid Cymru', 'Sinn Féin', 'Democratic Unionist Party', 'Alliance Party', 'Social Democratic and Labour Party', 'Ulster Unionist Party'];
+        if (predefinedParties.includes(d.party)) {
+          setParty(d.party);
+          setCustomParty('');
+        } else {
+          setParty('Other');
+          setCustomParty(d.party);
+        }
+      }
+      if (d.constituency) setConstituency(d.constituency);
+      if (d.currentPosition) setCurrentPosition(d.currentPosition);
+      if (d.assumedOffice) setAssumedOffice(d.assumedOffice);
+      if (d.dateOfBirth) setDateOfBirth(d.dateOfBirth);
+      if (d.placeOfBirth) setPlaceOfBirth(d.placeOfBirth);
+      if (d.gender) setGender(d.gender);
+      // Handle nationality selection - check if it's a predefined nationality or custom
+      if (d.nationality) {
+        const predefinedNationalities = ['American', 'British', 'Canadian', 'Australian', 'Indian', 'Chinese', 'Japanese', 'German', 'French', 'Italian', 'Spanish', 'Russian', 'Brazilian', 'Mexican', 'South African'];
+        if (predefinedNationalities.includes(d.nationality)) {
+          setNationality(d.nationality);
+          setCustomNationality('');
+        } else {
+          setNationality('Other');
+          setCustomNationality(d.nationality);
+        }
+      }
+      if (Array.isArray(d.languages)) setLanguages(d.languages.join(', '));
+      if (Array.isArray(d.committees)) setCommittees(d.committees.join(', '));
+      if (d.address) setAddress(d.address);
+      if (d.email) setEmail(d.email);
+      if (d.phone) setPhone(d.phone);
+      if (d.website) setWebsite(d.website);
+      if (d.photoUrl) setPhotoUrl(d.photoUrl);
+      if (d.spouse) setSpouse(d.spouse);
+      if (Array.isArray(d.children)) setChildren(d.children.join(', '));
+      if (d.twitter) setTwitter(d.twitter);
+      if (d.facebook) setFacebook(d.facebook);
+      
+      // Clear the AI autofill field after successful autofill
+      setAiAutofillName('');
+      setError(null);
+    } catch (err: any) {
+      setError(err?.message || 'AI autofill failed');
+    } finally {
+      setAiLoading(false);
     }
   }
 
@@ -230,7 +315,42 @@ export default function EditPoliticianPage() {
                 <p className="text-xs text-muted-foreground">{aliases.length}/200 characters</p>
               </div>
               <div>
+                <Label htmlFor="aiAutofill">AI Autofill</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="aiAutofill"
+                    value={aiAutofillName}
+                    onChange={(e) => setAiAutofillName(e.target.value)}
+                    placeholder="Enter politician name for AI autofill"
+                    disabled={aiLoading}
+                  />
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={handleAIAutofill} 
+                    disabled={aiLoading}
+                    className="min-w-[120px]"
+                  >
+                    {aiLoading ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Autofilling...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="h-4 w-4 mr-2" />
+                        Autofill
+                      </>
+                    )}
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Enter a politician's name and click Autofill to populate fields with AI research
+                </p>
+              </div>
+              <div>
                 <Label htmlFor="party">Party *</Label>
+
                 <Select value={party} onValueChange={setParty} required>
                   <SelectTrigger>
                     <SelectValue placeholder="Select political party" />
