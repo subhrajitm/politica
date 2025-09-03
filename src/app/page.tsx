@@ -18,7 +18,7 @@ export default function Home() {
   const router = useRouter();
   const searchContainerRef = useRef<HTMLDivElement>(null);
 
-  const trendingProfiles = politicians.slice(0, 4);
+  const trendingProfiles = politicians;
 
   const suggestedSearches = [
     'Prime Minister',
@@ -390,3 +390,5 @@ export default function Home() {
     </div>
   );
 }
+
+    
