@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Users, Settings, Home } from 'lucide-react';
+import { LayoutDashboard, Users, Settings, Home, Plus } from 'lucide-react';
 import { SidebarProvider, Sidebar, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
 import { LogoIcon } from '@/lib/icons';
@@ -15,6 +15,7 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
   const navItems = [
     { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/admin/politicians', label: 'Politicians', icon: Users },
+    { href: '/admin/politicians/bulk', label: 'Bulk Add', icon: Plus },
     { href: '/admin/settings', label: 'Settings', icon: Settings },
   ];
 

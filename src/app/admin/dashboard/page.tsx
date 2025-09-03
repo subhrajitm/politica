@@ -52,6 +52,11 @@ export default function DashboardPage() {
               <PlusCircle className="mr-2 h-4 w-4" /> Add New Politician
             </Button>
           </Link>
+          <Link href="/admin/politicians/bulk">
+            <Button variant="outline">
+              <PlusCircle className="mr-2 h-4 w-4" /> Bulk Add
+            </Button>
+          </Link>
         </div>
       </div>
       

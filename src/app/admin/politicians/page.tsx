@@ -83,12 +83,20 @@ export default function AdminPoliticiansPage() {
           <h1 className="text-3xl font-bold">Manage Politicians</h1>
           <p className="text-muted-foreground">Add, edit, and remove politician profiles</p>
         </div>
-        <Link href="/admin/politicians/new">
-          <Button>
-            <Plus className="w-4 h-4 mr-2" />
-            Add Politician
-          </Button>
-        </Link>
+        <div className="flex items-center space-x-2">
+          <Link href="/admin/politicians/new">
+            <Button>
+              <Plus className="w-4 h-4 mr-2" />
+              Add Politician
+            </Button>
+          </Link>
+          <Link href="/admin/politicians/bulk">
+            <Button variant="outline">
+              <Plus className="w-4 h-4 mr-2" />
+              Bulk Add
+            </Button>
+          </Link>
+        </div>
       </div>
 
       <Card className="mb-6">
