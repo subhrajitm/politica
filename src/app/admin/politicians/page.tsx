@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { PoliticianService } from '@/lib/politicianService';
-import type { Politician } from '@/lib/data';
+import type { Politician } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

@@ -1,6 +1,6 @@
 import { supabase } from './supabase'
 import type { Database } from './supabase'
-import type { Politician } from './data'
+import type { Politician } from './types'
 
 type PoliticianRow = Database['public']['Tables']['politicians']['Row']
 type WorkHistoryRow = Database['public']['Tables']['work_history']['Row']
