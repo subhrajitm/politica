@@ -1,6 +1,6 @@
 
 import Link from 'next/link';
-import { Search, Menu } from 'lucide-react';
+import { Search, Menu, LayoutDashboard } from 'lucide-react';
 import { Button } from './ui/button';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from './ui/sheet';
 import { LogoIcon } from '@/lib/icons';
@@ -31,6 +31,11 @@ export default function Header() {
           </nav>
 
           <div className="hidden lg:flex items-center gap-1">
+             <Button variant="ghost" size="icon" asChild className="h-8 w-8">
+              <Link href="/admin/dashboard">
+                <LayoutDashboard className="h-4 w-4 text-gray-600" />
+              </Link>
+            </Button>
             <Button variant="ghost" size="icon" className="h-8 w-8">
               <Search className="h-4 w-4 text-gray-600" />
             </Button>
@@ -61,6 +66,9 @@ export default function Header() {
                       {link.name}
                     </Link>
                   ))}
+                   <Link href="/admin/dashboard" className="text-base font-medium text-gray-600 hover:text-primary">
+                    Dashboard
+                  </Link>
                   <Link href="/contact" className="text-base font-medium text-gray-600 hover:text-primary">
                     Contact
                   </Link>
