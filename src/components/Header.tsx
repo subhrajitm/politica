@@ -11,8 +11,6 @@ export default function Header() {
     { name: 'Browse by Role', href: '/browse' },
     { name: 'Browse by State', href: '/browse/states' },
     { name: 'Browse by Map', href: '/browse/map' },
-    { name: 'Blog', href: '#' },
-    { name: 'Contact', href: '/contact' },
   ];
 
   return (
@@ -63,6 +61,9 @@ export default function Header() {
                       {link.name}
                     </Link>
                   ))}
+                  <Link href="/contact" className="text-base font-medium text-gray-600 hover:text-primary">
+                    Contact
+                  </Link>
                    <Button className="w-full mt-4">
                     Contribute
                   </Button>
