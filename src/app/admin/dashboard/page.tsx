@@ -3,13 +3,43 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Users, PlusCircle, Activity, FileText } from 'lucide-react';
-import { politicians } from '@/lib/data';
+import { PoliticianService } from '@/lib/politicianService';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { PartyLogo } from '@/components/PartyLogo';
+import { useEffect, useState } from 'react';
+import type { Politician } from '@/lib/types';
 
 export default function DashboardPage() {
+  const [politicians, setPoliticians] = useState<Politician[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPoliticians = async () => {
+      try {
+        const data = await PoliticianService.getAllPoliticians();
+        setPoliticians(data);
+      } catch (error) {
+        console.error('Error fetching politicians:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPoliticians();
+  }, []);
+
   const recentPoliticians = politicians.slice(0, 5);
+
+  if (loading) {
+    return (
+      <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+        <div className="text-center">
+          <p>Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">

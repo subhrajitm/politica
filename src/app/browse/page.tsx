@@ -1,11 +1,42 @@
+'use client';
 import Link from 'next/link';
-import { politicians, Politician } from '@/lib/data';
+import { useState, useEffect } from 'react';
+import type { Politician } from '@/lib/types';
+import { PoliticianService } from '@/lib/politicianService';
 import PoliticianCard from '@/components/PoliticianCard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Briefcase } from 'lucide-react';
 
 export default function BrowsePage() {
+  const [politicians, setPoliticians] = useState<Politician[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPoliticians = async () => {
+      try {
+        const data = await PoliticianService.getAllPoliticians();
+        setPoliticians(data);
+      } catch (error) {
+        console.error('Error fetching politicians:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPoliticians();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-4">
+        <div className="text-center">
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   const groupedByPosition: { [key: string]: Politician[] } = {};
 
   politicians.forEach((p) => {

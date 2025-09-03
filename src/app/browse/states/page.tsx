@@ -2,13 +2,34 @@
 'use client';
 
 import Link from 'next/link';
-import { politicians } from '@/lib/data';
+import { PoliticianService } from '@/lib/politicianService';
 import { Card } from '@/components/ui/card';
 import { MapPin } from 'lucide-react';
-import { useMemo } from 'react';
+import { useEffect, useState, useMemo } from 'react';
+import type { Politician } from '@/lib/types';
 
 export default function BrowseStatesPage() {
+  const [politicians, setPoliticians] = useState<Politician[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPoliticians = async () => {
+      try {
+        const data = await PoliticianService.getAllPoliticians();
+        setPoliticians(data);
+      } catch (error) {
+        console.error('Error fetching politicians:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPoliticians();
+  }, []);
+
   const states = useMemo(() => {
+    if (!politicians.length) return [];
+    
     const allStates = politicians
       .map((p) => {
         const parts = p.constituency.split(', ');
@@ -22,7 +43,17 @@ export default function BrowseStatesPage() {
     }, {} as Record<string, number>);
 
     return Object.entries(stateCounts).sort((a, b) => b[1] - a[1]);
-  }, []);
+  }, [politicians]);
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-4">
+        <div className="text-center">
+          <p>Loading states...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-4">

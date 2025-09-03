@@ -25,7 +25,8 @@ import {
 } from 'lucide-react';
 import { differenceInYears } from 'date-fns';
 
-import { politicians } from '@/lib/data';
+import { PoliticianService } from '@/lib/politicianService';
+import type { Politician } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { PartyLogo } from '@/components/PartyLogo';
@@ -55,8 +56,9 @@ function InfoItem({ icon: Icon, label, value, href }: { icon: React.ElementType,
   return content;
 }
 
-export default function PoliticianPage({ params }: { params: { id: string } }) {
-  const politician = politicians.find((p) => p.id === params.id);
+export default async function PoliticianPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const politician = await PoliticianService.getPoliticianById(id);
 
   if (!politician) {
     notFound();

@@ -4,7 +4,8 @@
 import { useState, useMemo, Suspense, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { differenceInYears } from 'date-fns';
-import { politicians } from '@/lib/data';
+import { PoliticianService } from '@/lib/politicianService';
+import type { Politician } from '@/lib/types';
 import PoliticianCard from '@/components/PoliticianCard';
 import { Input } from '@/components/ui/input';
 import {
@@ -14,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Search } from 'lucide-react';
+import { Search, Loader2 } from 'lucide-react';
 import AgeSlider from '@/components/AgeSlider';
 import { MultiSelectFilter } from '@/components/MultiSelectFilter';
 
@@ -29,6 +30,9 @@ function PoliticiansPageContent() {
   const [genderFilter, setGenderFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const [ageRange, setAgeRange] = useState<[number, number]>([25, 100]);
+  const [politicians, setPoliticians] = useState<Politician[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const stateParam = searchParams.get('state');
@@ -37,10 +41,29 @@ function PoliticiansPageContent() {
     }
   }, [searchParams]);
 
+  // Load politicians from Supabase
+  useEffect(() => {
+    async function loadPoliticians() {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await PoliticianService.getAllPoliticians();
+        setPoliticians(data);
+      } catch (err) {
+        console.error('Error loading politicians:', err);
+        setError('Failed to load politicians. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadPoliticians();
+  }, []);
+
   const parties = useMemo(() => {
     const allParties = politicians.map((p) => p.party);
     return [...Array.from(new Set(allParties))].sort();
-  }, []);
+  }, [politicians]);
 
   const states = useMemo(() => {
     const allStates = politicians
@@ -50,12 +73,12 @@ function PoliticiansPageContent() {
       })
       .filter((s): s is string => s !== null);
     return [...Array.from(new Set(allStates))].sort();
-  }, []);
+  }, [politicians]);
 
   const genders = useMemo(() => {
     const allGenders = politicians.map((p) => p.personalDetails.gender);
     return ['all', ...Array.from(new Set(allGenders)).sort()];
-  }, []);
+  }, [politicians]);
   
   const filteredPoliticians = useMemo(() => {
     return politicians.filter((p) => {
@@ -79,7 +102,34 @@ function PoliticiansPageContent() {
 
       return (nameMatch || positionMatch || constituencyMatch) && partyMatch && stateMatch && genderMatch && statusMatch && ageMatch;
     });
-  }, [searchTerm, partyFilter, stateFilter, genderFilter, statusFilter, ageRange]);
+  }, [politicians, searchTerm, partyFilter, stateFilter, genderFilter, statusFilter, ageRange]);
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-4">
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <span className="ml-2 text-lg">Loading politicians...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-4">
+        <div className="text-center py-12">
+          <p className="text-lg text-destructive">{error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-4">

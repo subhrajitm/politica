@@ -5,8 +5,8 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { politicians } from '@/lib/data';
-import type { Politician } from '@/lib/data';
+import type { Politician } from '@/lib/types';
+import { PoliticianService } from '@/lib/politicianService';
 import { ArrowRight, Search, Quote, History } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 
@@ -15,6 +15,8 @@ export default function Home() {
   const [suggestions, setSuggestions] = useState<Politician[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [recentlyViewed, setRecentlyViewed] = useState<Politician[]>([]);
+  const [politicians, setPoliticians] = useState<Politician[]>([]);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
   const searchContainerRef = useRef<HTMLDivElement>(null);
 
@@ -36,11 +38,26 @@ export default function Home() {
   ];
   
   useEffect(() => {
+    const fetchPoliticians = async () => {
+      try {
+        const data = await PoliticianService.getAllPoliticians();
+        setPoliticians(data);
+      } catch (error) {
+        console.error('Error fetching politicians:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPoliticians();
+  }, []);
+
+  useEffect(() => {
     try {
       const viewedIds: string[] = JSON.parse(
         localStorage.getItem('recentlyViewed') || '[]'
       );
-      if (viewedIds.length > 0) {
+      if (viewedIds.length > 0 && politicians.length > 0) {
         const viewedPoliticians = politicians.filter((p) =>
           viewedIds.includes(p.id)
         );
@@ -54,11 +71,10 @@ export default function Home() {
         console.error("Failed to parse recently viewed from localStorage", error);
         localStorage.removeItem('recentlyViewed');
     }
-  }, []);
-
+  }, [politicians]);
 
   useEffect(() => {
-    if (searchTerm.trim().length > 1) {
+    if (searchTerm.trim().length > 1 && politicians.length > 0) {
       const filtered = politicians.filter(
         (p) =>
           p.name.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -71,7 +87,7 @@ export default function Home() {
       setSuggestions([]);
       setShowSuggestions(false);
     }
-  }, [searchTerm]);
+  }, [searchTerm, politicians]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -98,6 +114,16 @@ export default function Home() {
   const handleSuggestedSearch = (term: string) => {
     router.push(`/politicians?q=${encodeURIComponent(term)}`);
   };
+
+  if (loading) {
+    return (
+      <div className="flex flex-col min-h-full">
+        <div className="container mx-auto text-center py-16">
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col min-h-full">

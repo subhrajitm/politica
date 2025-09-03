@@ -1,109 +1,173 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { MoreHorizontal, PlusCircle } from 'lucide-react';
-
-import { politicians } from '@/lib/data';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { useState, useEffect } from 'react';
+import { PoliticianService } from '@/lib/politicianService';
+import type { Politician } from '@/lib/data';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { PartyLogo } from '@/components/PartyLogo';
+import { 
+  Plus, 
+  Edit, 
+  Trash2, 
+  Search, 
+  Loader2,
+  User,
+  Building,
+  MapPin
+} from 'lucide-react';
+import Link from 'next/link';
 
 export default function AdminPoliticiansPage() {
-  // In a real app, you'd fetch this data and use server-side pagination/filtering
-  const [allPoliticians] = useState(politicians);
+  const [politicians, setPoliticians] = useState<Politician[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredPoliticians, setFilteredPoliticians] = useState<Politician[]>([]);
+
+  useEffect(() => {
+    loadPoliticians();
+  }, []);
+
+  useEffect(() => {
+    const filtered = politicians.filter(p => 
+      p.name.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      p.party.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      p.constituency.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredPoliticians(filtered);
+  }, [searchTerm, politicians]);
+
+  async function loadPoliticians() {
+    try {
+      setLoading(true);
+      const data = await PoliticianService.getAllPoliticians();
+      setPoliticians(data);
+    } catch (error) {
+      console.error('Error loading politicians:', error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function deletePolitician(id: string) {
+    if (!confirm('Are you sure you want to delete this politician? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      await PoliticianService.deletePolitician(id);
+      await loadPoliticians(); // Reload the list
+    } catch (error) {
+      console.error('Error deleting politician:', error);
+      alert('Failed to delete politician. Please try again.');
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <span className="ml-2 text-lg">Loading politicians...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-       <div className="flex items-center justify-between space-y-2">
-          <div>
-            <h2 className="text-2xl font-bold tracking-tight">Politician Profiles</h2>
-            <p className="text-muted-foreground">
-              Manage the politician database here.
-            </p>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Button>
-              <PlusCircle className="mr-2 h-4 w-4" /> Add New
-            </Button>
-          </div>
+    <div className="container mx-auto px-4 py-8">
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-3xl font-bold">Manage Politicians</h1>
+          <p className="text-muted-foreground">Add, edit, and remove politician profiles</p>
         </div>
-      <Card>
+        <Link href="/admin/politicians/new">
+          <Button>
+            <Plus className="w-4 h-4 mr-2" />
+            Add Politician
+          </Button>
+        </Link>
+      </div>
+
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>Search & Filter</CardTitle>
+        </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="hidden w-[100px] sm:table-cell">
-                  <span className="sr-only">Image</span>
-                </TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Party</TableHead>
-                <TableHead className="hidden md:table-cell">Position</TableHead>
-                <TableHead>
-                  <span className="sr-only">Actions</span>
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {allPoliticians.map((p) => (
-                <TableRow key={p.id}>
-                  <TableCell className="hidden sm:table-cell">
-                    <Image
-                      alt={p.name.fullName}
-                      className="aspect-square rounded-md object-cover"
-                      height="64"
-                      src={p.photoUrl}
-                      width="64"
-                      data-ai-hint="politician photo"
-                    />
-                  </TableCell>
-                  <TableCell className="font-medium">{p.name.fullName}</TableCell>
-                  <TableCell>
-                      <div className="flex items-center gap-2">
-                        <PartyLogo party={p.party} className="w-5 h-5" />
-                        <span className="hidden lg:inline">{p.party}</span>
-                      </div>
-                  </TableCell>
-                  <TableCell className="hidden md:table-cell">{p.positions.current.position}</TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          aria-haspopup="true"
-                          size="icon"
-                          variant="ghost"
-                        >
-                          <MoreHorizontal className="h-4 w-4" />
-                          <span className="sr-only">Toggle menu</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem>Edit</DropdownMenuItem>
-                        <DropdownMenuItem>View Public Page</DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10">
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+            <Input
+              placeholder="Search by name, party, or constituency..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
         </CardContent>
       </Card>
+
+      <div className="grid gap-4">
+        {filteredPoliticians.map((politician) => (
+          <Card key={politician.id}>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center">
+                    <User className="w-8 h-8 text-muted-foreground" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold">{politician.name.fullName}</h3>
+                    <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                      <div className="flex items-center space-x-1">
+                        <Building className="w-4 h-4" />
+                        <span>{politician.party}</span>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        <MapPin className="w-4 h-4" />
+                        <span>{politician.constituency}</span>
+                      </div>
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {politician.positions.current.position}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Badge variant="outline">{politician.personalDetails.gender}</Badge>
+                  <Link href={`/admin/politicians/${politician.id}/edit`}>
+                    <Button variant="outline" size="sm">
+                      <Edit className="w-4 h-4 mr-1" />
+                      Edit
+                    </Button>
+                  </Link>
+                  <Button 
+                    variant="destructive" 
+                    size="sm"
+                    onClick={() => deletePolitician(politician.id)}
+                  >
+                    <Trash2 className="w-4 h-4 mr-1" />
+                    Delete
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {filteredPoliticians.length === 0 && (
+        <div className="text-center py-12">
+          <p className="text-lg text-muted-foreground">
+            {searchTerm ? 'No politicians found matching your search.' : 'No politicians found.'}
+          </p>
+        </div>
+      )}
+
+      <div className="mt-6 text-center text-sm text-muted-foreground">
+        Total: {filteredPoliticians.length} politician{filteredPoliticians.length !== 1 ? 's' : ''}
+      </div>
     </div>
   );
 }
