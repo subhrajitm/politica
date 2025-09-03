@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useState, useMemo, Suspense, useEffect } from 'react';
@@ -17,30 +16,30 @@ import {
 } from '@/components/ui/select';
 import { Search } from 'lucide-react';
 import AgeSlider from '@/components/AgeSlider';
+import { MultiSelectFilter } from '@/components/MultiSelectFilter';
 
 function PoliticiansPageContent() {
   const searchParams = useSearchParams();
   const initialQuery = searchParams.get('q') || '';
-  const initialState = searchParams.get('state') || 'all';
+  const initialState = searchParams.get('state') || '';
   
   const [searchTerm, setSearchTerm] = useState(initialQuery);
-  const [partyFilter, setPartyFilter] = useState('all');
-  const [stateFilter, setStateFilter] = useState(initialState);
+  const [partyFilter, setPartyFilter] = useState<string[]>([]);
+  const [stateFilter, setStateFilter] = useState<string[]>(initialState ? [initialState] : []);
   const [genderFilter, setGenderFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const [ageRange, setAgeRange] = useState<[number, number]>([25, 100]);
 
   useEffect(() => {
-    // When the component mounts, check if 'state' param exists and set it.
     const stateParam = searchParams.get('state');
     if (stateParam) {
-      setStateFilter(stateParam);
+      setStateFilter([stateParam]);
     }
   }, [searchParams]);
 
   const parties = useMemo(() => {
     const allParties = politicians.map((p) => p.party);
-    return ['all', ...Array.from(new Set(allParties)).sort()];
+    return [...Array.from(new Set(allParties))].sort();
   }, []);
 
   const states = useMemo(() => {
@@ -50,7 +49,7 @@ function PoliticiansPageContent() {
         return parts.length > 1 ? parts[1].trim() : null;
       })
       .filter((s): s is string => s !== null);
-    return ['all', ...Array.from(new Set(allStates)).sort()];
+    return [...Array.from(new Set(allStates))].sort();
   }, []);
 
   const genders = useMemo(() => {
@@ -65,10 +64,10 @@ function PoliticiansPageContent() {
       const positionMatch = p.positions.current.position.toLowerCase().includes(searchLower);
       const constituencyMatch = p.constituency.toLowerCase().includes(searchLower);
       
-      const partyMatch = partyFilter === 'all' || p.party === partyFilter;
+      const partyMatch = partyFilter.length === 0 || partyFilter.includes(p.party);
 
       const constituencyState = p.constituency.split(', ')[1]?.trim();
-      const stateMatch = stateFilter === 'all' || constituencyState === stateFilter;
+      const stateMatch = stateFilter.length === 0 || (constituencyState && stateFilter.includes(constituencyState));
 
       const genderMatch = genderFilter === 'all' || p.personalDetails.gender === genderFilter;
 
@@ -104,30 +103,18 @@ function PoliticiansPageContent() {
             />
           </div>
            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-2 md:col-span-2">
-            <Select value={partyFilter} onValueChange={setPartyFilter}>
-              <SelectTrigger className="text-xs h-8">
-                <SelectValue placeholder="Filter by party" />
-              </SelectTrigger>
-              <SelectContent>
-                {parties.map((party) => (
-                  <SelectItem key={party} value={party} className="text-xs">
-                    {party === 'all' ? 'All Parties' : party}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={stateFilter} onValueChange={setStateFilter}>
-              <SelectTrigger className="text-xs h-8">
-                <SelectValue placeholder="Filter by state" />
-              </SelectTrigger>
-              <SelectContent>
-                {states.map((state) => (
-                  <SelectItem key={state} value={state} className="text-xs">
-                    {state === 'all' ? 'All States' : state}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <MultiSelectFilter
+              title="Party"
+              options={parties.map(p => ({ label: p, value: p }))}
+              selectedValues={partyFilter}
+              onValueChange={setPartyFilter}
+            />
+            <MultiSelectFilter
+              title="State"
+              options={states.map(s => ({ label: s, value: s }))}
+              selectedValues={stateFilter}
+              onValueChange={setStateFilter}
+            />
             <Select value={genderFilter} onValueChange={setGenderFilter}>
               <SelectTrigger className="text-xs h-8">
                 <SelectValue placeholder="Filter by gender" />
