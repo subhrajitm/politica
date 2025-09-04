@@ -263,7 +263,7 @@ export class PoliticianService {
         if (updates.contact.phone) updateData.phone = updates.contact.phone
         if (updates.contact.website !== undefined) updateData.website = updates.contact.website
       }
-      if (updates.photoUrl) updateData.photo_url = updates.photoUrl
+      if (updates.photoUrl !== undefined) updateData.photo_url = updates.photoUrl
       if (updates.family) {
         if (updates.family.spouse !== undefined) updateData.spouse = updates.family.spouse
         if (updates.family.children !== undefined) updateData.children = updates.family.children
