@@ -29,32 +29,52 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return
     }
 
-    // Get initial session
-    AuthService.getCurrentSession().then(({ session, error }) => {
-      if (error) {
-        console.error('Error getting session:', error)
-      } else {
-        setSession(session)
-        setUser(session?.user as AuthUser || null)
-      }
-      setLoading(false)
-    }).catch((error) => {
-      console.error('Error in getCurrentSession:', error)
-      setLoading(false)
-    })
+    let isMounted = true
 
-    // Listen for auth changes
+    // Get initial session with timeout
+    const initAuth = async () => {
+      try {
+        const { session, error } = await AuthService.getCurrentSession()
+        
+        if (!isMounted) return
+
+        if (error) {
+          console.error('Error getting session:', error)
+          // Don't set user/session on error, but still stop loading
+        } else {
+          setSession(session)
+          setUser(session?.user as AuthUser || null)
+        }
+        setLoading(false)
+      } catch (error) {
+        if (!isMounted) return
+        console.error('Error in getCurrentSession:', error)
+        setLoading(false)
+      }
+    }
+
+    initAuth()
+
+    // Listen for auth changes with error handling
+    let subscription: any = null
     try {
-      const { data: { subscription } } = AuthService.onAuthStateChange((event, session) => {
+      const { data: { subscription: authSubscription } } = AuthService.onAuthStateChange((event, session) => {
+        if (!isMounted) return
+        
+        console.log('Auth state change:', event, session?.user?.email)
         setSession(session)
         setUser(session?.user as AuthUser || null)
         setLoading(false)
       })
-
-      return () => subscription.unsubscribe()
+      subscription = authSubscription
     } catch (error) {
       console.error('Error setting up auth state change listener:', error)
       setLoading(false)
+    }
+
+    return () => {
+      isMounted = false
+      subscription?.unsubscribe()
     }
   }, [])
 

@@ -201,8 +201,14 @@ export class AdminAuthService {
 
       console.log('AdminAuthService: User found:', user.email);
 
-      // Check if user is an admin
-      const isAdmin = await this.isUserAdmin(user);
+      // Check if user is an admin with timeout
+      const adminCheckPromise = this.isUserAdmin(user);
+      const timeoutPromise = new Promise<boolean>((_, reject) => {
+        setTimeout(() => reject(new Error('Admin check timeout')), 5000);
+      });
+
+      const isAdmin = await Promise.race([adminCheckPromise, timeoutPromise]);
+      
       if (!isAdmin) {
         console.log('AdminAuthService: User is not an admin');
         return null;
@@ -210,12 +216,21 @@ export class AdminAuthService {
 
       console.log('AdminAuthService: User is admin, getting profile...');
 
-      // Get admin user profile
-      const { data: adminUser, error: adminError } = await supabase
+      // Get admin user profile with timeout
+      const profilePromise = supabase
         .from('admin_profiles')
         .select('*')
         .eq('id', user.id)
         .single();
+
+      const profileTimeoutPromise = new Promise<any>((_, reject) => {
+        setTimeout(() => reject(new Error('Profile fetch timeout')), 5000);
+      });
+
+      const { data: adminUser, error: adminError } = await Promise.race([
+        profilePromise,
+        profileTimeoutPromise
+      ]);
 
       if (adminError) {
         console.log('AdminAuthService: No admin profile found, creating one...', adminError.message);

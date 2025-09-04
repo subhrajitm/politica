@@ -1,8 +1,38 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { autofillPoliticianByName } from '@/ai/flows/autofill-politician';
+import { createClient } from '@/lib/supabase-server';
 
 export async function POST(req: NextRequest) {
   try {
+    // Create server-side Supabase client with proper session handling
+    const supabase = createClient();
+    
+    // Verify user authentication
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    
+    if (authError || !user) {
+      return NextResponse.json({ 
+        error: 'Authentication required' 
+      }, { status: 401 });
+    }
+
+    // Verify user is admin (since this is used in admin pages)
+    const { data: adminProfile, error: adminError } = await supabase
+      .from('admin_profiles')
+      .select('id')
+      .eq('id', user.id)
+      .single();
+
+    if (adminError || !adminProfile) {
+      // Check hardcoded admin emails as fallback
+      const adminEmails = ['admin@politifind.com', 'superadmin@politifind.com'];
+      if (!adminEmails.includes(user.email?.toLowerCase() || '')) {
+        return NextResponse.json({ 
+          error: 'Admin privileges required' 
+        }, { status: 403 });
+      }
+    }
+
     const body = await req.json();
     const name = String(body?.name || '').trim();
     if (!name) {
@@ -12,6 +42,7 @@ export async function POST(req: NextRequest) {
     const data = await autofillPoliticianByName({ name });
     return NextResponse.json({ data }, { status: 200 });
   } catch (err: any) {
+    console.error('AI autofill error:', err);
     return NextResponse.json({ error: err?.message || 'Failed to autofill' }, { status: 500 });
   }
 }

@@ -155,13 +155,30 @@ export default function NewPoliticianPage() {
     try {
       setAiLoading(true);
       setError(null);
+      
       const res = await fetch('/api/ai/autofill', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: aiAutofillName }),
       });
+      
       const json = await res.json();
-      if (!res.ok) throw new Error(json?.error || 'AI autofill failed');
+      
+      if (!res.ok) {
+        if (res.status === 401) {
+          setError('Authentication required. Please log in again.');
+          // Redirect to login after a short delay
+          setTimeout(() => {
+            window.location.href = '/admin/login';
+          }, 2000);
+          return;
+        } else if (res.status === 403) {
+          setError('Admin privileges required for AI autofill.');
+          return;
+        }
+        throw new Error(json?.error || 'AI autofill failed');
+      }
+      
       const d = json.data || {};
       // Always set the full name from AI response or use the autofill name
       setFullName(d.fullName || aiAutofillName);
