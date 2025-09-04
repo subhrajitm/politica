@@ -240,14 +240,15 @@ export default function Home() {
                 <Card className="group overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
                   <CardContent className="p-4">
                     <div className="flex items-center gap-4 mb-4">
-                      <Image
-                        src={p.photoUrl}
-                        alt={p.name.fullName}
-                        width={60}
-                        height={80}
-                        className="rounded-md object-cover"
-                        data-ai-hint="politician photo"
-                      />
+                      <div className="relative w-14 h-14 rounded-full overflow-hidden flex-shrink-0">
+                        <Image
+                          src={p.photoUrl}
+                          alt={p.name.fullName}
+                          fill
+                          className="object-cover"
+                          data-ai-hint="politician photo"
+                        />
+                      </div>
                       <div>
                         <h3 className="font-bold text-base">
                           {p.name.fullName}
@@ -286,14 +287,15 @@ export default function Home() {
                   <Card className="group overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
                     <CardContent className="p-4">
                       <div className="flex items-center gap-4 mb-4">
-                        <Image
-                          src={p.photoUrl}
-                          alt={p.name.fullName}
-                          width={60}
-                          height={80}
-                          className="rounded-md object-cover"
-                          data-ai-hint="politician photo"
-                        />
+                        <div className="relative w-14 h-14 rounded-full overflow-hidden flex-shrink-0">
+                          <Image
+                            src={p.photoUrl}
+                            alt={p.name.fullName}
+                            fill
+                            className="object-cover"
+                            data-ai-hint="politician photo"
+                          />
+                        </div>
                         <div>
                           <h3 className="font-bold text-base">
                             {p.name.fullName}
