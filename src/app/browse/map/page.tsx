@@ -1,5 +1,8 @@
 
-import WorldMap from '@/components/WorldMap';
+'use client';
+
+import dynamic from 'next/dynamic';
+const WorldMap = dynamic(() => import('@/components/WorldMap'), { ssr: false });
 import { Card } from '@/components/ui/card';
 
 export default function BrowseMapPage() {
