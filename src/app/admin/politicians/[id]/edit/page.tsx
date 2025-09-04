@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Loader2, ArrowLeft, Sparkles } from 'lucide-react';
 import Link from 'next/link';
+import PhotoUpload from '@/components/PhotoUpload';
 
 export default function EditPoliticianPage() {
   const router = useRouter();
@@ -580,13 +581,11 @@ export default function EditPoliticianPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label htmlFor="photoUrl">Photo URL</Label>
-                <Input
-                  id="photoUrl"
-                  type="url"
+                <PhotoUpload
                   value={photoUrl}
-                  onChange={(e) => setPhotoUrl(e.target.value)}
-                  placeholder="https://example.com/photo.jpg"
+                  onChange={setPhotoUrl}
+                  politicianName={fullName}
+                  disabled={submitting}
                 />
               </div>
               <div>

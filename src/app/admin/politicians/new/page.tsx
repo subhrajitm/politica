@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Loader2, Sparkles } from 'lucide-react';
+import PhotoUpload from '@/components/PhotoUpload';
 
 export default function NewPoliticianPage() {
   const router = useRouter();
@@ -485,13 +486,11 @@ export default function NewPoliticianPage() {
               />
             </div>
             <div>
-              <Label htmlFor="photoUrl">Photo URL</Label>
-              <Input
-                id="photoUrl"
-                type="url"
+              <PhotoUpload
                 value={photoUrl}
-                onChange={(e) => setPhotoUrl(e.target.value)}
-                placeholder="https://example.com/photo.jpg"
+                onChange={setPhotoUrl}
+                politicianName={fullName}
+                disabled={submitting}
               />
             </div>
             <div>
