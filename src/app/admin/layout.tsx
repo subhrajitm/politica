@@ -17,11 +17,19 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
   const { toast } = useToast();
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const checkUser = async () => {
-      const user = await AdminAuthService.getCurrentUser();
-      setCurrentUser(user);
+      try {
+        const user = await AdminAuthService.getCurrentUser();
+        setCurrentUser(user);
+      } catch (error) {
+        console.error('Auth check error:', error);
+        setCurrentUser(null);
+      } finally {
+        setLoading(false);
+      }
     };
     
     checkUser();
@@ -62,6 +70,29 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
     { href: '/admin/settings', label: 'Settings', icon: Settings },
   ];
 
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // For login page, don't show sidebar
+  if (pathname === '/admin/login') {
+    return <>{children}</>;
+  }
+
+  // If not authenticated, redirect to login (this should be handled by AdminProtectedRoute)
+  if (!currentUser) {
+    return <>{children}</>;
+  }
+
+  // Show full admin layout with sidebar for authenticated users
   return (
     <SidebarProvider key="admin-layout">
       <div className="absolute inset-0 flex h-screen bg-muted/40 w-full">

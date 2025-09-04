@@ -202,7 +202,7 @@ export default function EditPoliticianPage() {
           current: {
             ...politician.positions.current,
             position: currentPosition,
-            assumedOffice,
+            assumedOffice: assumedOffice ? (assumedOffice.includes('-') && assumedOffice.length === 7 ? `${assumedOffice}-01` : assumedOffice) : politician.positions.current.assumedOffice,
             committees: committees ? committees.split(',').map(s => s.trim()).filter(Boolean) : [],
           },
         },

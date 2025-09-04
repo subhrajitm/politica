@@ -105,7 +105,7 @@ export default function NewPoliticianPage() {
         positions: {
           current: {
             position: currentPosition,
-            assumedOffice: assumedOffice || '1970-01-01',
+            assumedOffice: assumedOffice ? `${assumedOffice}-01` : '1970-01-01',
             committees: committees
               .split(',')
               .map(c => c.trim())

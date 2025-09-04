@@ -216,7 +216,7 @@ export default function BulkAddPoliticiansPage() {
       positions: {
         current: {
           position: data.currentPosition,
-          assumedOffice: data.assumedOffice || '',
+          assumedOffice: data.assumedOffice ? (data.assumedOffice.includes('-') && data.assumedOffice.length === 7 ? `${data.assumedOffice}-01` : data.assumedOffice) : '1970-01-01',
           committees: data.committees ? data.committees.split(',').map(c => c.trim()).filter(Boolean) : [],
         },
         history: [],
