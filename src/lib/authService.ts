@@ -1,0 +1,49 @@
+import { supabase } from './supabase'
+import type { User, Session } from '@supabase/supabase-js'
+
+export interface AuthUser extends User {
+  // Add any custom user properties here if needed
+}
+
+export interface AuthState {
+  user: AuthUser | null
+  session: Session | null
+  loading: boolean
+}
+
+export class AuthService {
+  static async signUp(email: string, password: string) {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+    })
+    return { data, error }
+  }
+
+  static async signIn(email: string, password: string) {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
+    return { data, error }
+  }
+
+  static async signOut() {
+    const { error } = await supabase.auth.signOut()
+    return { error }
+  }
+
+  static async getCurrentUser() {
+    const { data: { user }, error } = await supabase.auth.getUser()
+    return { user, error }
+  }
+
+  static async getCurrentSession() {
+    const { data: { session }, error } = await supabase.auth.getSession()
+    return { session, error }
+  }
+
+  static onAuthStateChange(callback: (event: string, session: Session | null) => void) {
+    return supabase.auth.onAuthStateChange(callback)
+  }
+}

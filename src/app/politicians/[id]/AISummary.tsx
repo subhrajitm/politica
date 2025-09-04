@@ -4,9 +4,11 @@ import { useState } from 'react';
 import type { Politician } from '@/lib/data';
 import { generatePoliticianSummary } from '@/ai/flows/ai-powered-summaries';
 import { Button } from '@/components/ui/button';
-import { Loader2, Wand2 } from 'lucide-react';
+import { Loader2, Wand2, Lock } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Terminal } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import AuthModal from '@/components/auth/AuthModal';
 
 type AISummaryProps = {
   politician: Politician;
@@ -16,8 +18,15 @@ export default function AISummary({ politician }: AISummaryProps) {
   const [summary, setSummary] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const { user } = useAuth();
 
   const handleGenerateSummary = async () => {
+    if (!user) {
+      setAuthModalOpen(true);
+      return;
+    }
+
     setLoading(true);
     setError(null);
     setSummary(null);
@@ -57,17 +66,40 @@ export default function AISummary({ politician }: AISummaryProps) {
 
   return (
     <div className="space-y-4">
-      <p className="text-muted-foreground text-sm">
-        Get a concise, AI-generated overview of the politician's career,
-        stances, and key actions.
-      </p>
-      <Button onClick={handleGenerateSummary} disabled={loading} size="sm">
+      <div className="flex items-center gap-2">
+        <p className="text-muted-foreground text-sm">
+          Get a concise, AI-generated overview of the politician's career,
+          stances, and key actions.
+        </p>
+        {!user && (
+          <Lock className="h-4 w-4 text-muted-foreground" />
+        )}
+      </div>
+      
+      {!user && (
+        <Alert>
+          <Lock className="h-4 w-4" />
+          <AlertTitle>Sign in required</AlertTitle>
+          <AlertDescription>
+            You need to be signed in to access AI-powered summaries.
+          </AlertDescription>
+        </Alert>
+      )}
+      
+      <Button 
+        onClick={handleGenerateSummary} 
+        disabled={loading} 
+        size="sm"
+        variant={!user ? "outline" : "default"}
+      >
         {loading ? (
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+        ) : !user ? (
+          <Lock className="mr-2 h-4 w-4" />
         ) : (
           <Wand2 className="mr-2 h-4 w-4" />
         )}
-        {loading ? 'Generating...' : 'Generate Summary'}
+        {loading ? 'Generating...' : !user ? 'Sign in to Generate Summary' : 'Generate Summary'}
       </Button>
 
       {error && (
@@ -83,6 +115,12 @@ export default function AISummary({ politician }: AISummaryProps) {
           <p className="whitespace-pre-wrap">{summary}</p>
         </div>
       )}
+      
+      <AuthModal 
+        open={authModalOpen} 
+        onOpenChange={setAuthModalOpen}
+        defaultMode="login"
+      />
     </div>
   );
 }

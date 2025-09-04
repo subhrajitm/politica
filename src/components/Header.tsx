@@ -1,13 +1,19 @@
 
 import Link from 'next/link';
-import { Search, Menu, LayoutDashboard } from 'lucide-react';
+import { Search, Menu, LayoutDashboard, LogIn } from 'lucide-react';
 import { Button } from './ui/button';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from './ui/sheet';
 import { LogoIcon } from '@/lib/icons';
 import { useSettings } from '@/hooks/use-settings';
+import { useAuth } from '@/contexts/AuthContext';
+import AuthModal from './auth/AuthModal';
+import UserMenu from './auth/UserMenu';
+import { useState } from 'react';
 
 export default function Header() {
   const { siteName } = useSettings();
+  const { user } = useAuth();
+  const [authModalOpen, setAuthModalOpen] = useState(false);
   
   const navLinks = [
     { name: 'Find Politicians', href: '/politicians' },
@@ -42,6 +48,18 @@ export default function Header() {
             <Button variant="ghost" size="icon" className="h-8 w-8">
               <Search className="h-4 w-4 text-gray-600" />
             </Button>
+            {user ? (
+              <UserMenu />
+            ) : (
+              <Button 
+                size="sm" 
+                className="h-8"
+                onClick={() => setAuthModalOpen(true)}
+              >
+                <LogIn className="mr-2 h-4 w-4" />
+                Sign In
+              </Button>
+            )}
             <Button size="sm" className="h-8">
               Contribute
             </Button>
@@ -72,10 +90,26 @@ export default function Header() {
                    <Link href="/admin/dashboard" className="text-base font-medium text-gray-600 hover:text-primary">
                     Dashboard
                   </Link>
-                  <Link href="/contact" className="text-base font-medium text-gray-600 hover:text-primary">
+                                     <Link href="/contact" className="text-base font-medium text-gray-600 hover:text-primary">
                     Contact
                   </Link>
-                   <Button className="w-full mt-4">
+                  {user ? (
+                    <div className="mt-4">
+                      <div className="text-sm text-muted-foreground mb-2">
+                        Signed in as {user.email}
+                      </div>
+                      <UserMenu />
+                    </div>
+                  ) : (
+                    <Button 
+                      className="w-full mt-4"
+                      onClick={() => setAuthModalOpen(true)}
+                    >
+                      <LogIn className="mr-2 h-4 w-4" />
+                      Sign In
+                    </Button>
+                  )}
+                   <Button className="w-full mt-2">
                     Contribute
                   </Button>
                 </nav>
@@ -84,6 +118,11 @@ export default function Header() {
           </div>
         </div>
       </div>
+      <AuthModal 
+        open={authModalOpen} 
+        onOpenChange={setAuthModalOpen}
+        defaultMode="login"
+      />
     </header>
   );
 }
