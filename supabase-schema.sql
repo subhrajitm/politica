@@ -147,6 +147,15 @@ CREATE TABLE IF NOT EXISTS social_media (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Create user_favourites table
+CREATE TABLE IF NOT EXISTS user_favourites (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  politician_id TEXT NOT NULL REFERENCES politicians(id) ON DELETE CASCADE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(user_id, politician_id)
+);
+
 -- Create indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_politicians_party ON politicians(party);
 CREATE INDEX IF NOT EXISTS idx_politicians_constituency ON politicians(constituency);
@@ -163,6 +172,8 @@ CREATE INDEX IF NOT EXISTS idx_relationships_politician_id ON relationships(poli
 CREATE INDEX IF NOT EXISTS idx_news_mentions_politician_id ON news_mentions(politician_id);
 CREATE INDEX IF NOT EXISTS idx_speeches_politician_id ON speeches(politician_id);
 CREATE INDEX IF NOT EXISTS idx_social_media_politician_id ON social_media(politician_id);
+CREATE INDEX IF NOT EXISTS idx_user_favourites_user_id ON user_favourites(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_favourites_politician_id ON user_favourites(politician_id);
 
 -- Create a function to update the updated_at timestamp
 CREATE OR REPLACE FUNCTION update_updated_at_column()
@@ -316,6 +327,18 @@ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow all operations on social_media' AND tablename = 'social_media') THEN
         CREATE POLICY "Allow all operations on social_media" ON social_media
             FOR ALL USING (true) WITH CHECK (true);
+    END IF;
+END $$;
+
+-- Enable RLS on user_favourites table
+ALTER TABLE user_favourites ENABLE ROW LEVEL SECURITY;
+
+-- User favourites table - users can only access their own favourites
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Users can manage their own favourites' AND tablename = 'user_favourites') THEN
+        CREATE POLICY "Users can manage their own favourites" ON user_favourites
+            FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
     END IF;
 END $$;
 

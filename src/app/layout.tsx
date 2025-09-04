@@ -5,6 +5,7 @@ import { Toaster } from '@/components/ui/toaster';
 import AdminLayoutWrapper from '@/components/AdminLayoutWrapper';
 import DynamicTitle from '@/components/DynamicTitle';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { FavouritesProvider } from '@/contexts/FavouritesContext';
 
 export const metadata: Metadata = {
   title: 'PolitiFind - Find Politicians In Your Area',
@@ -35,13 +36,15 @@ export default function RootLayout({
         className={cn('min-h-screen bg-background font-sans antialiased')}
       >
         <AuthProvider>
-          <div className="relative flex min-h-screen flex-col">
-            <DynamicTitle />
-            <AdminLayoutWrapper>
-              <main className="flex-1">{children}</main>
-            </AdminLayoutWrapper>
-          </div>
-          <Toaster />
+          <FavouritesProvider>
+            <div className="relative flex min-h-screen flex-col">
+              <DynamicTitle />
+              <AdminLayoutWrapper>
+                <main className="flex-1">{children}</main>
+              </AdminLayoutWrapper>
+            </div>
+            <Toaster />
+          </FavouritesProvider>
         </AuthProvider>
       </body>
     </html>

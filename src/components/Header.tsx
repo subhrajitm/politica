@@ -1,6 +1,6 @@
 
 import Link from 'next/link';
-import { Search, Menu, LayoutDashboard, LogIn } from 'lucide-react';
+import { Search, Menu, LayoutDashboard, LogIn, Heart } from 'lucide-react';
 import { Button } from './ui/button';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from './ui/sheet';
 import { LogoIcon } from '@/lib/icons';
@@ -22,6 +22,10 @@ export default function Header() {
     { name: 'Browse by Map', href: '/browse/map' },
   ];
 
+  const userNavLinks = [
+    { name: 'My Favourites', href: '/favourites', icon: Heart },
+  ];
+
   return (
     <header className="bg-background/80 backdrop-blur-sm border-b sticky top-0 z-20">
       <div className="container mx-auto px-4">
@@ -34,6 +38,12 @@ export default function Header() {
           <nav className="hidden lg:flex items-center gap-4">
             {navLinks.map((link) => (
               <Link key={link.name} href={link.href} className="text-xs font-medium text-gray-600 hover:text-primary">
+                {link.name}
+              </Link>
+            ))}
+            {user && userNavLinks.map((link) => (
+              <Link key={link.name} href={link.href} className="text-xs font-medium text-gray-600 hover:text-primary flex items-center gap-1">
+                <link.icon className="w-3 h-3" />
                 {link.name}
               </Link>
             ))}
@@ -84,6 +94,12 @@ export default function Header() {
                 <nav className="flex flex-col gap-4 mt-4">
                   {navLinks.map((link) => (
                     <Link key={link.name} href={link.href} className="text-base font-medium text-gray-600 hover:text-primary">
+                      {link.name}
+                    </Link>
+                  ))}
+                  {user && userNavLinks.map((link) => (
+                    <Link key={link.name} href={link.href} className="text-base font-medium text-gray-600 hover:text-primary flex items-center gap-2">
+                      <link.icon className="w-4 h-4" />
                       {link.name}
                     </Link>
                   ))}

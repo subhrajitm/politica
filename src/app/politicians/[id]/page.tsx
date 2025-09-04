@@ -31,6 +31,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { PartyLogo } from '@/components/PartyLogo';
 import AISummary from './AISummary';
+import FavouriteButton from '@/components/FavouriteButton';
 import {
   Tabs,
   TabsContent,
@@ -104,6 +105,15 @@ export default async function PoliticianPage({ params }: { params: Promise<{ id:
                <Badge className="mt-2" variant="outline">
                 {politician.party}
               </Badge>
+              <div className="mt-3">
+                <FavouriteButton 
+                  politicianId={politician.id}
+                  politicianName={politician.name.fullName}
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                />
+              </div>
             </CardContent>
           </Card>
 
