@@ -2,8 +2,10 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase-server'
 
 export async function GET(request: Request) {
-  const { searchParams, origin } = new URL(request.url)
+  const url = new URL(request.url)
+  const { searchParams, origin } = url
   const code = searchParams.get('code')
+  const providerError = searchParams.get('error') || searchParams.get('error_description')
   // if "next" is in param, use it as the redirect URL
   let next = searchParams.get('next') ?? '/'
   if (!next.startsWith('/')) {
@@ -11,23 +13,37 @@ export async function GET(request: Request) {
     next = '/'
   }
 
+  // If the provider returned an error, surface it
+  if (providerError) {
+    const reason = encodeURIComponent(providerError)
+    return NextResponse.redirect(`${origin}/auth/auth-code-error?reason=${reason}`)
+  }
+
   if (code) {
-    const supabase = await createClient()
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
-    if (!error) {
-      const forwardedHost = request.headers.get('x-forwarded-host') // original origin before load balancer
-      const isLocalEnv = process.env.NODE_ENV === 'development'
-      if (isLocalEnv) {
-        // we can be sure that there is no load balancer in between, so no need to watch for X-Forwarded-Host
-        return NextResponse.redirect(`${origin}${next}`)
-      } else if (forwardedHost) {
-        return NextResponse.redirect(`https://${forwardedHost}${next}`)
+    try {
+      const supabase = await createClient()
+      const { error } = await supabase.auth.exchangeCodeForSession(code)
+      if (!error) {
+        const forwardedHost = request.headers.get('x-forwarded-host') // original origin before load balancer
+        const isLocalEnv = process.env.NODE_ENV === 'development'
+        if (isLocalEnv) {
+          // No LB locally
+          return NextResponse.redirect(`${origin}${next}`)
+        } else if (forwardedHost) {
+          return NextResponse.redirect(`https://${forwardedHost}${next}`)
+        } else {
+          return NextResponse.redirect(`${origin}${next}`)
+        }
       } else {
-        return NextResponse.redirect(`${origin}${next}`)
+        const reason = encodeURIComponent(`${error.message || 'exchange_failed'}`)
+        return NextResponse.redirect(`${origin}/auth/auth-code-error?reason=${reason}`)
       }
+    } catch (e: any) {
+      const reason = encodeURIComponent(e?.message || 'unexpected_error')
+      return NextResponse.redirect(`${origin}/auth/auth-code-error?reason=${reason}`)
     }
   }
 
-  // return the user to an error page with instructions
-  return NextResponse.redirect(`${origin}/auth/auth-code-error`)
+  // no code provided
+  return NextResponse.redirect(`${origin}/auth/auth-code-error?reason=missing_code`)
 }

@@ -4,7 +4,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { AlertTriangle, Home } from 'lucide-react'
 
-export default function AuthCodeErrorPage() {
+export default function AuthCodeErrorPage({ searchParams }: { searchParams?: { reason?: string } }) {
+  const reason = searchParams?.reason
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <Card className="w-full max-w-md">
@@ -21,12 +23,21 @@ export default function AuthCodeErrorPage() {
           <Alert variant="destructive">
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
-              We encountered an error while trying to sign you in. This could be due to:
-              <ul className="mt-2 list-disc list-inside space-y-1">
-                <li>An invalid or expired authentication code</li>
-                <li>Network connectivity issues</li>
-                <li>Server configuration problems</li>
-              </ul>
+              {reason ? (
+                <>
+                  <div className="font-semibold mb-1">Reason:</div>
+                  <code className="text-xs break-words">{decodeURIComponent(reason)}</code>
+                </>
+              ) : (
+                <>
+                  We encountered an error while trying to sign you in. This could be due to:
+                  <ul className="mt-2 list-disc list-inside space-y-1">
+                    <li>An invalid or expired authentication code</li>
+                    <li>Network connectivity issues</li>
+                    <li>Server configuration problems</li>
+                  </ul>
+                </>
+              )}
             </AlertDescription>
           </Alert>
           
