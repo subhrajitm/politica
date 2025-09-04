@@ -9,11 +9,21 @@ import { useAuth } from '@/contexts/AuthContext';
 import AuthModal from './auth/AuthModal';
 import UserMenu from './auth/UserMenu';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function Header() {
   const { siteName } = useSettings();
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const router = useRouter();
+
+  const handleAdminClick = () => {
+    if (user) {
+      router.push('/admin/dashboard');
+    } else {
+      setAuthModalOpen(true);
+    }
+  };
   
   const navLinks = [
     { name: 'Find Politicians', href: '/politicians' },
@@ -41,7 +51,7 @@ export default function Header() {
                 {link.name}
               </Link>
             ))}
-            {user && userNavLinks.map((link) => (
+            {!loading && user && userNavLinks.map((link) => (
               <Link key={link.name} href={link.href} className="text-xs font-medium text-gray-600 hover:text-primary flex items-center gap-1">
                 <link.icon className="w-3 h-3" />
                 {link.name}
@@ -50,12 +60,14 @@ export default function Header() {
           </nav>
 
           <div className="hidden lg:flex items-center gap-1">
-             <Button variant="ghost" size="icon" asChild className="h-8 w-8">
-              <Link href="/admin/dashboard">
+             <button 
+               className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-8 w-8"
+               onClick={handleAdminClick}
+               title={!loading && user ? "Admin Dashboard" : "Sign in to access admin"}
+             >
                 <LayoutDashboard className="h-4 w-4 text-gray-600" />
-              </Link>
-            </Button>
-            {user ? (
+            </button>
+            {!loading && user ? (
               <UserMenu />
             ) : (
               <Button 
@@ -94,19 +106,22 @@ export default function Header() {
                       {link.name}
                     </Link>
                   ))}
-                  {user && userNavLinks.map((link) => (
+                  {!loading && user && userNavLinks.map((link) => (
                     <Link key={link.name} href={link.href} className="text-base font-medium text-gray-600 hover:text-primary flex items-center gap-2">
                       <link.icon className="w-4 h-4" />
                       {link.name}
                     </Link>
                   ))}
-                   <Link href="/admin/dashboard" className="text-base font-medium text-gray-600 hover:text-primary">
+                   <button 
+                     onClick={handleAdminClick}
+                     className="text-base font-medium text-gray-600 hover:text-primary text-left"
+                   >
                     Dashboard
-                  </Link>
+                  </button>
                                      <Link href="/contact" className="text-base font-medium text-gray-600 hover:text-primary">
                     Contact
                   </Link>
-                  {user ? (
+                  {!loading && user ? (
                     <div className="mt-4">
                       <div className="text-sm text-muted-foreground mb-2">
                         Signed in as {user.email}

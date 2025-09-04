@@ -42,7 +42,14 @@ export default function AdminProtectedRoute({
       } catch (error) {
         console.error('AdminProtectedRoute: Auth check error:', error);
         setUser(null);
-        router.push('/admin/login');
+        // Only redirect if it's not a session missing error (which is expected for unauthenticated users)
+        if (error instanceof Error && !error.message.includes('Auth session missing')) {
+          console.log('AdminProtectedRoute: Unexpected error, redirecting to login');
+          router.push('/admin/login');
+        } else {
+          console.log('AdminProtectedRoute: Session missing, redirecting to login');
+          router.push('/admin/login');
+        }
       } finally {
         clearTimeout(timeoutId);
         setLoading(false);
@@ -94,5 +101,6 @@ export default function AdminProtectedRoute({
     );
   }
 
+  // Only render children after authentication is confirmed
   return <>{children}</>;
 }

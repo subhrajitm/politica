@@ -187,6 +187,19 @@ export class AdminAuthService {
         return null;
       }
       
+      // First try to get the session
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError) {
+        console.error('AdminAuthService: Error getting session:', sessionError);
+        return null;
+      }
+      
+      if (!session) {
+        console.log('AdminAuthService: No session found');
+        return null;
+      }
+      
       const { data: { user }, error } = await supabase.auth.getUser();
       
       if (error) {

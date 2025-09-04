@@ -99,10 +99,10 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
         <Sidebar collapsible="icon" className="hidden lg:block">
           <div className="flex flex-col h-full">
             <div className="h-14 flex items-center px-4 border-b">
-               <Link href="/admin/dashboard" className="flex items-center gap-2 font-bold">
+               <div className="flex items-center gap-2 font-bold">
                 <LogoIcon className="h-6 w-6 text-primary" />
                 <span className="group-data-[collapsible=icon]:hidden">Admin</span>
-              </Link>
+              </div>
             </div>
             <div className="flex-1 overflow-y-auto">
               <SidebarMenu className="p-2">
