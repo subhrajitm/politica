@@ -1,13 +1,13 @@
 'use client'
 
 import Link from 'next/link';
-import Image from 'next/image';
 import type { Politician } from '@/lib/types';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { PartyLogo } from './PartyLogo';
 import { MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import ImageWithPlaceholder from './ImageWithPlaceholder';
 import FavouriteButton from './FavouriteButton';
 
 type PoliticianCardProps = {
@@ -25,13 +25,13 @@ export default function PoliticianCard({ politician }: PoliticianCardProps) {
       >
         <CardContent className="p-3 flex flex-col h-full">
             <div className="relative w-full aspect-square mb-3">
-              <Image
+              <ImageWithPlaceholder
                 src={politician.photoUrl}
                 alt={`Photo of ${politician.name.fullName}`}
                 fill
-                className="object-cover rounded-md"
+                className="rounded-md"
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                data-ai-hint="politician portrait"
+                placeholder="user"
               />
             </div>
             <div className='flex-grow'>

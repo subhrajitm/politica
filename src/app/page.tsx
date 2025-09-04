@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { useState, useEffect, useRef } from 'react';
-import Image from 'next/image';
+import ImageWithPlaceholder from '@/components/ImageWithPlaceholder';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -139,14 +139,14 @@ export default function Home() {
           </p>
           <div className="flex justify-center mb-6 -space-x-4">
             {politicians.slice(0, 5).map((p) => (
-              <Image
+              <ImageWithPlaceholder
                 key={p.id}
                 src={p.photoUrl}
                 alt={p.name.fullName}
                 width={40}
                 height={40}
                 className="rounded-full border-2 border-primary-foreground/80"
-                data-ai-hint="politician photo"
+                placeholder="user"
               />
             ))}
           </div>
@@ -185,13 +185,13 @@ export default function Home() {
                         className="flex items-center gap-4 p-3 hover:bg-gray-100"
                         onClick={() => setShowSuggestions(false)}
                       >
-                        <Image
+                        <ImageWithPlaceholder
                           src={p.photoUrl}
                           alt={p.name.fullName}
                           width={40}
                           height={40}
                           className="rounded-full"
-                          data-ai-hint="politician photo"
+                          placeholder="user"
                         />
                         <div>
                           <p className="font-semibold text-gray-800">
@@ -241,12 +241,12 @@ export default function Home() {
                   <CardContent className="p-4">
                     <div className="flex items-center gap-4 mb-4">
                       <div className="relative w-14 h-14 rounded-full overflow-hidden flex-shrink-0">
-                        <Image
+                        <ImageWithPlaceholder
                           src={p.photoUrl}
                           alt={p.name.fullName}
                           fill
-                          className="object-cover"
-                          data-ai-hint="politician photo"
+                          className="rounded-full"
+                          placeholder="user"
                         />
                       </div>
                       <div>
@@ -288,12 +288,12 @@ export default function Home() {
                     <CardContent className="p-4">
                       <div className="flex items-center gap-4 mb-4">
                         <div className="relative w-14 h-14 rounded-full overflow-hidden flex-shrink-0">
-                          <Image
+                          <ImageWithPlaceholder
                             src={p.photoUrl}
                             alt={p.name.fullName}
                             fill
-                            className="object-cover"
-                            data-ai-hint="politician photo"
+                            className="rounded-full"
+                            placeholder="user"
                           />
                         </div>
                         <div>
@@ -378,13 +378,13 @@ export default function Home() {
                 </div>
               </div>
               <div className="flex-shrink-0">
-                <Image
+                <ImageWithPlaceholder
                   src="https://picsum.photos/seed/priya/120/120"
                   alt="Priya Sharma"
                   width={120}
                   height={120}
                   className="rounded-full"
-                  data-ai-hint="person illustration"
+                  placeholder="user"
                 />
               </div>
             </div>

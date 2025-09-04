@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
+import ImageWithPlaceholder from '@/components/ImageWithPlaceholder'
 import { useFavourites } from '@/contexts/FavouritesContext'
 import { useAuth } from '@/contexts/AuthContext'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -88,11 +88,11 @@ export default function FavouritesPage() {
           {favourites.map((favourite) => (
             <Card key={favourite.id} className="overflow-hidden hover:shadow-lg transition-shadow">
               <div className="relative w-full aspect-square">
-                <Image
+                <ImageWithPlaceholder
                   src={favourite.politician.photo_url}
                   alt={`Photo of ${favourite.politician.full_name}`}
                   fill
-                  className="object-cover"
+                  placeholder="user"
                 />
               </div>
               <CardContent className="p-4">

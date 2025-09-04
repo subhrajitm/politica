@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { Upload, X, Image as ImageIcon, Loader2 } from 'lucide-react';
-import Image from 'next/image';
+import ImageWithPlaceholder from './ImageWithPlaceholder';
 
 interface PhotoUploadProps {
   value: string;
@@ -115,11 +115,11 @@ export default function PhotoUpload({ value, onChange, politicianName, disabled 
       {value && (
         <div className="relative inline-block">
           <div className="relative w-32 h-32 rounded-lg overflow-hidden border-2 border-gray-200">
-            <Image
+            <ImageWithPlaceholder
               src={value}
               alt="Politician photo"
               fill
-              className="object-cover"
+              placeholder="image"
               onError={() => setError('Failed to load image')}
             />
           </div>

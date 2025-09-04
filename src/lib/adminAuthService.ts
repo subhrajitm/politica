@@ -58,26 +58,38 @@ export class AdminAuthService {
   private static async isUserAdmin(user: User): Promise<boolean> {
     // First check if email is in hardcoded admin list
     if (this.ADMIN_EMAILS.includes(user.email?.toLowerCase() || '')) {
+      console.log('AdminAuthService: User is in hardcoded admin list');
       return true;
     }
 
     // Then check if user exists in admin_profiles table
     try {
+      console.log('AdminAuthService: Checking admin_profiles table...');
       const { data: adminProfile, error } = await supabase
         .from('admin_profiles')
         .select('id')
         .eq('id', user.id)
         .single();
 
-      return !error && !!adminProfile;
+      if (error) {
+        console.log('AdminAuthService: Error checking admin_profiles:', error.message);
+        // If table doesn't exist or other error, fall back to hardcoded list only
+        return false;
+      }
+
+      const isAdmin = !!adminProfile;
+      console.log('AdminAuthService: Admin check result:', isAdmin);
+      return isAdmin;
     } catch (error) {
-      console.error('Error checking admin status:', error);
+      console.error('AdminAuthService: Error checking admin status:', error);
       return false;
     }
   }
 
   private static async getOrCreateAdminUser(supabaseUser: User): Promise<AdminUser> {
     try {
+      console.log('AdminAuthService: Getting or creating admin user...');
+      
       // Try to get existing admin user from database
       const { data: existingUser, error } = await supabase
         .from('admin_profiles')
@@ -86,6 +98,7 @@ export class AdminAuthService {
         .single();
 
       if (existingUser && !error) {
+        console.log('AdminAuthService: Found existing admin user');
         return {
           id: existingUser.id,
           email: existingUser.email,
@@ -96,6 +109,8 @@ export class AdminAuthService {
         };
       }
 
+      console.log('AdminAuthService: Creating new admin user...');
+      
       // Create new admin user if doesn't exist
       const newUser = {
         id: supabaseUser.id,
@@ -111,7 +126,7 @@ export class AdminAuthService {
         .single();
 
       if (createError) {
-        console.error('Error creating admin user:', createError);
+        console.error('AdminAuthService: Error creating admin user:', createError);
         // Fallback to in-memory user if database fails
         return {
           id: supabaseUser.id,
@@ -122,6 +137,7 @@ export class AdminAuthService {
         };
       }
 
+      console.log('AdminAuthService: Successfully created admin user');
       return {
         id: createdUser.id,
         email: createdUser.email,
@@ -130,7 +146,7 @@ export class AdminAuthService {
         created_at: createdUser.created_at,
       };
     } catch (error) {
-      console.error('Error in getOrCreateAdminUser:', error);
+      console.error('AdminAuthService: Error in getOrCreateAdminUser:', error);
       // Fallback to in-memory user if database fails
       return {
         id: supabaseUser.id,
@@ -163,17 +179,30 @@ export class AdminAuthService {
 
   static async getCurrentUser(): Promise<AdminUser | null> {
     try {
+      console.log('AdminAuthService: Getting current user...');
+      
       const { data: { user }, error } = await supabase.auth.getUser();
       
-      if (error || !user) {
+      if (error) {
+        console.error('AdminAuthService: Error getting user:', error);
         return null;
       }
+      
+      if (!user) {
+        console.log('AdminAuthService: No user found');
+        return null;
+      }
+
+      console.log('AdminAuthService: User found:', user.email);
 
       // Check if user is an admin
       const isAdmin = await this.isUserAdmin(user);
       if (!isAdmin) {
+        console.log('AdminAuthService: User is not an admin');
         return null;
       }
+
+      console.log('AdminAuthService: User is admin, getting profile...');
 
       // Get admin user profile
       const { data: adminUser, error: adminError } = await supabase
@@ -182,10 +211,18 @@ export class AdminAuthService {
         .eq('id', user.id)
         .single();
 
-      if (adminError || !adminUser) {
+      if (adminError) {
+        console.log('AdminAuthService: No admin profile found, creating one...', adminError.message);
         // If no admin profile exists, create one
         return await this.getOrCreateAdminUser(user);
       }
+
+      if (!adminUser) {
+        console.log('AdminAuthService: Admin profile is null, creating one...');
+        return await this.getOrCreateAdminUser(user);
+      }
+
+      console.log('AdminAuthService: Admin profile found:', adminUser.email);
 
       return {
         id: adminUser.id,
@@ -196,7 +233,7 @@ export class AdminAuthService {
         last_login: adminUser.last_login,
       };
     } catch (error) {
-      console.error('Error getting current user:', error);
+      console.error('AdminAuthService: Error getting current user:', error);
       return null;
     }
   }

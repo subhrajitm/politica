@@ -18,18 +18,33 @@ export default function AdminProtectedRoute({
   const router = useRouter();
 
   useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    
     const checkAuth = async () => {
       try {
-        const currentUser = await AdminAuthService.getCurrentUser();
+        console.log('AdminProtectedRoute: Starting auth check...');
+        
+        // Add timeout to prevent infinite loading
+        const authPromise = AdminAuthService.getCurrentUser();
+        const timeoutPromise = new Promise<null>((_, reject) => {
+          timeoutId = setTimeout(() => reject(new Error('Auth check timeout')), 10000); // 10 second timeout
+        });
+        
+        const currentUser = await Promise.race([authPromise, timeoutPromise]);
+        console.log('AdminProtectedRoute: Auth check result:', currentUser);
+        
         setUser(currentUser);
         
         if (!currentUser) {
+          console.log('AdminProtectedRoute: No user found, redirecting to login');
           router.push('/admin/login');
         }
       } catch (error) {
-        console.error('Auth check error:', error);
+        console.error('AdminProtectedRoute: Auth check error:', error);
+        setUser(null);
         router.push('/admin/login');
       } finally {
+        clearTimeout(timeoutId);
         setLoading(false);
       }
     };
@@ -38,6 +53,7 @@ export default function AdminProtectedRoute({
 
     // Listen for auth state changes
     const { data: { subscription } } = AdminAuthService.onAuthStateChange((user) => {
+      console.log('AdminProtectedRoute: Auth state changed:', user);
       setUser(user);
       if (!user) {
         router.push('/admin/login');
@@ -45,6 +61,7 @@ export default function AdminProtectedRoute({
     });
 
     return () => {
+      clearTimeout(timeoutId);
       subscription?.unsubscribe();
     };
   }, [router]);

@@ -1,6 +1,6 @@
 
 import Link from 'next/link';
-import Image from 'next/image';
+import ImageWithPlaceholder from '@/components/ImageWithPlaceholder';
 import { notFound } from 'next/navigation';
 import {
   ArrowLeft,
@@ -83,13 +83,12 @@ export default async function PoliticianPage({ params }: { params: Promise<{ id:
         <aside className="lg:col-span-1 space-y-4 lg:sticky lg:top-20 self-start">
           <Card className="overflow-hidden">
             <div className="relative w-full aspect-square">
-              <Image
+              <ImageWithPlaceholder
                 src={politician.photoUrl}
                 alt={`Photo of ${politician.name.fullName}`}
                 fill
-                className="object-cover"
                 priority
-                data-ai-hint="politician portrait"
+                placeholder="user"
               />
             </div>
             <CardContent className="p-3">
