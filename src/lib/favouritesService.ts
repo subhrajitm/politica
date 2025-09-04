@@ -65,7 +65,12 @@ export class FavouritesService {
         .select('id', { count: 'exact', head: true })
 
       if (tableError) {
-        console.error('Table access error:', tableError)
+        console.error('Table access error:', {
+          message: (tableError as any)?.message,
+          code: (tableError as any)?.code,
+          details: (tableError as any)?.details,
+          hint: (tableError as any)?.hint,
+        })
         // If table doesn't exist or has permission issues, return empty array
         if (tableError.code === 'PGRST116' || tableError.message.includes('relation') || tableError.message.includes('does not exist')) {
           console.warn('user_favourites table does not exist or is not accessible. Please run the database migration.')
@@ -74,28 +79,59 @@ export class FavouritesService {
         return { data: null, error: tableError }
       }
 
-      const { data, error } = await supabase
+      // Step 1: Fetch favourites rows only
+      const { data: favRows, error: favError } = await supabase
         .from('user_favourites')
-        .select(`
-          *,
-          politician:politicians(
-            id,
-            full_name,
-            party,
-            constituency,
-            current_position,
-            photo_url
-          )
-        `)
+        .select('id, user_id, politician_id, created_at')
         .eq('user_id', userId)
         .order('created_at', { ascending: false })
 
-      if (error) {
-        console.error('Supabase error:', error)
-        return { data: null, error }
+      if (favError) {
+        console.error('Supabase favourites fetch error:', {
+          message: (favError as any)?.message,
+          code: (favError as any)?.code,
+          details: (favError as any)?.details,
+          hint: (favError as any)?.hint,
+        })
+        return { data: null, error: favError }
       }
 
-      return { data: data as FavouriteWithPolitician[] | null, error }
+      const favourites = favRows || []
+      if (favourites.length === 0) {
+        return { data: [] as FavouriteWithPolitician[], error: null }
+      }
+
+      // Step 2: Fetch politicians in a single query
+      const politicianIds = Array.from(new Set(favourites.map(f => f.politician_id)))
+      const { data: politicians, error: polError } = await supabase
+        .from('politicians')
+        .select('id, full_name, party, constituency, current_position, photo_url')
+        .in('id', politicianIds)
+
+      if (polError) {
+        console.error('Supabase politicians fetch error:', {
+          message: (polError as any)?.message,
+          code: (polError as any)?.code,
+          details: (polError as any)?.details,
+          hint: (polError as any)?.hint,
+        })
+        // Even if this fails, return the bare favourites list
+        return { data: [] as FavouriteWithPolitician[], error: polError }
+      }
+
+      const idToPolitician = new Map<string, any>((politicians || []).map(p => [p.id, p]))
+      const enriched: FavouriteWithPolitician[] = favourites
+        .map(f => {
+          const p = idToPolitician.get(f.politician_id)
+          if (!p) return null
+          return {
+            ...f,
+            politician: p,
+          } as FavouriteWithPolitician
+        })
+        .filter(Boolean) as FavouriteWithPolitician[]
+
+      return { data: enriched, error: null }
     } catch (err) {
       console.error('Unexpected error in getUserFavourites:', err)
       return { data: null, error: err }
