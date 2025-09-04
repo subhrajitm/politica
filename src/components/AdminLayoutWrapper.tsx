@@ -3,6 +3,7 @@
 import { usePathname } from 'next/navigation';
 import Header from './Header';
 import Footer from './Footer';
+import AdminProtectedRoute from './AdminProtectedRoute';
 
 interface AdminLayoutWrapperProps {
   children: React.ReactNode;
@@ -11,10 +12,20 @@ interface AdminLayoutWrapperProps {
 export default function AdminLayoutWrapper({ children }: AdminLayoutWrapperProps) {
   const pathname = usePathname();
   const isAdminRoute = pathname?.startsWith('/admin');
+  const isLoginRoute = pathname === '/admin/login';
 
   if (isAdminRoute) {
-    // Don't render header/footer for admin routes
-    return <>{children}</>;
+    if (isLoginRoute) {
+      // Don't render header/footer for login page
+      return <>{children}</>;
+    }
+    
+    // Protect all other admin routes
+    return (
+      <AdminProtectedRoute>
+        {children}
+      </AdminProtectedRoute>
+    );
   }
 
   return (

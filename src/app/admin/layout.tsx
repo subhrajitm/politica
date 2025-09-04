@@ -1,21 +1,64 @@
 
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Users, Settings, Home, Plus } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
+import { LayoutDashboard, Users, Settings, Home, Plus, LogOut, User } from 'lucide-react';
 import { SidebarProvider, Sidebar, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
 import { LogoIcon } from '@/lib/icons';
 import { Button } from '@/components/ui/button';
+import { AdminAuthService } from '@/lib/adminAuthService';
+import { useToast } from '@/hooks/use-toast';
 
 const AdminLayout = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
+  const router = useRouter();
+  const { toast } = useToast();
+  const [currentUser, setCurrentUser] = useState<any>(null);
+
+  useEffect(() => {
+    const checkUser = async () => {
+      const user = await AdminAuthService.getCurrentUser();
+      setCurrentUser(user);
+    };
+    
+    checkUser();
+
+    // Listen for auth state changes
+    const { data: { subscription } } = AdminAuthService.onAuthStateChange((user) => {
+      setCurrentUser(user);
+    });
+
+    return () => {
+      subscription?.unsubscribe();
+    };
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await AdminAuthService.logout();
+      toast({
+        title: "Logged out",
+        description: "You have been successfully logged out",
+      });
+      router.push('/admin/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to logout properly",
+        variant: "destructive",
+      });
+    }
+  };
 
   const navItems = [
     { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/admin/politicians', label: 'Politicians', icon: Users },
     { href: '/admin/politicians/bulk', label: 'Bulk Add', icon: Plus },
+    { href: '/admin/user-management', label: 'User Management', icon: User },
     { href: '/admin/settings', label: 'Settings', icon: Settings },
   ];
 
@@ -46,16 +89,35 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ))}
+                <div className="h-4"></div>
               </SidebarMenu>
             </div>
             <div className="mt-auto p-2 border-t">
               <SidebarMenu>
-                 <SidebarMenuItem>
+                {currentUser && (
+                  <SidebarMenuItem>
+                    <SidebarMenuButton tooltip={{children: `Logged in as ${currentUser.email}`}}>
+                      <User />
+                      <span className="truncate">{currentUser.email}</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )}
+                <SidebarMenuItem>
                   <SidebarMenuButton asChild tooltip={{children: 'Back to Site'}}>
                     <Link href="/">
                       <Home />
                        <span>Back to Site</span>
                     </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton 
+                    onClick={handleLogout}
+                    tooltip={{children: 'Logout'}}
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                  >
+                    <LogOut />
+                    <span>Logout</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>

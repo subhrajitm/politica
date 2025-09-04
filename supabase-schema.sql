@@ -322,6 +322,17 @@ END $$;
 -- Note: These policies allow all operations for now to enable migration
 -- In production, you should tighten these policies for security
 
+-- Create admin_profiles table for admin user profiles (references auth.users)
+CREATE TABLE IF NOT EXISTS admin_profiles (
+  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  email TEXT UNIQUE NOT NULL,
+  name TEXT NOT NULL,
+  role TEXT NOT NULL CHECK (role IN ('admin', 'super_admin')),
+  last_login TIMESTAMP WITH TIME ZONE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- Create settings table for site configuration
 CREATE TABLE IF NOT EXISTS settings (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -341,6 +352,17 @@ INSERT INTO settings (key, value, description) VALUES
   ('enable_public_contributions', 'false', 'Whether to enable public contributions')
 ON CONFLICT (key) DO NOTHING;
 
+-- Create trigger for admin_profiles table
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_admin_profiles_updated_at') THEN
+        CREATE TRIGGER update_admin_profiles_updated_at 
+            BEFORE UPDATE ON admin_profiles 
+            FOR EACH ROW 
+            EXECUTE FUNCTION update_updated_at_column();
+    END IF;
+END $$;
+
 -- Create trigger for settings table
 DO $$
 BEGIN
@@ -349,6 +371,18 @@ BEGIN
             BEFORE UPDATE ON settings 
             FOR EACH ROW 
             EXECUTE FUNCTION update_updated_at_column();
+    END IF;
+END $$;
+
+-- Enable RLS on admin_profiles table
+ALTER TABLE admin_profiles ENABLE ROW LEVEL SECURITY;
+
+-- Create policy for admin_profiles table
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow all operations on admin_profiles' AND tablename = 'admin_profiles') THEN
+        CREATE POLICY "Allow all operations on admin_profiles" ON admin_profiles
+            FOR ALL USING (true) WITH CHECK (true);
     END IF;
 END $$;
 
