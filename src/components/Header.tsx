@@ -1,6 +1,6 @@
 
 import Link from 'next/link';
-import { Search, Menu, LayoutDashboard, LogIn, Heart } from 'lucide-react';
+import { Menu, LayoutDashboard, LogIn, Heart } from 'lucide-react';
 import { Button } from './ui/button';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from './ui/sheet';
 import { LogoIcon } from '@/lib/icons';
@@ -55,9 +55,6 @@ export default function Header() {
                 <LayoutDashboard className="h-4 w-4 text-gray-600" />
               </Link>
             </Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8">
-              <Search className="h-4 w-4 text-gray-600" />
-            </Button>
             {user ? (
               <UserMenu />
             ) : (
@@ -70,8 +67,8 @@ export default function Header() {
                 Sign In
               </Button>
             )}
-            <Button size="sm" className="h-8">
-              Contribute
+            <Button size="sm" className="h-8" asChild>
+              <Link href="/contribute">Contribute</Link>
             </Button>
           </div>
 
@@ -125,8 +122,8 @@ export default function Header() {
                       Sign In
                     </Button>
                   )}
-                   <Button className="w-full mt-2">
-                    Contribute
+                   <Button className="w-full mt-2" asChild>
+                    <Link href="/contribute">Contribute</Link>
                   </Button>
                 </nav>
               </SheetContent>
