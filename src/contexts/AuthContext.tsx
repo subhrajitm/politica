@@ -10,6 +10,8 @@ interface AuthContextType {
   loading: boolean
   signUp: (email: string, password: string) => Promise<{ data: any; error: any }>
   signIn: (email: string, password: string) => Promise<{ data: any; error: any }>
+  signInWithGoogle: () => Promise<{ data: any; error: any }>
+  signInWithGoogleIdToken: (token: string, nonce?: string) => Promise<{ data: any; error: any }>
   signOut: () => Promise<{ error: any }>
 }
 
@@ -50,6 +52,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return await AuthService.signIn(email, password)
   }
 
+  const signInWithGoogle = async () => {
+    return await AuthService.signInWithGoogle()
+  }
+
+  const signInWithGoogleIdToken = async (token: string, nonce?: string) => {
+    return await AuthService.signInWithGoogleIdToken(token, nonce)
+  }
+
   const signOut = async () => {
     return await AuthService.signOut()
   }
@@ -60,6 +70,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     loading,
     signUp,
     signIn,
+    signInWithGoogle,
+    signInWithGoogleIdToken,
     signOut,
   }
 

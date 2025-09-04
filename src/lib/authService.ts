@@ -33,6 +33,25 @@ export class AuthService {
     return { error }
   }
 
+  static async signInWithGoogle() {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    })
+    return { data, error }
+  }
+
+  static async signInWithGoogleIdToken(token: string, nonce?: string) {
+    const { data, error } = await supabase.auth.signInWithIdToken({
+      provider: 'google',
+      token,
+      nonce,
+    })
+    return { data, error }
+  }
+
   static async getCurrentUser() {
     const { data: { user }, error } = await supabase.auth.getUser()
     return { user, error }
