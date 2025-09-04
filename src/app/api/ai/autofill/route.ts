@@ -1,14 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { autofillPoliticianByName } from '@/ai/flows/autofill-politician';
 import { createClient } from '@/lib/supabase-server';
+import { getServerUser } from '@/lib/authUtilsServer';
 
 export async function POST(req: NextRequest) {
   try {
-    // Create server-side Supabase client with proper session handling
-    const supabase = createClient();
-    
-    // Verify user authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    // Verify user authentication using server-side utility
+    const { user, error: authError } = await getServerUser();
     
     if (authError || !user) {
       return NextResponse.json({ 
@@ -16,6 +14,9 @@ export async function POST(req: NextRequest) {
       }, { status: 401 });
     }
 
+    // Create server-side Supabase client for database operations
+    const supabase = createClient();
+    
     // Verify user is admin (since this is used in admin pages)
     const { data: adminProfile, error: adminError } = await supabase
       .from('admin_profiles')

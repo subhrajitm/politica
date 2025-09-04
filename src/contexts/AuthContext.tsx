@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { AuthService, type AuthUser } from '@/lib/authService'
+import { initializeAuthSession } from '@/lib/authUtils'
 import type { Session } from '@supabase/supabase-js'
 
 interface AuthContextType {
@@ -31,24 +32,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     let isMounted = true
 
-    // Get initial session with timeout
+    // Get initial session with safer initialization
     const initAuth = async () => {
       try {
-        const { session, error } = await AuthService.getCurrentSession()
+        const { user, session, error } = await initializeAuthSession()
         
         if (!isMounted) return
 
         if (error) {
-          console.error('Error getting session:', error)
+          console.error('Error initializing auth:', error)
           // Don't set user/session on error, but still stop loading
         } else {
           setSession(session)
-          setUser(session?.user as AuthUser || null)
+          setUser(user as AuthUser || null)
         }
         setLoading(false)
       } catch (error) {
         if (!isMounted) return
-        console.error('Error in getCurrentSession:', error)
+        console.error('Error in auth initialization:', error)
         setLoading(false)
       }
     }
@@ -62,8 +63,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (!isMounted) return
         
         console.log('Auth state change:', event, session?.user?.email)
-        setSession(session)
-        setUser(session?.user as AuthUser || null)
+        
+        // Handle different auth events
+        if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') {
+          setSession(session)
+          setUser(session?.user as AuthUser || null)
+        } else if (event === 'SIGNED_IN') {
+          setSession(session)
+          setUser(session?.user as AuthUser || null)
+        } else {
+          // For other events, update state
+          setSession(session)
+          setUser(session?.user as AuthUser || null)
+        }
+        
         setLoading(false)
       })
       subscription = authSubscription

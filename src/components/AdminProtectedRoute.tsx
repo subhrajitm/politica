@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { AdminAuthService, AdminUser } from '@/lib/adminAuthService';
+import { debugLoadingState } from '@/lib/loadingDebug';
 
 interface AdminProtectedRouteProps {
   children: React.ReactNode;
@@ -19,6 +20,8 @@ export default function AdminProtectedRoute({
 
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
+    let isMounted = true;
+    let forceLoadingTimeout: NodeJS.Timeout;
     
     const checkAuth = async () => {
       try {
@@ -27,41 +30,76 @@ export default function AdminProtectedRoute({
         // Add timeout to prevent infinite loading
         const authPromise = AdminAuthService.getCurrentUser();
         const timeoutPromise = new Promise<null>((_, reject) => {
-          timeoutId = setTimeout(() => reject(new Error('Auth check timeout')), 10000); // 10 second timeout
+          timeoutId = setTimeout(() => reject(new Error('Auth check timeout')), 8000); // Reduced to 8 seconds
         });
         
         const currentUser = await Promise.race([authPromise, timeoutPromise]);
+        
+        if (!isMounted) return;
+        
         console.log('AdminProtectedRoute: Auth check result:', currentUser);
         
         setUser(currentUser);
+        debugLoadingState('AdminProtectedRoute', false, 'Auth check completed');
         
         if (!currentUser) {
           console.log('AdminProtectedRoute: No user found, redirecting to login');
           router.push('/admin/login');
         }
       } catch (error) {
+        if (!isMounted) return;
+        
         console.error('AdminProtectedRoute: Auth check error:', error);
         setUser(null);
+        debugLoadingState('AdminProtectedRoute', false, 'Auth check failed');
         router.push('/admin/login');
       } finally {
-        clearTimeout(timeoutId);
-        setLoading(false);
+        if (isMounted) {
+          clearTimeout(timeoutId);
+          setLoading(false);
+          debugLoadingState('AdminProtectedRoute', false, 'Finally block');
+        }
       }
     };
 
     checkAuth();
 
-    // Listen for auth state changes
-    const { data: { subscription } } = AdminAuthService.onAuthStateChange((user) => {
-      console.log('AdminProtectedRoute: Auth state changed:', user);
-      setUser(user);
-      if (!user) {
-        router.push('/admin/login');
+    // Force loading to false after 15 seconds as a safety net
+    forceLoadingTimeout = setTimeout(() => {
+      if (isMounted && loading) {
+        console.warn('AdminProtectedRoute: Force setting loading to false after 15 seconds');
+        setLoading(false);
+        debugLoadingState('AdminProtectedRoute', false, 'Force timeout');
       }
+    }, 15000);
+
+    // Listen for auth state changes with debouncing
+    let authStateTimeout: NodeJS.Timeout;
+    const { data: { subscription } } = AdminAuthService.onAuthStateChange((user) => {
+      if (!isMounted) return;
+      
+      console.log('AdminProtectedRoute: Auth state changed:', user);
+      
+      // Debounce auth state changes to prevent rapid updates
+      clearTimeout(authStateTimeout);
+      authStateTimeout = setTimeout(() => {
+        if (!isMounted) return;
+        
+        setUser(user);
+        setLoading(false); // Ensure loading is set to false on auth state change
+        debugLoadingState('AdminProtectedRoute', false, 'Auth state change');
+        
+        if (!user) {
+          router.push('/admin/login');
+        }
+      }, 100);
     });
 
     return () => {
+      isMounted = false;
       clearTimeout(timeoutId);
+      clearTimeout(authStateTimeout);
+      clearTimeout(forceLoadingTimeout);
       subscription?.unsubscribe();
     };
   }, [router]);

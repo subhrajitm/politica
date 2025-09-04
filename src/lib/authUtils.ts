@@ -1,5 +1,4 @@
 import { supabase } from './supabase';
-import { createClient } from './supabase-server';
 
 /**
  * Utility functions for handling authentication across client and server
@@ -43,6 +42,15 @@ export async function getCurrentUserWithTimeout(timeoutMs: number = 5000): Promi
  */
 export async function getCurrentSessionWithTimeout(timeoutMs: number = 5000): Promise<AuthResult> {
   try {
+    // Check if we're in browser environment
+    if (typeof window === 'undefined') {
+      return {
+        user: null,
+        session: null,
+        error: new Error('Not in browser environment')
+      };
+    }
+
     const sessionPromise = supabase.auth.getSession();
     const timeoutPromise = new Promise<AuthResult>((_, reject) => {
       setTimeout(() => reject(new Error('Session timeout')), timeoutMs);
@@ -66,20 +74,58 @@ export async function getCurrentSessionWithTimeout(timeoutMs: number = 5000): Pr
 }
 
 /**
- * Server-side auth check with proper error handling
+ * Safely initialize auth session with proper error handling
  */
-export async function getServerUser(): Promise<AuthResult> {
+export async function initializeAuthSession(): Promise<AuthResult> {
   try {
-    const supabase = createClient();
-    const { data: { user }, error } = await supabase.auth.getUser();
+    // Check if we're in browser environment
+    if (typeof window === 'undefined') {
+      return {
+        user: null,
+        session: null,
+        error: new Error('Not in browser environment')
+      };
+    }
+
+    // First try to get existing session
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
     
+    if (sessionError) {
+      console.error('Session error:', sessionError);
+      return {
+        user: null,
+        session: null,
+        error: sessionError
+      };
+    }
+
+    // If no session, try to get user (this might trigger session refresh)
+    if (!session) {
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      
+      if (userError) {
+        console.error('User error:', userError);
+        return {
+          user: null,
+          session: null,
+          error: userError
+        };
+      }
+
+      return {
+        user,
+        session: null,
+        error: null
+      };
+    }
+
     return {
-      user,
-      session: null,
-      error
+      user: session.user,
+      session,
+      error: null
     };
   } catch (error) {
-    console.error('Server auth error:', error);
+    console.error('Auth initialization error:', error);
     return {
       user: null,
       session: null,
@@ -87,6 +133,7 @@ export async function getServerUser(): Promise<AuthResult> {
     };
   }
 }
+
 
 /**
  * Check if user is admin with timeout
@@ -135,4 +182,63 @@ export function createDebouncedAuthHandler(
       callback(session?.user || null, session);
     }, delay);
   };
+}
+
+/**
+ * Clear auth session and reset to clean state
+ */
+export async function clearAuthSession(): Promise<void> {
+  try {
+    if (typeof window === 'undefined') return;
+    
+    // Clear localStorage auth tokens
+    const authKeys = Object.keys(localStorage).filter(key => 
+      key.includes('supabase') || key.includes('auth') || key.includes('politica-auth')
+    );
+    
+    authKeys.forEach(key => {
+      localStorage.removeItem(key);
+    });
+    
+    // Clear sessionStorage auth tokens
+    const sessionAuthKeys = Object.keys(sessionStorage).filter(key => 
+      key.includes('supabase') || key.includes('auth') || key.includes('politica-auth')
+    );
+    
+    sessionAuthKeys.forEach(key => {
+      sessionStorage.removeItem(key);
+    });
+    
+    // Sign out from Supabase
+    await supabase.auth.signOut();
+    
+    console.log('Auth session cleared successfully');
+  } catch (error) {
+    console.error('Error clearing auth session:', error);
+  }
+}
+
+/**
+ * Recover from auth session errors by clearing and reinitializing
+ */
+export async function recoverFromAuthError(): Promise<AuthResult> {
+  try {
+    console.log('Attempting to recover from auth error...');
+    
+    // Clear corrupted session
+    await clearAuthSession();
+    
+    // Wait a bit for cleanup
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // Try to reinitialize
+    return await initializeAuthSession();
+  } catch (error) {
+    console.error('Error during auth recovery:', error);
+    return {
+      user: null,
+      session: null,
+      error
+    };
+  }
 }

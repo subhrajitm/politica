@@ -57,6 +57,11 @@ export class AuthService {
 
   static async getCurrentUser() {
     try {
+      // Check if we're in browser environment
+      if (typeof window === 'undefined') {
+        return { user: null, error: new Error('Not in browser environment') }
+      }
+
       const { data: { user }, error } = await supabase.auth.getUser()
       return { user, error }
     } catch (error) {
@@ -67,6 +72,11 @@ export class AuthService {
 
   static async getCurrentSession() {
     try {
+      // Check if we're in browser environment
+      if (typeof window === 'undefined') {
+        return { session: null, error: new Error('Not in browser environment') }
+      }
+
       const { data: { session }, error } = await supabase.auth.getSession()
       return { session, error }
     } catch (error) {

@@ -8,8 +8,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { SettingsService, Setting } from '@/lib/settingsService';
+import { CacheMonitoringDashboard } from '@/components/admin/CacheMonitoringDashboard';
+import { PerformanceDashboard } from '@/components/admin/PerformanceDashboard';
 
 export default function SettingsPage() {
     const [settings, setSettings] = useState<Setting[]>([]);
@@ -107,78 +110,97 @@ export default function SettingsPage() {
     return (
         <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
             <h2 className="text-3xl font-bold tracking-tight">Settings</h2>
-            <Card>
-                <CardHeader>
-                    <CardTitle>General Settings</CardTitle>
-                    <CardDescription>Manage general site settings.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                    <div className="space-y-2">
-                        <Label htmlFor="siteName">Site Name</Label>
-                        <Input 
-                            id="siteName" 
-                            value={formData.site_name || ''}
-                            onChange={(e) => handleInputChange('site_name', e.target.value)}
-                            placeholder="Enter site name"
-                        />
-                    </div>
-                    
-                    <div className="space-y-2">
-                        <Label htmlFor="siteDescription">Site Description</Label>
-                        <Input 
-                            id="siteDescription" 
-                            value={formData.site_description || ''}
-                            onChange={(e) => handleInputChange('site_description', e.target.value)}
-                            placeholder="Enter site description"
-                        />
-                    </div>
-                    
-                    <div className="space-y-2">
-                        <Label htmlFor="contactEmail">Contact Email</Label>
-                        <Input 
-                            id="contactEmail" 
-                            type="email"
-                            value={formData.contact_email || ''}
-                            onChange={(e) => handleInputChange('contact_email', e.target.value)}
-                            placeholder="Enter contact email"
-                        />
-                    </div>
-                    
-                    <Separator />
-                    
-                    <div className="space-y-4">
-                        <h3 className="text-lg font-medium">Content Management</h3>
-                        <div className="flex items-center space-x-2">
-                            <Checkbox 
-                                id="requireApproval" 
-                                checked={formData.require_approval || false}
-                                onCheckedChange={(checked) => 
-                                    handleInputChange('require_approval', checked === true)
-                                }
-                            />
-                            <Label htmlFor="requireApproval">Require admin approval for new submissions</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                            <Checkbox 
-                                id="enablePublic" 
-                                checked={formData.enable_public_contributions || false}
-                                onCheckedChange={(checked) => 
-                                    handleInputChange('enable_public_contributions', checked === true)
-                                }
-                            />
-                            <Label htmlFor="enablePublic">Enable public contributions</Label>
-                        </div>
-                    </div>
-                    
-                    <Button 
-                        onClick={handleSave} 
-                        disabled={saving}
-                        className="w-full"
-                    >
-                        {saving ? 'Saving...' : 'Save Changes'}
-                    </Button>
-                </CardContent>
-            </Card>
+            
+            <Tabs defaultValue="general" className="space-y-4">
+                <TabsList>
+                    <TabsTrigger value="general">General</TabsTrigger>
+                    <TabsTrigger value="cache">Cache Management</TabsTrigger>
+                    <TabsTrigger value="performance">Performance</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="general">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>General Settings</CardTitle>
+                            <CardDescription>Manage general site settings.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-6">
+                            <div className="space-y-2">
+                                <Label htmlFor="siteName">Site Name</Label>
+                                <Input 
+                                    id="siteName" 
+                                    value={formData.site_name || ''}
+                                    onChange={(e) => handleInputChange('site_name', e.target.value)}
+                                    placeholder="Enter site name"
+                                />
+                            </div>
+                            
+                            <div className="space-y-2">
+                                <Label htmlFor="siteDescription">Site Description</Label>
+                                <Input 
+                                    id="siteDescription" 
+                                    value={formData.site_description || ''}
+                                    onChange={(e) => handleInputChange('site_description', e.target.value)}
+                                    placeholder="Enter site description"
+                                />
+                            </div>
+                            
+                            <div className="space-y-2">
+                                <Label htmlFor="contactEmail">Contact Email</Label>
+                                <Input 
+                                    id="contactEmail" 
+                                    type="email"
+                                    value={formData.contact_email || ''}
+                                    onChange={(e) => handleInputChange('contact_email', e.target.value)}
+                                    placeholder="Enter contact email"
+                                />
+                            </div>
+                            
+                            <Separator />
+                            
+                            <div className="space-y-4">
+                                <h3 className="text-lg font-medium">Content Management</h3>
+                                <div className="flex items-center space-x-2">
+                                    <Checkbox 
+                                        id="requireApproval" 
+                                        checked={formData.require_approval || false}
+                                        onCheckedChange={(checked) => 
+                                            handleInputChange('require_approval', checked === true)
+                                        }
+                                    />
+                                    <Label htmlFor="requireApproval">Require admin approval for new submissions</Label>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                    <Checkbox 
+                                        id="enablePublic" 
+                                        checked={formData.enable_public_contributions || false}
+                                        onCheckedChange={(checked) => 
+                                            handleInputChange('enable_public_contributions', checked === true)
+                                        }
+                                    />
+                                    <Label htmlFor="enablePublic">Enable public contributions</Label>
+                                </div>
+                            </div>
+                            
+                            <Button 
+                                onClick={handleSave} 
+                                disabled={saving}
+                                className="w-full"
+                            >
+                                {saving ? 'Saving...' : 'Save Changes'}
+                            </Button>
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+                
+                <TabsContent value="cache">
+                    <CacheMonitoringDashboard />
+                </TabsContent>
+                
+                <TabsContent value="performance">
+                    <PerformanceDashboard />
+                </TabsContent>
+            </Tabs>
         </div>
     );
 }

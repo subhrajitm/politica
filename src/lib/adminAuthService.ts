@@ -271,10 +271,29 @@ export class AdminAuthService {
 
   static onAuthStateChange(callback: (user: AdminUser | null) => void) {
     return supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' && session?.user) {
-        const adminUser = await this.getCurrentUser();
-        callback(adminUser);
-      } else if (event === 'SIGNED_OUT') {
+      console.log('AdminAuthService: Auth state change event:', event);
+      
+      try {
+        if (event === 'SIGNED_IN' && session?.user) {
+          const adminUser = await this.getCurrentUser();
+          callback(adminUser);
+        } else if (event === 'SIGNED_OUT') {
+          callback(null);
+        } else if (event === 'TOKEN_REFRESHED' && session?.user) {
+          // Handle token refresh - check if user is still admin
+          const adminUser = await this.getCurrentUser();
+          callback(adminUser);
+        } else if (event === 'USER_UPDATED' && session?.user) {
+          // Handle user updates
+          const adminUser = await this.getCurrentUser();
+          callback(adminUser);
+        } else {
+          // For other events, just pass the current state
+          const adminUser = await this.getCurrentUser();
+          callback(adminUser);
+        }
+      } catch (error) {
+        console.error('AdminAuthService: Error in auth state change handler:', error);
         callback(null);
       }
     });

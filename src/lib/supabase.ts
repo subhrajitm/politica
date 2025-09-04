@@ -12,7 +12,11 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: true,
-    flowType: 'pkce'
+    flowType: 'pkce',
+    // Add storage key to prevent conflicts
+    storageKey: 'politica-auth-token',
+    // Add debug mode for development
+    debug: process.env.NODE_ENV === 'development'
   }
 })
 

@@ -20,26 +20,47 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let isMounted = true;
+    
     const checkUser = async () => {
       try {
         const user = await AdminAuthService.getCurrentUser();
+        
+        if (!isMounted) return;
+        
         setCurrentUser(user);
       } catch (error) {
+        if (!isMounted) return;
+        
         console.error('Auth check error:', error);
         setCurrentUser(null);
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
     
     checkUser();
 
-    // Listen for auth state changes
+    // Listen for auth state changes with debouncing
+    let authStateTimeout: NodeJS.Timeout;
     const { data: { subscription } } = AdminAuthService.onAuthStateChange((user) => {
-      setCurrentUser(user);
+      if (!isMounted) return;
+      
+      // Debounce auth state changes to prevent rapid updates
+      clearTimeout(authStateTimeout);
+      authStateTimeout = setTimeout(() => {
+        if (!isMounted) return;
+        
+        setCurrentUser(user);
+        setLoading(false); // Ensure loading is set to false on auth state change
+      }, 100);
     });
 
     return () => {
+      isMounted = false;
+      clearTimeout(authStateTimeout);
       subscription?.unsubscribe();
     };
   }, []);

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { User, ImageIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { OptimizedImage } from './OptimizedImage';
 
 interface ImageWithPlaceholderProps {
   src: string;
@@ -78,7 +79,7 @@ export default function ImageWithPlaceholder({
   }
 
   return (
-    <Image
+    <OptimizedImage
       src={src}
       alt={alt}
       fill={fill}
@@ -89,6 +90,8 @@ export default function ImageWithPlaceholder({
       priority={priority}
       onError={handleError}
       onLoad={handleLoad}
+      quality={85}
+      placeholder="blur"
     />
   );
 }

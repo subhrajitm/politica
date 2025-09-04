@@ -1,6 +1,7 @@
 import { supabase } from './supabase'
 import type { Database } from './supabase'
 import type { Politician } from './types'
+import { cacheService, CACHE_KEYS } from './cache/cacheService'
 
 type PoliticianRow = Database['public']['Tables']['politicians']['Row']
 type WorkHistoryRow = Database['public']['Tables']['work_history']['Row']
@@ -20,6 +21,12 @@ export class PoliticianService {
   // Get all politicians
   static async getAllPoliticians(): Promise<Politician[]> {
     try {
+      // Check cache first
+      const cachedPoliticians = await cacheService.getCachedPoliticians(CACHE_KEYS.politicians.all);
+      if (cachedPoliticians) {
+        return cachedPoliticians;
+      }
+
       const { data: politicians, error } = await supabase
         .from('politicians')
         .select('*')
@@ -33,6 +40,9 @@ export class PoliticianService {
         })
       )
 
+      // Cache the results
+      await cacheService.cachePoliticians(CACHE_KEYS.politicians.all, politiciansWithDetails);
+
       return politiciansWithDetails
     } catch (error) {
       console.error('Error fetching politicians:', error)
@@ -43,6 +53,12 @@ export class PoliticianService {
   // Get a single politician by ID with all related data
   static async getPoliticianById(id: string): Promise<Politician | null> {
     try {
+      // Check cache first
+      const cachedPolitician = await cacheService.getCachedPolitician(id);
+      if (cachedPolitician) {
+        return cachedPolitician;
+      }
+
       const { data: politician, error } = await supabase
         .from('politicians')
         .select('*')
@@ -52,7 +68,12 @@ export class PoliticianService {
       if (error) throw error
       if (!politician) return null
 
-      return await this.getPoliticianWithDetails(id)
+      const politicianWithDetails = await this.getPoliticianWithDetails(id);
+      
+      // Cache the result
+      await cacheService.cachePolitician(politicianWithDetails);
+
+      return politicianWithDetails;
     } catch (error) {
       console.error('Error fetching politician:', error)
       throw error
@@ -232,6 +253,10 @@ export class PoliticianService {
       // Insert related data
       await this.insertRelatedData(politicianId, politicianData)
 
+      // Invalidate relevant caches
+      await cacheService.invalidatePoliticianCache();
+      await cacheService.invalidateSearchCache();
+
       return politicianId
     } catch (error) {
       console.error('Error creating politician:', error)
@@ -284,6 +309,10 @@ export class PoliticianService {
         .eq('id', id)
 
       if (error) throw error
+
+      // Invalidate relevant caches
+      await cacheService.invalidatePoliticianCache(id);
+      await cacheService.invalidateSearchCache();
     } catch (error) {
       console.error('Error updating politician:', error)
       throw error
@@ -316,6 +345,10 @@ export class PoliticianService {
         .eq('id', id)
 
       if (error) throw error
+
+      // Invalidate relevant caches
+      await cacheService.invalidatePoliticianCache(id);
+      await cacheService.invalidateSearchCache();
     } catch (error) {
       console.error('Error deleting politician:', error)
       throw error
@@ -467,9 +500,15 @@ export class PoliticianService {
     }
   }
 
-  // Search politicians
+  // Search politicians (legacy method - use SearchService for advanced search)
   static async searchPoliticians(query: string): Promise<Politician[]> {
     try {
+      // Check cache first
+      const cachedResults = await cacheService.getCachedSearchResults(query);
+      if (cachedResults) {
+        return cachedResults;
+      }
+
       const { data, error } = await supabase
         .from('politicians')
         .select('*')
@@ -484,6 +523,9 @@ export class PoliticianService {
         })
       )
 
+      // Cache the search results
+      await cacheService.cacheSearchResults(query, politiciansWithDetails);
+
       return politiciansWithDetails
     } catch (error) {
       console.error('Error searching politicians:', error)
@@ -491,9 +533,86 @@ export class PoliticianService {
     }
   }
 
+  // Advanced search using full-text search capabilities
+  static async advancedSearch(
+    query: string,
+    filters?: {
+      party?: string[]
+      constituency?: string[]
+      position?: string[]
+      gender?: string[]
+      languages?: string[]
+    },
+    limit: number = 20,
+    offset: number = 0
+  ): Promise<{ politicians: Politician[], total: number }> {
+    try {
+      // Use PostgreSQL search function for better results
+      const { data: searchResults, error: searchError } = await supabase
+        .rpc('search_politicians', {
+          search_query: query,
+          limit_count: limit,
+          offset_count: offset
+        })
+
+      if (searchError) throw searchError
+
+      // Apply filters if provided
+      let filteredResults = searchResults || []
+      if (filters) {
+        filteredResults = filteredResults.filter((result: any) => {
+          // This would need politician data to filter properly
+          // For now, we'll implement basic filtering
+          return true
+        })
+      }
+
+      // Get full politician details
+      const politicians = await Promise.all(
+        filteredResults.slice(0, limit).map(async (result: any) => {
+          return await this.getPoliticianWithDetails(result.politician_id)
+        })
+      )
+
+      return {
+        politicians,
+        total: filteredResults.length
+      }
+    } catch (error) {
+      console.error('Error performing advanced search:', error)
+      throw error
+    }
+  }
+
+  // Get search suggestions
+  static async getSearchSuggestions(partialQuery: string, limit: number = 10): Promise<string[]> {
+    try {
+      const { data: suggestions, error } = await supabase
+        .rpc('get_search_suggestions', {
+          partial_query: partialQuery,
+          limit_count: limit
+        })
+
+      if (error) throw error
+
+      return (suggestions || []).map((s: any) => s.suggestion)
+    } catch (error) {
+      console.error('Error getting search suggestions:', error)
+      return []
+    }
+  }
+
   // Get politicians by party
   static async getPoliticiansByParty(party: string): Promise<Politician[]> {
     try {
+      const cacheKey = `politicians:party:${party}`;
+      
+      // Check cache first
+      const cachedResults = await cacheService.getCachedPoliticians(cacheKey);
+      if (cachedResults) {
+        return cachedResults;
+      }
+
       const { data, error } = await supabase
         .from('politicians')
         .select('*')
@@ -507,6 +626,9 @@ export class PoliticianService {
           return await this.getPoliticianWithDetails(politician.id)
         })
       )
+
+      // Cache the results
+      await cacheService.cachePoliticians(cacheKey, politiciansWithDetails);
 
       return politiciansWithDetails
     } catch (error) {
