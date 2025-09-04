@@ -24,7 +24,7 @@ export default function PoliticianCard({ politician }: PoliticianCardProps) {
         )}
       >
         <CardContent className="p-3 flex flex-col h-full">
-            <div className="relative w-full aspect-[4/3] mb-3">
+            <div className="relative w-full aspect-square mb-3">
               <Image
                 src={politician.photoUrl}
                 alt={`Photo of ${politician.name.fullName}`}

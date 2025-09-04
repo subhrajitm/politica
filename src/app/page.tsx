@@ -243,9 +243,9 @@ export default function Home() {
                       <Image
                         src={p.photoUrl}
                         alt={p.name.fullName}
-                        width={56}
-                        height={56}
-                        className="rounded-full"
+                        width={60}
+                        height={80}
+                        className="rounded-md object-cover"
                         data-ai-hint="politician photo"
                       />
                       <div>
@@ -289,9 +289,9 @@ export default function Home() {
                         <Image
                           src={p.photoUrl}
                           alt={p.name.fullName}
-                          width={56}
-                          height={56}
-                          className="rounded-full"
+                          width={60}
+                          height={80}
+                          className="rounded-md object-cover"
                           data-ai-hint="politician photo"
                         />
                         <div>
