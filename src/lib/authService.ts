@@ -41,6 +41,7 @@ export class AuthService {
       provider: 'google',
       options: {
         redirectTo,
+        flowType: 'pkce',
       },
     })
     return { data, error }
