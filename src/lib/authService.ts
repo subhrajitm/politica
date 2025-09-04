@@ -56,13 +56,23 @@ export class AuthService {
   }
 
   static async getCurrentUser() {
-    const { data: { user }, error } = await supabase.auth.getUser()
-    return { user, error }
+    try {
+      const { data: { user }, error } = await supabase.auth.getUser()
+      return { user, error }
+    } catch (error) {
+      console.error('Error getting current user:', error)
+      return { user: null, error }
+    }
   }
 
   static async getCurrentSession() {
-    const { data: { session }, error } = await supabase.auth.getSession()
-    return { session, error }
+    try {
+      const { data: { session }, error } = await supabase.auth.getSession()
+      return { session, error }
+    } catch (error) {
+      console.error('Error getting current session:', error)
+      return { session: null, error }
+    }
   }
 
   static onAuthStateChange(callback: (event: string, session: Session | null) => void) {

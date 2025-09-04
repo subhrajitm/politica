@@ -23,6 +23,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    // Only run auth checks in browser environment
+    if (typeof window === 'undefined') {
+      setLoading(false)
+      return
+    }
+
     // Get initial session
     AuthService.getCurrentSession().then(({ session, error }) => {
       if (error) {
@@ -32,16 +38,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(session?.user as AuthUser || null)
       }
       setLoading(false)
-    })
-
-    // Listen for auth changes
-    const { data: { subscription } } = AuthService.onAuthStateChange((event, session) => {
-      setSession(session)
-      setUser(session?.user as AuthUser || null)
+    }).catch((error) => {
+      console.error('Error in getCurrentSession:', error)
       setLoading(false)
     })
 
-    return () => subscription.unsubscribe()
+    // Listen for auth changes
+    try {
+      const { data: { subscription } } = AuthService.onAuthStateChange((event, session) => {
+        setSession(session)
+        setUser(session?.user as AuthUser || null)
+        setLoading(false)
+      })
+
+      return () => subscription.unsubscribe()
+    } catch (error) {
+      console.error('Error setting up auth state change listener:', error)
+      setLoading(false)
+    }
   }, [])
 
   const signUp = async (email: string, password: string) => {

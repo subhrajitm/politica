@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { PoliticianService } from '@/lib/politicianService';
 import type { Politician } from '@/lib/types';
+import { normalizeDate, normalizeAssumedOffice } from '@/lib/dateUtils';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -76,7 +77,7 @@ export default function NewPoliticianPage() {
             .filter(Boolean),
         },
         personalDetails: {
-          dateOfBirth: dateOfBirth || '1970-01-01',
+          dateOfBirth: normalizeDate(dateOfBirth),
           placeOfBirth: placeOfBirth || 'Unknown',
           gender: gender || 'Unknown',
           nationality: nationality === 'Other' ? customNationality : nationality || 'Unknown',
@@ -105,7 +106,7 @@ export default function NewPoliticianPage() {
         positions: {
           current: {
             position: currentPosition,
-            assumedOffice: assumedOffice ? `${assumedOffice}-01` : '1970-01-01',
+            assumedOffice: normalizeAssumedOffice(assumedOffice),
             committees: committees
               .split(',')
               .map(c => c.trim())
@@ -177,8 +178,8 @@ export default function NewPoliticianPage() {
       }
       if (d.constituency) setConstituency(d.constituency);
       if (d.currentPosition) setCurrentPosition(d.currentPosition);
-      if (d.assumedOffice) setAssumedOffice(d.assumedOffice);
-      if (d.dateOfBirth) setDateOfBirth(d.dateOfBirth);
+      if (d.assumedOffice) setAssumedOffice(normalizeAssumedOffice(d.assumedOffice));
+      if (d.dateOfBirth) setDateOfBirth(normalizeDate(d.dateOfBirth));
       if (d.placeOfBirth) setPlaceOfBirth(d.placeOfBirth);
       if (d.gender) setGender(d.gender);
       // Handle nationality selection - check if it's a predefined nationality or custom

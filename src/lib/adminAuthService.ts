@@ -181,6 +181,12 @@ export class AdminAuthService {
     try {
       console.log('AdminAuthService: Getting current user...');
       
+      // Check if we're in a browser environment
+      if (typeof window === 'undefined') {
+        console.log('AdminAuthService: Not in browser environment, skipping auth check');
+        return null;
+      }
+      
       const { data: { user }, error } = await supabase.auth.getUser();
       
       if (error) {

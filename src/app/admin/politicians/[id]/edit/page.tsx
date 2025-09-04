@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { PoliticianService } from '@/lib/politicianService';
 import type { Politician } from '@/lib/types';
+import { normalizeDate, normalizeAssumedOffice } from '@/lib/dateUtils';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -143,8 +144,8 @@ export default function EditPoliticianPage() {
       }
       if (d.constituency) setConstituency(d.constituency);
       if (d.currentPosition) setCurrentPosition(d.currentPosition);
-      if (d.assumedOffice) setAssumedOffice(d.assumedOffice);
-      if (d.dateOfBirth) setDateOfBirth(d.dateOfBirth);
+      if (d.assumedOffice) setAssumedOffice(normalizeAssumedOffice(d.assumedOffice));
+      if (d.dateOfBirth) setDateOfBirth(normalizeDate(d.dateOfBirth));
       if (d.placeOfBirth) setPlaceOfBirth(d.placeOfBirth);
       if (d.gender) setGender(d.gender);
       // Handle nationality selection - check if it's a predefined nationality or custom
@@ -202,13 +203,13 @@ export default function EditPoliticianPage() {
           current: {
             ...politician.positions.current,
             position: currentPosition,
-            assumedOffice: assumedOffice ? (assumedOffice.includes('-') && assumedOffice.length === 7 ? `${assumedOffice}-01` : assumedOffice) : politician.positions.current.assumedOffice,
+            assumedOffice: normalizeAssumedOffice(assumedOffice) || politician.positions.current.assumedOffice,
             committees: committees ? committees.split(',').map(s => s.trim()).filter(Boolean) : [],
           },
         },
         personalDetails: {
           ...politician.personalDetails,
-          dateOfBirth,
+          dateOfBirth: normalizeDate(dateOfBirth) || politician.personalDetails.dateOfBirth,
           placeOfBirth,
           gender,
           nationality: nationality === 'Other' ? customNationality : nationality,

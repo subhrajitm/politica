@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { PoliticianService } from '@/lib/politicianService';
 import type { Politician } from '@/lib/types';
+import { normalizeDate, normalizeAssumedOffice } from '@/lib/dateUtils';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -193,7 +194,7 @@ export default function BulkAddPoliticiansPage() {
         aliases: data.aliases ? data.aliases.split(',').map(a => a.trim()).filter(Boolean) : [],
       },
       personalDetails: {
-        dateOfBirth: data.dateOfBirth || '1970-01-01',
+        dateOfBirth: normalizeDate(data.dateOfBirth),
         placeOfBirth: data.placeOfBirth || '',
         gender: data.gender || 'Unknown',
         nationality: data.nationality || '',
@@ -216,7 +217,7 @@ export default function BulkAddPoliticiansPage() {
       positions: {
         current: {
           position: data.currentPosition,
-          assumedOffice: data.assumedOffice ? (data.assumedOffice.includes('-') && data.assumedOffice.length === 7 ? `${data.assumedOffice}-01` : data.assumedOffice) : '1970-01-01',
+          assumedOffice: normalizeAssumedOffice(data.assumedOffice),
           committees: data.committees ? data.committees.split(',').map(c => c.trim()).filter(Boolean) : [],
         },
         history: [],
