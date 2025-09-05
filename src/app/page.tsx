@@ -131,11 +131,10 @@ export default function Home() {
         <div className="absolute inset-0 bg-repeat opacity-20 mix-blend-screen"></div>
         <div className="container mx-auto text-center py-16 lg:py-24 px-4 relative">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
-            Find Politicians In Your Area
+          Who Speaks for You?
           </h1>
           <p className="text-lg max-w-3xl mx-auto mb-6">
-            Discover who represents you with our comprehensive directory of public
-            officials in India.
+          Navigate our all-inclusive directory to find the leaders responsible for representing you, wherever you are.
           </p>
           <div className="flex justify-center mb-6 -space-x-4">
             {politicians.slice(0, 5).map((p) => (
