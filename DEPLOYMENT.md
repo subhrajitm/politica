@@ -1,6 +1,6 @@
 # Deployment Guide
 
-This guide covers how to deploy the Politica application to production.
+This guide covers how to deploy the OurNation application to production.
 
 ## Environment Variables
 
@@ -65,8 +65,8 @@ CMD ["npm", "start"]
 
 2. **Build and run**:
 ```bash
-docker build -t politica-app .
-docker run -p 3000:3000 --env-file .env politica-app
+docker build -t ournation-app .
+docker run -p 3000:3000 --env-file .env ournation-app
 ```
 
 ### Traditional VPS/Server

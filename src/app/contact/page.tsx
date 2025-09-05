@@ -29,8 +29,8 @@ export default function ContactPage() {
                     <div>
                         <h3 className="font-semibold">Email</h3>
                         <p className="text-muted-foreground text-sm">For general inquiries, support, or feedback.</p>
-                        <a href="mailto:contact@politifind.com" className="text-primary text-sm hover:underline">
-                            contact@politifind.com
+                        <a href="mailto:contact@ournation.com" className="text-primary text-sm hover:underline">
+                            contact@ournation.com
                         </a>
                     </div>
                 </div>
@@ -49,7 +49,7 @@ export default function ContactPage() {
                     <div>
                         <h3 className="font-semibold">Office Address</h3>
                         <p className="text-muted-foreground text-sm">
-                            PolitiFind Headquarters<br />
+                            OurNation Headquarters<br />
                             7, Lok Kalyan Marg<br />
                             New Delhi, 110011, India
                         </p>

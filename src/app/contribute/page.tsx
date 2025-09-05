@@ -12,7 +12,7 @@ export default function ContributePage() {
   return (
     <div className="container mx-auto max-w-5xl px-4 py-10">
       <header className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight">Contribute to Politica</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Contribute to OurNation</h1>
         <p className="mt-2 text-muted-foreground">
           Help us make political information more accessible and trustworthy. You can support us
           financially, share data, send suggestions, report issues, or get in touch about
@@ -96,7 +96,7 @@ function SuggestionsCard() {
 
   const mailtoHref = useMemo(() => {
     const to = "hello@example.com"; // Replace with your project email
-    const subject = encodeURIComponent("Politica Suggestion / Feedback");
+    const subject = encodeURIComponent("OurNation Suggestion / Feedback");
     const bodyLines = [
       name ? `Name: ${name}` : undefined,
       email ? `Email: ${email}` : undefined,

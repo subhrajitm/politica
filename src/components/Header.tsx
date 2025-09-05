@@ -42,7 +42,7 @@ export default function Header() {
         <div className="flex items-center justify-between h-14">
           <Link href="/" className="flex items-center gap-2 text-lg font-bold text-gray-800">
             <LogoIcon className="h-5 w-5 text-primary" />
-            {siteName || 'PolitiFind'}
+            {siteName || 'OurNation'}
           </Link>
 
           <nav className="hidden lg:flex items-center gap-4">
@@ -97,7 +97,7 @@ export default function Header() {
                    <SheetDescription className="sr-only">Main navigation menu</SheetDescription>
                    <Link href="/" className="flex items-center gap-2 text-xl font-bold text-gray-800 mb-4">
                       <LogoIcon className="h-6 w-6 text-primary" />
-                      {siteName || 'PolitiFind'}
+                      {siteName || 'OurNation'}
                     </Link>
                 </SheetHeader>
                 <nav className="flex flex-col gap-4 mt-4">

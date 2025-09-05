@@ -8,9 +8,9 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { FavouritesProvider } from '@/contexts/FavouritesContext';
 
 export const metadata: Metadata = {
-  title: 'PolitiFind - Find Politicians In Your Area',
+  title: 'OurNation - Find Politicians In Your Area',
   description:
-    'A comprehensive AI-powered political information application for India.',
+    'An AI-driven application delivering comprehensive political insights worldwide.',
 };
 
 export default function RootLayout({

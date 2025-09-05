@@ -1,6 +1,6 @@
 # Favourites Functionality
 
-This document describes the favourites system implemented in the Politica application.
+This document describes the favourites system implemented in the OurNation application.
 
 ## Overview
 

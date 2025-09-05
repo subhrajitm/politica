@@ -68,7 +68,7 @@ export class SettingsService {
   }
 
   static async getSiteName(): Promise<string> {
-    return await this.getSetting('site_name') || 'PolitiFind';
+    return await this.getSetting('site_name') || 'OurNation';
   }
 
   static async getSiteDescription(): Promise<string> {
@@ -76,7 +76,7 @@ export class SettingsService {
   }
 
   static async getContactEmail(): Promise<string> {
-    return await this.getSetting('contact_email') || 'contact@politifind.com';
+    return await this.getSetting('contact_email') || 'contact@ournation.com';
   }
 
   static async getRequireApproval(): Promise<boolean> {

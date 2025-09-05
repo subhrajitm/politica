@@ -9,12 +9,12 @@
 -- 3. Click "Add user" and create these users:
 
 -- Admin user:
--- Email: admin@politifind.com
+-- Email: admin@ournation.com
 -- Password: admin123
 -- Role: admin
 
 -- Super Admin user:
--- Email: superadmin@politifind.com  
+-- Email: superadmin@ournation.com  
 -- Password: superadmin123
 -- Role: super_admin
 
@@ -30,7 +30,7 @@
 -- -H "Authorization: Bearer YOUR_SERVICE_ROLE_KEY" \
 -- -H "Content-Type: application/json" \
 -- -d '{
---   "email": "admin@politifind.com",
+--   "email": "admin@ournation.com",
 --   "password": "admin123",
 --   "email_confirm": true
 -- }'
@@ -41,7 +41,7 @@
 -- -H "Authorization: Bearer YOUR_SERVICE_ROLE_KEY" \
 -- -H "Content-Type: application/json" \
 -- -d '{
---   "email": "superadmin@politifind.com",
+--   "email": "superadmin@ournation.com",
 --   "password": "superadmin123",
 --   "email_confirm": true
 -- }'

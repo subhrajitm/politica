@@ -18,8 +18,8 @@ export interface LoginResponse {
 export class AdminAuthService {
   // You can add specific admin emails here, or we can check the admin_profiles table
   private static readonly ADMIN_EMAILS = [
-    'admin@politifind.com',
-    'superadmin@politifind.com',
+    'admin@ournation.com',
+    'superadmin@ournation.com',
     // Add more admin emails as needed
   ];
 
@@ -116,7 +116,7 @@ export class AdminAuthService {
         id: supabaseUser.id,
         email: supabaseUser.email?.toLowerCase() || '',
         name: supabaseUser.email?.split('@')[0] || 'Admin',
-        role: supabaseUser.email?.toLowerCase() === 'superadmin@politifind.com' ? 'super_admin' : 'admin',
+        role: supabaseUser.email?.toLowerCase() === 'superadmin@ournation.com' ? 'super_admin' : 'admin',
       };
 
       const { data: createdUser, error: createError } = await supabase
@@ -132,7 +132,7 @@ export class AdminAuthService {
           id: supabaseUser.id,
           email: supabaseUser.email || '',
           name: supabaseUser.email?.split('@')[0] || 'Admin',
-          role: supabaseUser.email?.toLowerCase() === 'superadmin@politifind.com' ? 'super_admin' : 'admin',
+          role: supabaseUser.email?.toLowerCase() === 'superadmin@ournation.com' ? 'super_admin' : 'admin',
           created_at: new Date().toISOString(),
         };
       }
@@ -152,7 +152,7 @@ export class AdminAuthService {
         id: supabaseUser.id,
         email: supabaseUser.email || '',
         name: supabaseUser.email?.split('@')[0] || 'Admin',
-        role: supabaseUser.email?.toLowerCase() === 'superadmin@politifind.com' ? 'super_admin' : 'admin',
+        role: supabaseUser.email?.toLowerCase() === 'superadmin@ournation.com' ? 'super_admin' : 'admin',
         created_at: new Date().toISOString(),
       };
     }

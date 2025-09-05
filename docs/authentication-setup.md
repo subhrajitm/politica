@@ -1,6 +1,6 @@
 # Authentication Setup
 
-This document describes the authentication system implemented in the Politica application.
+This document describes the authentication system implemented in the OurNation application.
 
 ## Overview
 

@@ -1,6 +1,6 @@
 # Photo Upload Setup Guide
 
-This guide explains how to set up photo upload functionality for politicians in the Politica application.
+This guide explains how to set up photo upload functionality for politicians in the OurNation application.
 
 ## Overview
 

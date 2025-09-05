@@ -1,6 +1,6 @@
 # Settings System Setup
 
-This document explains how to set up and use the new dynamic settings system for the Politica application.
+This document explains how to set up and use the new dynamic settings system for the OurNation application.
 
 ## Overview
 
@@ -16,9 +16,9 @@ The settings system requires a new `settings` table. Run the updated `supabase-s
 
 The following default settings are automatically created:
 
-- `site_name`: "PolitiFind" - The name of the website
+- `site_name`: "OurNation" - The name of the website
 - `site_description`: "Find Politicians In Your Area" - The description of the website
-- `contact_email`: "contact@politifind.com" - Contact email address
+- `contact_email`: "contact@ournation.com" - Contact email address
 - `require_approval`: "true" - Whether to require admin approval for new submissions
 - `enable_public_contributions`: "false" - Whether to enable public contributions
 

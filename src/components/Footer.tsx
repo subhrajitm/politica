@@ -15,7 +15,7 @@ export default function Footer() {
           <div className="lg:col-span-2">
             <Link href="/" className="flex items-center gap-2 mb-2 text-base font-bold">
               <LogoIcon className="w-5 h-5 text-primary" />
-              {siteName || 'PolitiFind'}
+              {siteName || 'OurNation'}
             </Link>
             <p className="text-xs text-muted-foreground max-w-xs">
               A comprehensive directory of public officials in India.
@@ -66,7 +66,7 @@ export default function Footer() {
 
         <div className="mt-4 pt-4 border-t flex flex-col sm:flex-row justify-between items-center">
           <p className="text-xs text-muted-foreground mb-4 sm:mb-0">
-            © {new Date().getFullYear()} {siteName || 'PolitiFind'}. All rights reserved.
+            © {new Date().getFullYear()} {siteName || 'OurNation'}. All rights reserved.
           </p>
           <div className="flex gap-0.5">
             <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary h-8 w-8">
