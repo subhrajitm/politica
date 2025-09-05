@@ -57,7 +57,28 @@ export default function WorldMap() {
     ZW: "Zimbabwe", BW: "Botswana", NA: "Namibia", ZA: "South Africa",
     SZ: "Eswatini", LS: "Lesotho", MZ: "Mozambique", MG: "Madagascar",
     MU: "Mauritius", SC: "Seychelles", KM: "Comoros", YT: "Mayotte",
-    RE: "Réunion", SH: "Saint Helena", AC: "Ascension Island", TA: "Tristan da Cunha"
+    RE: "Réunion", SH: "Saint Helena", AC: "Ascension Island", TA: "Tristan da Cunha",
+    // South Asian countries
+    NP: "Nepal", BD: "Bangladesh", PK: "Pakistan", LK: "Sri Lanka", 
+    BT: "Bhutan", MV: "Maldives", AF: "Afghanistan",
+    // Southeast Asian countries
+    TH: "Thailand", VN: "Vietnam", ID: "Indonesia", MY: "Malaysia", 
+    SG: "Singapore", PH: "Philippines", MM: "Myanmar", KH: "Cambodia",
+    LA: "Laos", BN: "Brunei", TL: "East Timor",
+    // East Asian countries
+    MN: "Mongolia", KP: "North Korea", TW: "Taiwan", HK: "Hong Kong", 
+    MO: "Macau",
+    // Central Asian countries
+    KZ: "Kazakhstan", UZ: "Uzbekistan", KG: "Kyrgyzstan", TJ: "Tajikistan", 
+    TM: "Turkmenistan",
+    // Middle Eastern countries
+    SA: "Saudi Arabia", AE: "United Arab Emirates", QA: "Qatar", KW: "Kuwait",
+    BH: "Bahrain", OM: "Oman", YE: "Yemen", IQ: "Iraq", SY: "Syria",
+    LB: "Lebanon", JO: "Jordan", IL: "Israel", PS: "Palestine", CY: "Cyprus",
+    // Other countries
+    AR: "Argentina", CL: "Chile", CO: "Colombia", PE: "Peru", VE: "Venezuela",
+    UY: "Uruguay", PY: "Paraguay", BO: "Bolivia", EC: "Ecuador", GY: "Guyana",
+    SR: "Suriname", GF: "French Guiana", FK: "Falkland Islands"
   };
 
   useEffect(() => {
