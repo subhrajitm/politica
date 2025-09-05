@@ -8,9 +8,9 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { FavouritesProvider } from '@/contexts/FavouritesContext';
 
 export const metadata: Metadata = {
-  title: 'OurNation - Find Politicians In Your Area',
+  title: 'OurNation - Know Who Represents You',
   description:
-    'An AI-driven application delivering comprehensive political insights worldwide.',
+    'A cutting-edge AI platform unlocking deep political insights from every corner of the world',
 };
 
 export default function RootLayout({
