@@ -403,7 +403,7 @@ export default function Home() {
                   accurate and up-to-date for everyone.
                 </p>
               </div>
-              <Link href="#" passHref>
+              <Link href="/contribute" passHref>
                 <Button
                   size="lg"
                   className="bg-white hover:bg-gray-100 text-primary flex-shrink-0"
