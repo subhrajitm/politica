@@ -14,9 +14,11 @@ import { Separator } from '@/components/ui/separator'
 interface LoginFormProps {
   onSuccess?: () => void
   onSwitchToRegister?: () => void
+  onForgotPassword?: () => void
+  onMagicLink?: () => void
 }
 
-export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormProps) {
+export default function LoginForm({ onSuccess, onSwitchToRegister, onForgotPassword, onMagicLink }: LoginFormProps) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -127,19 +129,47 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
           </Button>
         </form>
 
-        {onSwitchToRegister && (
-          <div className="mt-4 text-center text-sm">
-            Don't have an account?{' '}
-            <Button
-              variant="link"
-              className="p-0 h-auto font-normal"
-              onClick={onSwitchToRegister}
-              disabled={loading}
-            >
-              Sign up
-            </Button>
-          </div>
-        )}
+        <div className="mt-4 space-y-2">
+          {onForgotPassword && (
+            <div className="text-center">
+              <Button
+                variant="link"
+                className="p-0 h-auto font-normal text-sm"
+                onClick={onForgotPassword}
+                disabled={loading}
+              >
+                Forgot your password?
+              </Button>
+            </div>
+          )}
+          
+          {onMagicLink && (
+            <div className="text-center">
+              <Button
+                variant="link"
+                className="p-0 h-auto font-normal text-sm"
+                onClick={onMagicLink}
+                disabled={loading}
+              >
+                Sign in with magic link
+              </Button>
+            </div>
+          )}
+
+          {onSwitchToRegister && (
+            <div className="text-center text-sm">
+              Don't have an account?{' '}
+              <Button
+                variant="link"
+                className="p-0 h-auto font-normal"
+                onClick={onSwitchToRegister}
+                disabled={loading}
+              >
+                Sign up
+              </Button>
+            </div>
+          )}
+        </div>
       </CardContent>
     </Card>
   )

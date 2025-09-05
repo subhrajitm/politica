@@ -78,4 +78,63 @@ export class AuthService {
   static onAuthStateChange(callback: (event: string, session: Session | null) => void) {
     return supabase.auth.onAuthStateChange(callback)
   }
+
+  // Forgot password
+  static async resetPassword(email: string) {
+    const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || window.location.origin}/auth/reset-password`,
+    })
+    return { data, error }
+  }
+
+  // Update password
+  static async updatePassword(newPassword: string) {
+    const { data, error } = await supabase.auth.updateUser({
+      password: newPassword
+    })
+    return { data, error }
+  }
+
+  // Resend email confirmation
+  static async resendConfirmation(email: string) {
+    const { data, error } = await supabase.auth.resend({
+      type: 'signup',
+      email: email,
+      options: {
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || window.location.origin}/auth/callback`,
+      }
+    })
+    return { data, error }
+  }
+
+  // Verify OTP for email
+  static async verifyEmailOtp(email: string, token: string) {
+    const { data, error } = await supabase.auth.verifyOtp({
+      email,
+      token,
+      type: 'email'
+    })
+    return { data, error }
+  }
+
+  // Verify OTP for phone
+  static async verifyPhoneOtp(phone: string, token: string) {
+    const { data, error } = await supabase.auth.verifyOtp({
+      phone,
+      token,
+      type: 'sms'
+    })
+    return { data, error }
+  }
+
+  // Sign in with magic link
+  static async signInWithMagicLink(email: string) {
+    const { data, error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || window.location.origin}/auth/callback`,
+      }
+    })
+    return { data, error }
+  }
 }

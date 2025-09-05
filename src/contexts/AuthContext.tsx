@@ -12,7 +12,13 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<{ data: any; error: any }>
   signInWithGoogle: () => Promise<{ data: any; error: any }>
   signInWithGoogleIdToken: (token: string, nonce?: string) => Promise<{ data: any; error: any }>
+  signInWithMagicLink: (email: string) => Promise<{ data: any; error: any }>
   signOut: () => Promise<{ error: any }>
+  resetPassword: (email: string) => Promise<{ data: any; error: any }>
+  updatePassword: (newPassword: string) => Promise<{ data: any; error: any }>
+  resendConfirmation: (email: string) => Promise<{ data: any; error: any }>
+  verifyEmailOtp: (email: string, token: string) => Promise<{ data: any; error: any }>
+  verifyPhoneOtp: (phone: string, token: string) => Promise<{ data: any; error: any }>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -74,8 +80,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return await AuthService.signInWithGoogleIdToken(token, nonce)
   }
 
+  const signInWithMagicLink = async (email: string) => {
+    return await AuthService.signInWithMagicLink(email)
+  }
+
   const signOut = async () => {
     return await AuthService.signOut()
+  }
+
+  const resetPassword = async (email: string) => {
+    return await AuthService.resetPassword(email)
+  }
+
+  const updatePassword = async (newPassword: string) => {
+    return await AuthService.updatePassword(newPassword)
+  }
+
+  const resendConfirmation = async (email: string) => {
+    return await AuthService.resendConfirmation(email)
+  }
+
+  const verifyEmailOtp = async (email: string, token: string) => {
+    return await AuthService.verifyEmailOtp(email, token)
+  }
+
+  const verifyPhoneOtp = async (phone: string, token: string) => {
+    return await AuthService.verifyPhoneOtp(phone, token)
   }
 
   const value = {
@@ -86,7 +116,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signIn,
     signInWithGoogle,
     signInWithGoogleIdToken,
+    signInWithMagicLink,
     signOut,
+    resetPassword,
+    updatePassword,
+    resendConfirmation,
+    verifyEmailOtp,
+    verifyPhoneOtp,
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
