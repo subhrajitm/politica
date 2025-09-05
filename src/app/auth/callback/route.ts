@@ -9,6 +9,15 @@ export async function GET(request: Request) {
   const refreshToken = searchParams.get('refresh_token')
   const providerError = searchParams.get('error') || searchParams.get('error_description')
   
+  // Debug logging
+  console.log('Auth callback received:', {
+    code: code ? 'present' : 'missing',
+    accessToken: accessToken ? 'present' : 'missing',
+    refreshToken: refreshToken ? 'present' : 'missing',
+    providerError: providerError || 'none',
+    allParams: Object.fromEntries(searchParams.entries())
+  })
+  
   // if "next" is in param, use it as the redirect URL
   let next = searchParams.get('next') ?? '/'
   if (!next.startsWith('/')) {
@@ -67,10 +76,28 @@ export async function GET(request: Request) {
       }
     }
 
-    // No valid auth parameters provided
+    // If no auth parameters, try to get session from cookies
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+    
+    if (session && !sessionError) {
+      // Session exists, redirect to intended page
+      const forwardedHost = request.headers.get('x-forwarded-host')
+      const isLocalEnv = process.env.NODE_ENV === 'development'
+      if (isLocalEnv) {
+        return NextResponse.redirect(`${origin}${next}`)
+      } else if (forwardedHost) {
+        return NextResponse.redirect(`https://${forwardedHost}${next}`)
+      } else {
+        return NextResponse.redirect(`${origin}${next}`)
+      }
+    }
+
+    // No valid auth parameters or session found
+    console.log('Auth callback: No auth parameters found', { code, accessToken, refreshToken, sessionError })
     return NextResponse.redirect(`${origin}/auth/auth-code-error?reason=missing_auth_params`)
     
   } catch (e: any) {
+    console.error('Auth callback error:', e)
     const reason = encodeURIComponent(e?.message || 'unexpected_error')
     return NextResponse.redirect(`${origin}/auth/auth-code-error?reason=${reason}`)
   }
