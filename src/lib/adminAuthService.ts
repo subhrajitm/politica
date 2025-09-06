@@ -187,62 +187,56 @@ export class AdminAuthService {
         return null;
       }
       
-      // Get session and user in parallel
-      const [sessionResult, userResult] = await Promise.all([
-        supabase.auth.getSession(),
-        supabase.auth.getUser()
-      ]);
+      // Get session first (faster than parallel calls)
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       
-      const { data: { session }, error: sessionError } = sessionResult;
-      const { data: { user }, error: userError } = userResult;
-      
-      if (sessionError || userError) {
-        console.error('AdminAuthService: Error getting session/user:', sessionError || userError);
+      if (sessionError) {
+        console.error('AdminAuthService: Error getting session:', sessionError);
         return null;
       }
       
-      if (!session || !user) {
-        console.log('AdminAuthService: No session or user found');
+      if (!session || !session.user) {
+        console.log('AdminAuthService: No session found');
         return null;
       }
 
+      const user = session.user;
       console.log('AdminAuthService: User found:', user.email);
 
-      // Check if user is an admin (optimized check)
-      const isAdmin = await this.isUserAdmin(user);
-      if (!isAdmin) {
-        console.log('AdminAuthService: User is not an admin');
-        return null;
+      // Quick admin check - first check hardcoded emails (fastest)
+      if (this.ADMIN_EMAILS.includes(user.email?.toLowerCase() || '')) {
+        console.log('AdminAuthService: User is in hardcoded admin list');
+        
+        // Return basic admin user without database calls for speed
+        return {
+          id: user.id,
+          email: user.email || '',
+          name: user.email?.split('@')[0] || 'Admin',
+          role: user.email?.toLowerCase() === 'superadmin@ournation.com' ? 'super_admin' : 'admin',
+          created_at: new Date().toISOString(),
+        };
       }
 
-      console.log('AdminAuthService: User is admin, getting profile...');
-
-      // Get admin user profile with timeout
-      const profilePromise = supabase
+      // For non-hardcoded admins, do a quick database check with timeout
+      const adminCheckPromise = supabase
         .from('admin_profiles')
-        .select('*')
+        .select('id, email, name, role, created_at, last_login')
         .eq('id', user.id)
         .single();
 
       const timeoutPromise = new Promise<null>((_, reject) => {
-        setTimeout(() => reject(new Error('Profile fetch timeout')), 5000);
+        setTimeout(() => reject(new Error('Admin check timeout')), 3000);
       });
 
       try {
         const { data: adminUser, error: adminError } = await Promise.race([
-          profilePromise,
+          adminCheckPromise,
           timeoutPromise
         ]) as any;
 
-        if (adminError) {
-          console.log('AdminAuthService: No admin profile found, creating one...', adminError.message);
-          // If no admin profile exists, create one
-          return await this.getOrCreateAdminUser(user);
-        }
-
-        if (!adminUser) {
-          console.log('AdminAuthService: Admin profile is null, creating one...');
-          return await this.getOrCreateAdminUser(user);
+        if (adminError || !adminUser) {
+          console.log('AdminAuthService: User is not an admin');
+          return null;
         }
 
         console.log('AdminAuthService: Admin profile found:', adminUser.email);
@@ -255,9 +249,9 @@ export class AdminAuthService {
           created_at: adminUser.created_at,
           last_login: adminUser.last_login,
         };
-      } catch (profileError) {
-        console.log('AdminAuthService: Profile fetch failed, creating one...', profileError);
-        return await this.getOrCreateAdminUser(user);
+      } catch (timeoutError) {
+        console.log('AdminAuthService: Admin check timed out, assuming not admin');
+        return null;
       }
     } catch (error) {
       console.error('AdminAuthService: Error getting current user:', error);

@@ -15,6 +15,7 @@ export default function AdminProtectedRoute({
 }: AdminProtectedRouteProps) {
   const [user, setUser] = useState<AdminUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [authError, setAuthError] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -28,7 +29,7 @@ export default function AdminProtectedRoute({
         // Add timeout to prevent infinite loading
         const authPromise = AdminAuthService.getCurrentUser();
         const timeoutPromise = new Promise<null>((_, reject) => {
-          timeoutId = setTimeout(() => reject(new Error('Auth check timeout')), 15000); // 15 second timeout
+          timeoutId = setTimeout(() => reject(new Error('Auth check timeout')), 5000); // 5 second timeout
         });
         
         const currentUser = await Promise.race([authPromise, timeoutPromise]);
@@ -37,6 +38,7 @@ export default function AdminProtectedRoute({
         if (!isMounted) return;
         
         setUser(currentUser);
+        setAuthError(null);
         
         if (!currentUser) {
           console.log('AdminProtectedRoute: No user found, redirecting to login');
@@ -52,15 +54,22 @@ export default function AdminProtectedRoute({
         // Handle different types of errors
         if (error instanceof Error) {
           if (error.message.includes('Auth check timeout')) {
-            console.log('AdminProtectedRoute: Auth check timed out, redirecting to login');
+            console.log('AdminProtectedRoute: Auth check timed out, showing retry option');
+            setAuthError('Authentication check timed out. Please try again.');
+            return;
           } else if (error.message.includes('Auth session missing')) {
             console.log('AdminProtectedRoute: Session missing, redirecting to login');
+            setAuthError(null);
           } else {
             console.log('AdminProtectedRoute: Unexpected error, redirecting to login');
+            setAuthError(null);
           }
         }
         
-        router.push('/admin/login');
+        // Only redirect to login if it's not a timeout
+        if (!error || !(error instanceof Error) || !error.message.includes('Auth check timeout')) {
+          router.push('/admin/login');
+        }
       } finally {
         if (isMounted) {
           clearTimeout(timeoutId);
@@ -77,6 +86,7 @@ export default function AdminProtectedRoute({
       if (!isMounted) return;
       
       setUser(user);
+      setAuthError(null);
       if (!user) {
         router.push('/admin/login');
       }
@@ -88,6 +98,13 @@ export default function AdminProtectedRoute({
       subscription?.unsubscribe();
     };
   }, [router]);
+
+  const retryAuth = () => {
+    setLoading(true);
+    setAuthError(null);
+    // Re-run the auth check
+    window.location.reload();
+  };
 
   if (loading) {
     return (
@@ -105,13 +122,35 @@ export default function AdminProtectedRoute({
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold mb-2">Access Denied</h2>
-          <p className="text-muted-foreground mb-4">You need to be logged in to access this page.</p>
-          <button
-            onClick={() => router.push('/admin/login')}
-            className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
-          >
-            Go to Login
-          </button>
+          {authError ? (
+            <>
+              <p className="text-muted-foreground mb-4">{authError}</p>
+              <div className="space-x-4">
+                <button
+                  onClick={retryAuth}
+                  className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+                >
+                  Retry
+                </button>
+                <button
+                  onClick={() => router.push('/admin/login')}
+                  className="px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/90"
+                >
+                  Go to Login
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <p className="text-muted-foreground mb-4">You need to be logged in to access this page.</p>
+              <button
+                onClick={() => router.push('/admin/login')}
+                className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+              >
+                Go to Login
+              </button>
+            </>
+          )}
         </div>
       </div>
     );

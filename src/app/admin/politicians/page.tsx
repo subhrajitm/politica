@@ -42,7 +42,7 @@ export default function AdminPoliticiansPage() {
   async function loadPoliticians() {
     try {
       setLoading(true);
-      const data = await PoliticianService.getAllPoliticians();
+        const data = await PoliticianService.getAllPoliticiansWithDetails();
       setPoliticians(data);
     } catch (error) {
       console.error('Error loading politicians:', error);

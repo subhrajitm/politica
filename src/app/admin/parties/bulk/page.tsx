@@ -34,6 +34,85 @@ Republican Party,,US,United States,Conservative,Centre-right,1854,Donald Trump,W
 Labour Party,,GB,United Kingdom,Social Democratic,Centre-left,1900,Keir Starmer,London,https://labour.org.uk,,,500000,false,true,false,
 Conservative Party,,GB,United Kingdom,Conservative,Centre-right,1834,Rishi Sunak,London,https://conservatives.com,,,200000,true,true,false,`;
 
+  const jsonTemplate = [
+    {
+      "name": "Democratic Party",
+      "nameLocal": "",
+      "countryCode": "US",
+      "countryName": "United States",
+      "ideology": "Social Democratic",
+      "politicalPosition": "Centre-left",
+      "foundedYear": 1828,
+      "currentLeader": "Joe Biden",
+      "headquarters": "Washington D.C.",
+      "website": "https://democrats.org",
+      "logoUrl": "",
+      "description": "",
+      "membershipCount": 15000000,
+      "isRulingParty": true,
+      "isParliamentary": true,
+      "isRegional": false,
+      "regionState": ""
+    },
+    {
+      "name": "Republican Party",
+      "nameLocal": "",
+      "countryCode": "US",
+      "countryName": "United States",
+      "ideology": "Conservative",
+      "politicalPosition": "Centre-right",
+      "foundedYear": 1854,
+      "currentLeader": "Donald Trump",
+      "headquarters": "Washington D.C.",
+      "website": "https://gop.com",
+      "logoUrl": "",
+      "description": "",
+      "membershipCount": 14000000,
+      "isRulingParty": false,
+      "isParliamentary": true,
+      "isRegional": false,
+      "regionState": ""
+    },
+    {
+      "name": "Labour Party",
+      "nameLocal": "",
+      "countryCode": "GB",
+      "countryName": "United Kingdom",
+      "ideology": "Social Democratic",
+      "politicalPosition": "Centre-left",
+      "foundedYear": 1900,
+      "currentLeader": "Keir Starmer",
+      "headquarters": "London",
+      "website": "https://labour.org.uk",
+      "logoUrl": "",
+      "description": "",
+      "membershipCount": 500000,
+      "isRulingParty": false,
+      "isParliamentary": true,
+      "isRegional": false,
+      "regionState": ""
+    },
+    {
+      "name": "Conservative Party",
+      "nameLocal": "",
+      "countryCode": "GB",
+      "countryName": "United Kingdom",
+      "ideology": "Conservative",
+      "politicalPosition": "Centre-right",
+      "foundedYear": 1834,
+      "currentLeader": "Rishi Sunak",
+      "headquarters": "London",
+      "website": "https://conservatives.com",
+      "logoUrl": "",
+      "description": "",
+      "membershipCount": 200000,
+      "isRulingParty": true,
+      "isParliamentary": true,
+      "isRegional": false,
+      "regionState": ""
+    }
+  ];
+
   const parseCSV = (csv: string): Partial<PoliticalParty>[] => {
     const lines = csv.trim().split('\n');
     if (lines.length < 2) {
@@ -84,6 +163,55 @@ Conservative Party,,GB,United Kingdom,Conservative,Centre-right,1834,Rishi Sunak
     return data;
   };
 
+  const parseJSON = (jsonString: string): Partial<PoliticalParty>[] => {
+    try {
+      const data = JSON.parse(jsonString);
+      
+      // Handle both array and single object
+      const parties = Array.isArray(data) ? data : [data];
+      
+      // Validate that it's an array of objects
+      if (!Array.isArray(parties) || parties.length === 0) {
+        throw new Error('JSON must contain an array of party objects');
+      }
+      
+      // Basic validation - check if objects have required fields
+      const validatedParties = parties.map((party, index) => {
+        if (typeof party !== 'object' || party === null) {
+          throw new Error(`Party at index ${index} is not a valid object`);
+        }
+        
+        // Convert string numbers to actual numbers if needed
+        const processedParty = { ...party };
+        if (typeof processedParty.foundedYear === 'string') {
+          const year = parseInt(processedParty.foundedYear);
+          processedParty.foundedYear = isNaN(year) ? undefined : year;
+        }
+        if (typeof processedParty.membershipCount === 'string') {
+          const count = parseInt(processedParty.membershipCount);
+          processedParty.membershipCount = isNaN(count) ? undefined : count;
+        }
+        
+        // Convert string booleans to actual booleans if needed
+        if (typeof processedParty.isRulingParty === 'string') {
+          processedParty.isRulingParty = processedParty.isRulingParty.toLowerCase() === 'true';
+        }
+        if (typeof processedParty.isParliamentary === 'string') {
+          processedParty.isParliamentary = processedParty.isParliamentary.toLowerCase() === 'true';
+        }
+        if (typeof processedParty.isRegional === 'string') {
+          processedParty.isRegional = processedParty.isRegional.toLowerCase() === 'true';
+        }
+        
+        return processedParty;
+      });
+      
+      return validatedParties;
+    } catch (error) {
+      throw new Error(`Invalid JSON format: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  };
+
   const validateData = (data: Partial<PoliticalParty>[]): ImportResult[] => {
     const results: ImportResult[] = [];
     
@@ -114,9 +242,24 @@ Conservative Party,,GB,United Kingdom,Conservative,Centre-right,1834,Rishi Sunak
 
   const handlePreview = () => {
     try {
-      console.log('Parsing CSV data:', csvData);
-      const parsed = parseCSV(csvData);
-      console.log('Parsed data:', parsed);
+      console.log('Parsing data:', csvData);
+      
+      let parsed: Partial<PoliticalParty>[];
+      let dataType: string;
+      
+      // Try to detect if it's JSON first
+      const trimmed = csvData.trim();
+      if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
+        // Looks like JSON
+        parsed = parseJSON(csvData);
+        dataType = 'JSON';
+      } else {
+        // Assume CSV
+        parsed = parseCSV(csvData);
+        dataType = 'CSV';
+      }
+      
+      console.log(`Parsed ${dataType} data:`, parsed);
       const validated = validateData(parsed);
       console.log('Validated data:', validated);
       setPreviewData(parsed);
@@ -124,11 +267,11 @@ Conservative Party,,GB,United Kingdom,Conservative,Centre-right,1834,Rishi Sunak
       
       toast({
         title: 'Preview Complete',
-        description: `Parsed ${parsed.length} parties, ${validated.filter(r => r.success).length} valid`,
+        description: `Parsed ${parsed.length} parties from ${dataType}, ${validated.filter(r => r.success).length} valid`,
       });
     } catch (error) {
       console.error('Preview error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Invalid CSV format';
+      const errorMessage = error instanceof Error ? error.message : 'Invalid data format';
       toast({
         title: 'Preview Error',
         description: errorMessage,
@@ -157,9 +300,32 @@ Conservative Party,,GB,United Kingdom,Conservative,Centre-right,1834,Rishi Sunak
 
       console.log('Starting import of', validParties.length, 'parties');
       console.log('Parties to import:', validParties);
+      console.log('First party structure:', validParties[0]);
 
       if (validParties.length === 0) {
         throw new Error('No valid parties to import');
+      }
+
+      // Test the API endpoint with a single party first
+      console.log('Testing API endpoint with first party...');
+      try {
+        const testResponse = await fetch('/api/parties', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify([validParties[0]]),
+        });
+        
+        if (!testResponse.ok) {
+          throw new Error(`API test failed: ${testResponse.status} ${testResponse.statusText}`);
+        }
+        
+        const testResult = await testResponse.json();
+        console.log('Test API result:', testResult);
+      } catch (testError) {
+        console.error('Test API failed:', testError);
+        throw new Error(`Test API failed: ${testError instanceof Error ? testError.message : 'Unknown error'}`);
       }
 
       // Import in batches to avoid overwhelming the database
@@ -176,22 +342,45 @@ Conservative Party,,GB,United Kingdom,Conservative,Centre-right,1834,Rishi Sunak
       for (const batch of batches) {
         console.log('Importing batch:', batch);
         try {
-          const result = await PoliticalPartyService.bulkImportParties(batch);
-          totalImported += result.length;
-          setProgress((totalImported / validParties.length) * 100);
+          const response = await fetch('/api/parties', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(batch),
+          });
+          
+          if (!response.ok) {
+            throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+          }
+          
+          const result = await response.json();
+          console.log('Batch API result:', result);
+          
+          if (result.success && result.data) {
+            totalImported += result.data.length;
+            setProgress((totalImported / validParties.length) * 100);
+            console.log('Progress updated:', (totalImported / validParties.length) * 100);
+          } else {
+            throw new Error(result.error || 'Unknown API error');
+          }
         } catch (error) {
           console.error('Batch import error:', error);
+          console.error('Error details:', error);
           totalErrors += batch.length;
         }
       }
 
+      console.log('Import summary:', { totalImported, totalErrors, validParties: validParties.length });
+      
       if (totalImported > 0) {
         toast({
           title: 'Import Complete',
           description: `Successfully processed ${totalImported} parties${totalErrors > 0 ? `, ${totalErrors} had errors` : ''}`,
         });
       } else {
-        throw new Error('No parties were successfully imported');
+        console.error('No parties were imported. This might indicate an issue with the import process.');
+        throw new Error(`No parties were successfully imported. ${totalErrors} parties had errors. Check console for details.`);
       }
 
       router.push('/admin/parties');
@@ -218,15 +407,29 @@ Conservative Party,,GB,United Kingdom,Conservative,Centre-right,1834,Rishi Sunak
     window.URL.revokeObjectURL(url);
   };
 
+  const downloadJSONTemplate = () => {
+    const jsonString = JSON.stringify(jsonTemplate, null, 2);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'political_parties_template.json';
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Check if it's a CSV file
-    if (!file.name.toLowerCase().endsWith('.csv')) {
+    // Check if it's a CSV or JSON file
+    const isCSV = file.name.toLowerCase().endsWith('.csv');
+    const isJSON = file.name.toLowerCase().endsWith('.json');
+    
+    if (!isCSV && !isJSON) {
       toast({
         title: 'Invalid File Type',
-        description: 'Please upload a CSV file',
+        description: 'Please upload a CSV or JSON file',
         variant: 'destructive',
       });
       return;
@@ -241,7 +444,14 @@ Conservative Party,,GB,United Kingdom,Conservative,Centre-right,1834,Rishi Sunak
       
       // Auto-preview after file upload
       try {
-        const parsed = parseCSV(content);
+        let parsed: Partial<PoliticalParty>[];
+        
+        if (isCSV) {
+          parsed = parseCSV(content);
+        } else {
+          parsed = parseJSON(content);
+        }
+        
         const validated = validateData(parsed);
         setPreviewData(parsed);
         setResults(validated);
@@ -251,9 +461,10 @@ Conservative Party,,GB,United Kingdom,Conservative,Centre-right,1834,Rishi Sunak
           description: `Successfully loaded ${parsed.length} parties from ${file.name}`,
         });
       } catch (error) {
+        const fileType = isCSV ? 'CSV' : 'JSON';
         toast({
           title: 'Error',
-          description: 'Invalid CSV format in uploaded file',
+          description: `Invalid ${fileType} format in uploaded file: ${error instanceof Error ? error.message : 'Unknown error'}`,
           variant: 'destructive',
         });
       }
@@ -286,25 +497,36 @@ Conservative Party,,GB,United Kingdom,Conservative,Centre-right,1834,Rishi Sunak
         {/* CSV Input */}
         <Card>
           <CardHeader>
-            <CardTitle>CSV Data</CardTitle>
+            <CardTitle>Import Data</CardTitle>
             <CardDescription>
-              Upload a CSV file or paste your CSV data below
+              Upload a CSV or JSON file, or paste your data below
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex space-x-2">
-              <Button
-                variant="outline"
-                onClick={downloadTemplate}
-                className="flex-1"
-              >
-                <Download className="w-4 h-4 mr-2" />
-                Download Template
-              </Button>
+            <div className="grid grid-cols-1 gap-2">
+              <div className="flex space-x-2">
+                <Button
+                  variant="outline"
+                  onClick={downloadTemplate}
+                  className="flex-1"
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Download CSV Template
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={downloadJSONTemplate}
+                  className="flex-1"
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Download JSON Template
+                </Button>
+              </div>
               <Button
                 variant="outline"
                 onClick={handlePreview}
                 disabled={!csvData.trim()}
+                className="w-full"
               >
                 <FileText className="w-4 h-4 mr-2" />
                 Preview
@@ -313,12 +535,12 @@ Conservative Party,,GB,United Kingdom,Conservative,Centre-right,1834,Rishi Sunak
 
             {/* File Upload Section */}
             <div className="space-y-2">
-              <Label htmlFor="fileUpload">Upload CSV File</Label>
+              <Label htmlFor="fileUpload">Upload CSV or JSON File</Label>
               <div className="flex items-center space-x-2">
                 <input
                   id="fileUpload"
                   type="file"
-                  accept=".csv"
+                  accept=".csv,.json"
                   onChange={handleFileUpload}
                   className="hidden"
                 />
@@ -328,7 +550,7 @@ Conservative Party,,GB,United Kingdom,Conservative,Centre-right,1834,Rishi Sunak
                   className="flex-1"
                 >
                   <FileUp className="w-4 h-4 mr-2" />
-                  Choose CSV File
+                  Choose CSV/JSON File
                 </Button>
                 {fileName && (
                   <span className="text-sm text-muted-foreground">
@@ -339,12 +561,12 @@ Conservative Party,,GB,United Kingdom,Conservative,Centre-right,1834,Rishi Sunak
             </div>
 
             <div>
-              <Label htmlFor="csvData">CSV Data</Label>
+              <Label htmlFor="csvData">CSV or JSON Data</Label>
               <Textarea
                 id="csvData"
                 value={csvData}
                 onChange={(e) => setCsvData(e.target.value)}
-                placeholder="Paste your CSV data here..."
+                placeholder="Paste your CSV or JSON data here..."
                 rows={15}
                 className="font-mono text-sm"
               />
@@ -441,12 +663,12 @@ Conservative Party,,GB,United Kingdom,Conservative,Centre-right,1834,Rishi Sunak
         <CardContent>
           <div className="prose max-w-none">
             <ol className="list-decimal list-inside space-y-2">
-              <li>Download the CSV template to see the required format</li>
+              <li>Download the CSV or JSON template to see the required format</li>
               <li>Fill in your political party data following the template structure</li>
               <li>Required fields: name, countryCode, countryName</li>
-              <li>Boolean fields (isRulingParty, isParliamentary, isRegional) should be "true" or "false"</li>
-              <li>Numeric fields (foundedYear, membershipCount) should be numbers only</li>
-              <li>Upload your CSV file using "Choose CSV File" or paste your CSV data in the text area</li>
+              <li>For CSV: Boolean fields should be "true" or "false", numeric fields should be numbers only</li>
+              <li>For JSON: Boolean fields can be true/false (boolean) or "true"/"false" (string), numeric fields can be numbers or strings</li>
+              <li>Upload your CSV or JSON file using "Choose CSV/JSON File" or paste your data in the text area</li>
               <li>Click "Preview" to validate your data (automatic for file uploads)</li>
               <li>Fix any validation errors before importing</li>
               <li>Click "Import" to add all valid parties to the database</li>

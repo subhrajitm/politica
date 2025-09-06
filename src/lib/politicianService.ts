@@ -17,8 +17,27 @@ type SpeechRow = Database['public']['Tables']['speeches']['Row']
 type SocialMediaRow = Database['public']['Tables']['social_media']['Row']
 
 export class PoliticianService {
-  // Get all politicians
+  // Get all politicians (lightweight version for listings)
   static async getAllPoliticians(): Promise<Politician[]> {
+    try {
+      const { data: politicians, error } = await supabase
+        .from('politicians')
+        .select('*')
+        .order('full_name')
+
+      if (error) throw error
+
+      // Return basic politician data without all the detailed relationships
+      // This prevents the N+1 query problem that was causing infinite loading
+      return politicians.map(politician => this.mapToPolitician(politician))
+    } catch (error) {
+      console.error('Error fetching politicians:', error)
+      throw error
+    }
+  }
+
+  // Get all politicians with full details (for admin pages)
+  static async getAllPoliticiansWithDetails(): Promise<Politician[]> {
     try {
       const { data: politicians, error } = await supabase
         .from('politicians')
@@ -35,7 +54,7 @@ export class PoliticianService {
 
       return politiciansWithDetails
     } catch (error) {
-      console.error('Error fetching politicians:', error)
+      console.error('Error fetching politicians with details:', error)
       throw error
     }
   }
@@ -512,6 +531,67 @@ export class PoliticianService {
     } catch (error) {
       console.error('Error fetching politicians by party:', error)
       throw error
+    }
+  }
+
+  // Map database row to Politician object (lightweight version)
+  private static mapToPolitician(row: any): Politician {
+    return {
+      id: row.id,
+      name: {
+        fullName: row.full_name,
+        aliases: row.aliases || []
+      },
+      party: row.party,
+      constituency: row.constituency,
+      positions: {
+        current: {
+          position: row.current_position,
+          assumedOffice: row.assumed_office,
+          committees: row.committees || []
+        },
+        history: []
+      },
+      personalDetails: {
+        dateOfBirth: row.date_of_birth,
+        placeOfBirth: row.place_of_birth,
+        gender: row.gender,
+        nationality: row.nationality,
+        languages: row.languages || [],
+        spouse: row.spouse,
+        children: row.children || []
+      },
+      contact: {
+        address: row.address,
+        email: row.email,
+        phone: row.phone,
+        website: row.website
+      },
+      photoUrl: row.photo_url,
+      family: {
+        spouse: row.spouse,
+        children: row.children || []
+      },
+      education: [],
+      electoralHistory: [],
+      policyStances: [],
+      votingRecords: [],
+      legislativeAchievements: [],
+      ratings: [],
+      campaignFinance: {
+        totalReceipts: '0',
+        totalDisbursements: '0',
+        cashOnHand: '0',
+        debt: '0',
+        topContributors: []
+      },
+      relationships: [],
+      newsMentions: [],
+      speeches: [],
+      socialMedia: {
+        twitter: row.twitter,
+        facebook: row.facebook
+      }
     }
   }
 }

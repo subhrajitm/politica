@@ -270,25 +270,37 @@ export class PoliticalPartyService {
           const mapped = this.mapFromPoliticalParty(party);
           console.log('Processing party:', party.name, 'in', party.countryCode);
 
-          // Try to insert the party
-          const { data, error } = await supabase
+          // Try to insert the party with timeout
+          const insertPromise = supabase
             .from('political_parties')
             .insert([mapped])
             .select()
             .single();
+
+          const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Database operation timed out after 10 seconds')), 10000)
+          );
+
+          const { data, error } = await Promise.race([insertPromise, timeoutPromise]) as any;
 
           if (error) {
             // If it's a duplicate key error, try to update instead
             if (error.code === '23505' && error.message.includes('political_parties_name_country_code_key')) {
               console.log('Party already exists, updating:', party.name, 'in', party.countryCode);
               
-              const { data: updateData, error: updateError } = await supabase
+              const updatePromise = supabase
                 .from('political_parties')
                 .update(mapped)
                 .eq('name', party.name)
                 .eq('country_code', party.countryCode)
                 .select()
                 .single();
+
+              const updateTimeoutPromise = new Promise((_, reject) => 
+                setTimeout(() => reject(new Error('Update operation timed out after 10 seconds')), 10000)
+              );
+
+              const { data: updateData, error: updateError } = await Promise.race([updatePromise, updateTimeoutPromise]) as any;
 
               if (updateError) {
                 console.error('Error updating party:', party.name, updateError);
