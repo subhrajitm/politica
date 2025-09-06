@@ -74,11 +74,18 @@ export class PoliticianService {
 
       const politiciansWithDetails = await Promise.all(
         Array.from(uniquePoliticians.values()).map(async (politician) => {
-          return await this.getPoliticianWithDetails(politician.id)
+          try {
+            return await this.getPoliticianWithDetails(politician.id)
+          } catch (error) {
+            console.warn(`Failed to load details for politician ${politician.id}:`, error)
+            // Return a basic politician object if detailed loading fails
+            return this.mapToPolitician(politician)
+          }
         })
       )
 
-      return politiciansWithDetails
+      // Filter out any null results and return only valid politicians
+      return politiciansWithDetails.filter(politician => politician !== null)
     } catch (error) {
       console.error('Error fetching politicians with details:', error)
       throw error
@@ -107,7 +114,7 @@ export class PoliticianService {
   // Get politician with all related data
   private static async getPoliticianWithDetails(id: string): Promise<Politician> {
     const [
-      { data: politician },
+      { data: politician, error: politicianError },
       { data: workHistory },
       { data: education },
       { data: electoralHistory },
@@ -136,7 +143,9 @@ export class PoliticianService {
       supabase.from('social_media').select('*').eq('politician_id', id)
     ])
 
-    if (!politician) throw new Error('Politician not found')
+    if (politicianError || !politician) {
+      throw new Error(`Politician not found: ${politicianError?.message || 'No politician with ID ' + id}`)
+    }
 
     return {
       id: politician.id,
