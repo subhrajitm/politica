@@ -43,14 +43,27 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
     };
   }, []);
 
+  // Handle redirect when user is not authenticated
+  useEffect(() => {
+    if (!loading && !currentUser && pathname !== '/admin/login') {
+      router.replace('/admin/login');
+    }
+  }, [loading, currentUser, pathname, router]);
+
   const handleLogout = async () => {
     try {
+      // Clear the current user state immediately to prevent access denied page
+      setCurrentUser(null);
+      
       await AdminAuthService.logout();
+      
       toast({
         title: "Logged out",
         description: "You have been successfully logged out",
       });
-      router.push('/admin/login');
+      
+      // Redirect to login page
+      router.replace('/admin/login');
     } catch (error) {
       console.error('Logout error:', error);
       toast({
@@ -58,6 +71,8 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
         description: "Failed to logout properly",
         variant: "destructive",
       });
+      // Even if logout fails, redirect to login
+      router.replace('/admin/login');
     }
   };
 
@@ -88,9 +103,16 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
     return <>{children}</>;
   }
 
-  // If not authenticated, redirect to login (this should be handled by AdminProtectedRoute)
+  // If not authenticated, show loading while redirect happens
   if (!currentUser) {
-    return <>{children}</>;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <p className="text-muted-foreground">Redirecting to login...</p>
+        </div>
+      </div>
+    );
   }
 
   // Show full admin layout with sidebar for authenticated users

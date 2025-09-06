@@ -42,7 +42,8 @@ export default function AdminProtectedRoute({
         
         if (!currentUser) {
           console.log('AdminProtectedRoute: No user found, redirecting to login');
-          router.push('/admin/login');
+          // Use replace instead of push to prevent back button issues
+          router.replace('/admin/login');
         }
       } catch (error) {
         console.error('AdminProtectedRoute: Auth check error:', error);
@@ -68,7 +69,7 @@ export default function AdminProtectedRoute({
         
         // Only redirect to login if it's not a timeout
         if (!error || !(error instanceof Error) || !error.message.includes('Auth check timeout')) {
-          router.push('/admin/login');
+          router.replace('/admin/login');
         }
       } finally {
         if (isMounted) {
@@ -133,7 +134,7 @@ export default function AdminProtectedRoute({
                   Retry
                 </button>
                 <button
-                  onClick={() => router.push('/admin/login')}
+                  onClick={() => router.replace('/admin/login')}
                   className="px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/90"
                 >
                   Go to Login
@@ -144,7 +145,7 @@ export default function AdminProtectedRoute({
             <>
               <p className="text-muted-foreground mb-4">You need to be logged in to access this page.</p>
               <button
-                onClick={() => router.push('/admin/login')}
+                onClick={() => router.replace('/admin/login')}
                 className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
               >
                 Go to Login
