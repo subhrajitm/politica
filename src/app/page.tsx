@@ -393,19 +393,19 @@ export default function Home() {
               <div className="flex-1">
                 <Quote className="text-primary w-6 h-6 mb-3 transform -scale-x-100" />
                 <p className="text-lg md:text-xl font-medium text-gray-800 leading-relaxed">
-                  This platform is an invaluable resource for understanding the political landscape. It's incredibly easy to use and informative.
+                  "Public service must be more than doing a job efficiently and honestly. It must be a complete dedication to the people."
                 </p>
                 <div className="mt-4">
-                  <p className="font-semibold text-sm">Priya Sharma</p>
+                  <p className="font-semibold text-sm">Margaret Chase Smith</p>
                   <p className="text-xs text-muted-foreground">
-                    Political Analyst
+                    Former U.S. Senator
                   </p>
                 </div>
               </div>
               <div className="flex-shrink-0">
                 <ImageWithPlaceholder
-                  src="/user.png"
-                  alt="Priya Sharma"
+                  src="/Margaret-Chase-Smith.jpg"
+                  alt="Margaret Chase Smith"
                   width={120}
                   height={120}
                   className="rounded-full"
