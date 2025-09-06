@@ -22,18 +22,18 @@ export default function PoliticianCard({ politician, viewMode = 'grid' }: Politi
         <Card
           className={cn(
             'transition-all duration-300',
-            'group-hover:shadow-lg group-hover:border-primary/50 group-hover:-translate-y-1'
+            'group-hover:shadow-md group-hover:border-primary/50 group-hover:-translate-y-0.5'
           )}
         >
-          <CardContent className="p-4">
-            <div className="flex items-center gap-4">
-              <div className="relative w-16 h-16 flex-shrink-0">
+          <CardContent className="p-2">
+            <div className="flex items-center gap-3">
+              <div className="relative w-12 h-12 flex-shrink-0">
                 <ImageWithPlaceholder
                   src={politician.photoUrl}
                   alt={`Photo of ${politician.name.fullName}`}
                   fill
-                  className="rounded-md"
-                  sizes="64px"
+                  className="rounded-sm"
+                  sizes="48px"
                   placeholder="user"
                 />
               </div>
@@ -41,29 +41,29 @@ export default function PoliticianCard({ politician, viewMode = 'grid' }: Politi
               <div className="flex-grow min-w-0">
                 <div className="flex items-start justify-between gap-2">
                   <Link href={`/politicians/${politician.id}`} className="flex-grow min-w-0">
-                    <h3 className="font-semibold text-lg leading-tight group-hover:text-primary line-clamp-1">
+                    <h3 className="font-medium text-sm leading-tight group-hover:text-primary line-clamp-1">
                       {politician.name.fullName}
                     </h3>
                   </Link>
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    <PartyLogo party={politician.party} className="w-6 h-6" />
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    <PartyLogo party={politician.party} className="w-4 h-4" />
                     <FavouriteButton 
                       politicianId={politician.id}
                       politicianName={politician.name.fullName}
                       variant="ghost"
                       size="sm"
                       showText={false}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8"
+                      className="opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6"
                     />
                   </div>
                 </div>
                 
-                <div className="mt-1 flex items-center gap-4 text-sm text-muted-foreground">
+                <div className="mt-0.5 flex items-center gap-3 text-xs text-muted-foreground">
                   <div className="flex items-center gap-1">
-                    <MapPin className="w-4 h-4 flex-shrink-0" />
+                    <MapPin className="w-3 h-3 flex-shrink-0" />
                     <span className="truncate">{politician.constituency}</span>
                   </div>
-                  <Badge variant="secondary" className="font-normal text-xs px-2 py-1">
+                  <Badge variant="secondary" className="font-normal text-[10px] px-1.5 py-0.5">
                     {politician.positions.current.position}
                   </Badge>
                 </div>
@@ -75,22 +75,22 @@ export default function PoliticianCard({ politician, viewMode = 'grid' }: Politi
     );
   }
 
-  // Grid view (default)
+  // Grid view (default) - Compact version
   return (
     <div className="group block">
       <Card
         className={cn(
           'transition-all duration-300 h-full',
-          'group-hover:shadow-lg group-hover:border-primary/50 group-hover:-translate-y-1'
+          'group-hover:shadow-md group-hover:border-primary/50 group-hover:-translate-y-0.5'
         )}
       >
-        <CardContent className="p-2 flex flex-col h-full">
-            <div className="relative w-full aspect-square mb-2">
+        <CardContent className="p-1.5 flex flex-col h-full">
+            <div className="relative w-full aspect-square mb-1.5">
               <ImageWithPlaceholder
                 src={politician.photoUrl}
                 alt={`Photo of ${politician.name.fullName}`}
                 fill
-                className="rounded-md"
+                className="rounded-sm"
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 placeholder="user"
               />
@@ -98,21 +98,21 @@ export default function PoliticianCard({ politician, viewMode = 'grid' }: Politi
             <div className='flex-grow'>
               <div className='flex justify-between items-start gap-1'>
                 <Link href={`/politicians/${politician.id}`} className="flex-grow">
-                  <h3 className="font-semibold text-sm leading-tight group-hover:text-primary line-clamp-2">
+                  <h3 className="font-medium text-xs leading-tight group-hover:text-primary line-clamp-2">
                     {politician.name.fullName}
                   </h3>
                 </Link>
                 <div className="flex-shrink-0">
-                  <PartyLogo party={politician.party} className="w-5 h-5" />
+                  <PartyLogo party={politician.party} className="w-4 h-4" />
                 </div>
               </div>
-              <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1 line-clamp-1">
-                <MapPin className="w-3 h-3 flex-shrink-0" />
+              <p className="text-[10px] text-muted-foreground flex items-center gap-0.5 mt-0.5 line-clamp-1">
+                <MapPin className="w-2.5 h-2.5 flex-shrink-0" />
                 <span className="truncate">{politician.constituency}</span>
               </p>
             </div>
-            <div className="mt-2 flex items-center justify-between pt-2 border-t">
-              <Badge variant="secondary" className="font-normal text-xs px-1.5 py-0.5 line-clamp-1">
+            <div className="mt-1.5 flex items-center justify-between pt-1 border-t">
+              <Badge variant="secondary" className="font-normal text-[10px] px-1 py-0.5 line-clamp-1">
                 {politician.positions.current.position}
               </Badge>
               <FavouriteButton 
@@ -121,7 +121,7 @@ export default function PoliticianCard({ politician, viewMode = 'grid' }: Politi
                 variant="ghost"
                 size="sm"
                 showText={false}
-                className="opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6"
+                className="opacity-0 group-hover:opacity-100 transition-opacity h-5 w-5"
               />
             </div>
         </CardContent>

@@ -195,36 +195,36 @@ export default function CountryStatesPage() {
   const totalPoliticians = statesWithPoliticians.reduce((sum, state) => sum + state.politicianCount, 0);
 
   return (
-    <div className="container mx-auto px-4 py-4">
-      {/* Header */}
-      <div className="mb-6">
-        <div className="flex items-center gap-4 mb-4">
+    <div className="container mx-auto px-4 py-2">
+      {/* Compact Header */}
+      <div className="mb-4">
+        <div className="flex items-center justify-between mb-3">
           <Link href="/browse/countries">
             <Button variant="ghost" size="sm" className="gap-2">
               <ArrowLeft className="w-4 h-4" />
               Back to countries
             </Button>
           </Link>
-        </div>
-        
-        <div className="text-center">
-          <h1 className="text-3xl md:text-4xl font-bold mb-2">{country.name}</h1>
-          <p className="text-sm text-muted-foreground mb-4">
-            Browse politicians by state and province
-          </p>
           
           {!loading && (
-            <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground">
-              <div className="flex items-center gap-2">
+            <div className="flex items-center gap-4 text-sm text-muted-foreground">
+              <div className="flex items-center gap-1">
                 <MapPin className="w-4 h-4" />
-                <span>{statesWithPoliticians.length} states/provinces</span>
+                <span>{statesWithPoliticians.length} states</span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1">
                 <Users className="w-4 h-4" />
                 <span>{totalPoliticians} politicians</span>
               </div>
             </div>
           )}
+        </div>
+        
+        <div className="text-center">
+          <h1 className="text-2xl md:text-3xl font-bold mb-1">{country.name}</h1>
+          <p className="text-xs text-muted-foreground">
+            Browse politicians by state and province
+          </p>
         </div>
       </div>
 
@@ -239,13 +239,13 @@ export default function CountryStatesPage() {
           <Button onClick={() => window.location.reload()}>Try Again</Button>
         </div>
       ) : statesWithPoliticians.length > 0 ? (
-        <div className="flex gap-6 h-[calc(100vh-200px)]">
+        <div className="flex gap-6 h-[calc(100vh-140px)]">
           {/* Sidebar - States */}
           <div className="w-80 flex-shrink-0">
             <Card className="h-full p-4">
-              <div className="mb-4">
-                <h2 className="font-semibold text-lg mb-2">States & Provinces</h2>
-                <p className="text-sm text-muted-foreground">
+              <div className="mb-3">
+                <h2 className="font-semibold text-base mb-1">States & Provinces</h2>
+                <p className="text-xs text-muted-foreground">
                   Select a state to view its politicians
                 </p>
               </div>
@@ -292,11 +292,11 @@ export default function CountryStatesPage() {
               {selectedState ? (
                 <div className="h-full flex flex-col">
                   {/* Header with search and filters */}
-                  <div className="mb-4">
-                    <div className="flex items-center justify-between mb-4">
+                  <div className="mb-3">
+                    <div className="flex items-center justify-between mb-3">
                       <div>
-                        <h2 className="text-xl font-semibold">{selectedState}</h2>
-                        <p className="text-sm text-muted-foreground">
+                        <h2 className="text-lg font-semibold">{selectedState}</h2>
+                        <p className="text-xs text-muted-foreground">
                           {filteredPoliticians.length} politician{filteredPoliticians.length !== 1 ? 's' : ''}
                           {searchTerm && ` matching "${searchTerm}"`}
                         </p>
@@ -321,7 +321,7 @@ export default function CountryStatesPage() {
                         placeholder="Search politicians..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-10"
+                        className="pl-10 h-8 text-sm"
                       />
                     </div>
                   </div>
@@ -331,8 +331,8 @@ export default function CountryStatesPage() {
                     {filteredPoliticians.length > 0 ? (
                       <div className={
                         viewMode === 'grid' 
-                          ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-                          : "space-y-4"
+                          ? "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3"
+                          : "space-y-2"
                       }>
                         {filteredPoliticians.map((politician) => (
                           <PoliticianCard
