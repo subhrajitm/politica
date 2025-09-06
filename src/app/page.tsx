@@ -20,7 +20,7 @@ export default function Home() {
   const router = useRouter();
   const searchContainerRef = useRef<HTMLDivElement>(null);
 
-  const trendingProfiles = politicians;
+  const trendingProfiles = politicians.slice(0, 12); // Show max 3 rows (4 columns × 3 rows = 12 profiles)
 
   const suggestedSearches = [
     'Prime Minister',
@@ -233,7 +233,7 @@ export default function Home() {
               See all profiles <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:grid-rows-3">
             {trendingProfiles.map((p) => (
               <Link key={p.id} href={`/politicians/${p.id}`} className="block">
                 <Card className="group overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
@@ -280,8 +280,8 @@ export default function Home() {
               <History className="w-6 h-6" />
               Recently Viewed
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {recentlyViewed.map((p) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:grid-rows-1">
+              {recentlyViewed.slice(0, 4).map((p) => (
                 <Link key={p.id} href={`/politicians/${p.id}`} className="block">
                   <Card className="group overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
                     <CardContent className="p-4">

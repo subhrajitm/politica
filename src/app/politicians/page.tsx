@@ -25,6 +25,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { PartyLogo } from '@/components/PartyLogo';
 import FavouriteButton from '@/components/FavouriteButton';
 import ImageWithPlaceholder from '@/components/ImageWithPlaceholder';
+import Pagination from '@/components/Pagination';
 import Link from 'next/link';
 
 function PoliticiansPageContent() {
@@ -43,6 +44,8 @@ function PoliticiansPageContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list' | 'table'>('grid');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(24); // 4 rows × 6 columns = 24 items per page
 
   useEffect(() => {
     const stateParam = searchParams.get('state');
@@ -120,6 +123,23 @@ function PoliticiansPageContent() {
       return (nameMatch || positionMatch || constituencyMatch) && partyMatch && stateMatch && genderMatch && statusMatch && ageMatch;
     });
   }, [politicians, searchTerm, partyFilter, stateFilter, genderFilter, statusFilter, ageRange]);
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredPoliticians.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedPoliticians = filteredPoliticians.slice(startIndex, endIndex);
+
+  // Reset to first page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, partyFilter, stateFilter, genderFilter, statusFilter, ageRange]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    // Scroll to top of results
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   // Compact tile component matching homepage design
   const PoliticianCompactTile = ({ politician }: { politician: Politician }) => (
@@ -348,40 +368,57 @@ function PoliticiansPageContent() {
       </div>
 
       {filteredPoliticians.length > 0 ? (
-        viewMode === 'table' ? (
-          <div className="bg-card border rounded-lg overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b bg-muted/50">
-                    <th className="text-left px-4 py-3 font-medium text-sm">Politician</th>
-                    <th className="text-left px-4 py-3 font-medium text-sm">Party</th>
-                    <th className="text-left px-4 py-3 font-medium text-sm">Constituency</th>
-                    <th className="text-left px-4 py-3 font-medium text-sm">Position</th>
-                    <th className="text-left px-4 py-3 font-medium text-sm">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredPoliticians.map((p) => (
-                    <PoliticianTableRow key={p.id} politician={p} />
-                  ))}
-                </tbody>
-              </table>
+        <>
+          {viewMode === 'table' ? (
+            <div className="bg-card border rounded-lg overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b bg-muted/50">
+                      <th className="text-left px-4 py-3 font-medium text-sm">Politician</th>
+                      <th className="text-left px-4 py-3 font-medium text-sm">Party</th>
+                      <th className="text-left px-4 py-3 font-medium text-sm">Constituency</th>
+                      <th className="text-left px-4 py-3 font-medium text-sm">Position</th>
+                      <th className="text-left px-4 py-3 font-medium text-sm">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paginatedPoliticians.map((p) => (
+                      <PoliticianTableRow key={p.id} politician={p} />
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
-        ) : viewMode === 'grid' ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2">
-            {filteredPoliticians.map((p) => (
-              <PoliticianCard key={p.id} politician={p} />
-            ))}
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {filteredPoliticians.map((p) => (
-              <PoliticianCompactTile key={p.id} politician={p} />
-            ))}
-          </div>
-        )
+          ) : viewMode === 'grid' ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2">
+              {paginatedPoliticians.map((p) => (
+                <PoliticianCard key={p.id} politician={p} />
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {paginatedPoliticians.map((p) => (
+                <PoliticianCompactTile key={p.id} politician={p} />
+              ))}
+            </div>
+          )}
+          
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="mt-8">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+                showPageNumbers={true}
+                maxVisiblePages={5}
+                showFirstLast={true}
+                showGoToPage={true}
+              />
+            </div>
+          )}
+        </>
       ) : (
         <div className="text-center py-12">
           <p className="text-lg text-muted-foreground">No politicians found matching your criteria.</p>
