@@ -296,7 +296,7 @@ export default function WorldMap() {
             <span>{hoveredCountry.name}</span>
           </div>
           <div className="text-xs text-muted-foreground mt-1">
-            Click to explore politicians
+            Click to explore states and politicians
           </div>
         </div>
       )}

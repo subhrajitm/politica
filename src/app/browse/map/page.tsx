@@ -11,7 +11,7 @@ export default function BrowseMapPage() {
       <div className="mb-4 text-center">
         <h1 className="text-3xl md:text-4xl font-bold mb-1">Browse by Map</h1>
         <p className="text-sm text-muted-foreground">
-          Click on a country to explore its political leaders.
+          Click on a country to explore its states and political leaders.
         </p>
       </div>
 

@@ -7,6 +7,7 @@ import { differenceInYears } from 'date-fns';
 import { PoliticianService } from '@/lib/politicianService';
 import { PoliticalPartyService } from '@/lib/politicalPartyService';
 import type { Politician, PoliticalParty } from '@/lib/types';
+import { extractStateFromConstituency } from '@/lib/constituencyMapping';
 import PoliticianCard from '@/components/PoliticianCard';
 import { Input } from '@/components/ui/input';
 import {
@@ -87,10 +88,7 @@ function PoliticiansPageContent() {
 
   const states = useMemo(() => {
     const allStates = politicians
-      .map((p) => {
-        const parts = p.constituency.split(', ');
-        return parts.length > 1 ? parts[1].trim() : null;
-      })
+      .map((p) => extractStateFromConstituency(p.constituency, p.personalDetails.nationality))
       .filter((s): s is string => s !== null);
     return [...Array.from(new Set(allStates))].sort();
   }, [politicians]);
@@ -109,8 +107,8 @@ function PoliticiansPageContent() {
       
       const partyMatch = partyFilter.length === 0 || partyFilter.includes(p.party);
 
-      const constituencyState = p.constituency.split(', ')[1]?.trim();
-      const stateMatch = stateFilter.length === 0 || (constituencyState && stateFilter.includes(constituencyState));
+      const politicianState = extractStateFromConstituency(p.constituency, p.personalDetails.nationality);
+      const stateMatch = stateFilter.length === 0 || (politicianState && stateFilter.includes(politicianState));
 
       const genderMatch = genderFilter === 'all' || p.personalDetails.gender === genderFilter;
 
