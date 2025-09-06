@@ -164,10 +164,13 @@ function PoliticiansPageContent() {
       <td className="px-4 py-3">
         <Link href={`/politicians/${politician.id}`} className="flex items-center space-x-3 group">
           <div className="relative w-8 h-8 flex-shrink-0">
-            <img
-              src={politician.photoUrl || '/placeholder-avatar.png'}
+            <ImageWithPlaceholder
+              src={politician.photoUrl}
               alt={politician.name.fullName}
-              className="w-full h-full rounded-full object-cover border border-muted"
+              width={32}
+              height={32}
+              className="w-full h-full rounded-full border border-muted"
+              placeholder="user"
             />
           </div>
           <div>

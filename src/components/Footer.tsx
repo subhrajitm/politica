@@ -30,7 +30,6 @@ export default function Footer() {
                 <h4 className="font-semibold mb-1 text-foreground text-xs">Platform</h4>
                 <ul className="space-y-1 text-xs">
                   <li><Link href="/politicians" className="text-muted-foreground hover:text-primary">Find Politicians</Link></li>
-                  <li><Link href="/browse" className="text-muted-foreground hover:text-primary">Browse</Link></li>
                   <li><Link href="/contribute" className="text-muted-foreground hover:text-primary">Contribute</Link></li>
                 </ul>
               </div>
@@ -60,7 +59,6 @@ export default function Footer() {
             <h4 className="font-semibold mb-2 text-foreground text-sm">Platform</h4>
             <ul className="space-y-1.5 text-xs">
               <li><Link href="/politicians" className="text-muted-foreground hover:text-primary">Find Politicians</Link></li>
-              <li><Link href="/browse" className="text-muted-foreground hover:text-primary">Browse by Role</Link></li>
               <li><Link href="/browse/countries" className="text-muted-foreground hover:text-primary">Browse by Country</Link></li>
               <li><Link href="/browse/map" className="text-muted-foreground hover:text-primary">Browse by Map</Link></li>
               <li><Link href="/contribute" className="text-muted-foreground hover:text-primary">Contribute</Link></li>

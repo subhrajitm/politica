@@ -108,7 +108,7 @@ export default function NewPoliticianPage() {
           phone: phone || 'Unknown',
           website: website || undefined,
         },
-        photoUrl: photoUrl || 'https://via.placeholder.com/400x400/cccccc/666666?text=No+Photo',
+        photoUrl: photoUrl || '/user.png',
         family: {
           spouse: spouse || undefined,
           children: children

@@ -35,7 +35,7 @@ export default function ImageWithPlaceholder({
   onLoad,
 }: ImageWithPlaceholderProps) {
   const [imageError, setImageError] = useState(false);
-  const [imageLoading, setImageLoading] = useState(true);
+  const [imageLoading, setImageLoading] = useState(!!src);
 
   const handleError = () => {
     setImageError(true);
@@ -48,13 +48,21 @@ export default function ImageWithPlaceholder({
     onLoad?.();
   };
 
-  // Show placeholder if no src, error loading, or still loading
-  const showPlaceholder = !src || imageError || (imageLoading && !src);
+  // Show placeholder if no src or error loading
+  const showPlaceholder = !src || imageError;
 
   if (showPlaceholder) {
     const placeholderContent = customPlaceholder || (
       <div className="flex items-center justify-center bg-muted text-muted-foreground">
-        {placeholder === 'user' && <User className="w-1/3 h-1/3" />}
+        {placeholder === 'user' && (
+          <Image
+            src="/user.png"
+            alt="User placeholder"
+            width={width || 100}
+            height={height || 100}
+            className="w-full h-full object-contain"
+          />
+        )}
         {placeholder === 'image' && <ImageIcon className="w-1/3 h-1/3" />}
       </div>
     );
@@ -62,7 +70,16 @@ export default function ImageWithPlaceholder({
     if (fill) {
       return (
         <div className={cn("relative", className)}>
-          {placeholderContent}
+          {placeholder === 'user' ? (
+            <Image
+              src="/user.png"
+              alt="User placeholder"
+              fill
+              className="object-contain"
+            />
+          ) : (
+            placeholderContent
+          )}
         </div>
       );
     }

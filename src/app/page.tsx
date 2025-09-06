@@ -378,7 +378,7 @@ export default function Home() {
               </div>
               <div className="flex-shrink-0">
                 <ImageWithPlaceholder
-                  src="https://picsum.photos/seed/priya/120/120"
+                  src="/user.png"
                   alt="Priya Sharma"
                   width={120}
                   height={120}
