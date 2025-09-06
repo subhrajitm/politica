@@ -1,21 +1,19 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { PoliticianService } from '@/lib/politicianService';
 import type { Politician } from '@/lib/types';
 import { normalizeDate, normalizeAssumedOffice } from '@/lib/dateUtils';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
-import { Loader2, Upload, Download, Plus, Trash2 } from 'lucide-react';
-import Link from 'next/link';
+import { ArrowLeft, Upload, Download, FileText, CheckCircle, XCircle, FileUp } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
 
 interface BulkPoliticianData {
   fullName: string;
@@ -41,246 +39,179 @@ interface BulkPoliticianData {
   aliases?: string;
 }
 
-interface DuplicateCheckResult {
-  isDuplicate: boolean;
-  existingPolitician?: Politician;
-  action: 'skip' | 'update' | 'create';
+interface ImportResult {
+  success: boolean;
+  message: string;
+  data?: any;
 }
 
 export default function BulkAddPoliticiansPage() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState('csv');
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
-  const [progress, setProgress] = useState({ current: 0, total: 0 });
-  const [existingPoliticians, setExistingPoliticians] = useState<Politician[]>([]);
-  const [duplicateCheckResults, setDuplicateCheckResults] = useState<Map<string, DuplicateCheckResult>>(new Map());
-  const [showDuplicateOptions, setShowDuplicateOptions] = useState(false);
-  
-  // CSV upload state
-  const [csvData, setCsvData] = useState<string>('');
-  const [csvFile, setCsvFile] = useState<File | null>(null);
-  
-  // Manual entry state
-  const [manualEntries, setManualEntries] = useState<BulkPoliticianData[]>([
+  const [csvData, setCsvData] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [results, setResults] = useState<ImportResult[]>([]);
+  const [previewData, setPreviewData] = useState<Partial<BulkPoliticianData>[]>([]);
+  const [fileName, setFileName] = useState<string>('');
+
+  const csvTemplate = `fullName,party,constituency,currentPosition,assumedOffice,dateOfBirth,placeOfBirth,gender,nationality,languages,committees,address,email,phone,website,photoUrl,spouse,children,twitter,facebook,aliases
+John Doe,Example Party,Example Constituency,Member of Parliament,2020-01-01,1980-01-01,Example City,Male,Indian,"English, Hindi","Finance Committee, Education Committee",123 Example Street,john.doe@example.com,+91-1234567890,https://johndoe.example.com,https://example.com/photo.jpg,Jane Doe,"Child 1, Child 2",@johndoe,johndoe.official,"J. Doe, Johnny"
+Jane Smith,Another Party,Another Constituency,Minister of State,2019-05-15,1975-03-20,Another City,Female,Indian,"English, Tamil","Health Committee",456 Another Street,jane.smith@example.com,+91-9876543210,https://janesmith.example.com,https://example.com/jane.jpg,John Smith,"Son, Daughter",@janesmith,janesmith.official,"J. Smith"`;
+
+  const jsonTemplate = [
     {
-      fullName: '',
-      party: '',
-      constituency: '',
-      currentPosition: '',
-      assumedOffice: '',
-      dateOfBirth: '',
-      placeOfBirth: '',
-      gender: '',
-      nationality: '',
-      languages: '',
-      committees: '',
-      address: '',
-      email: '',
-      phone: '',
-      website: '',
-      photoUrl: '',
-      spouse: '',
-      children: '',
-      twitter: '',
-      facebook: '',
+      "fullName": "John Doe",
+      "party": "Example Party",
+      "constituency": "Example Constituency, State",
+      "currentPosition": "Member of Parliament",
+      "assumedOffice": "2020-01-01",
+      "dateOfBirth": "1980-01-01",
+      "placeOfBirth": "Example City, State",
+      "gender": "Male",
+      "nationality": "Indian",
+      "languages": "English, Hindi",
+      "committees": "Finance Committee, Education Committee",
+      "address": "123 Example Street, Example City, State",
+      "email": "john.doe@example.com",
+      "phone": "+91-1234567890",
+      "website": "https://johndoe.example.com",
+      "photoUrl": "https://example.com/photo.jpg",
+      "spouse": "Jane Doe",
+      "children": "Child 1, Child 2",
+      "twitter": "@johndoe",
+      "facebook": "johndoe.official",
+      "aliases": "J. Doe, Johnny"
     }
-  ]);
+  ];
 
-  // Load existing politicians on component mount
-  useEffect(() => {
-    const loadExistingPoliticians = async () => {
-      try {
-        const politicians = await PoliticianService.getAllPoliticians();
-        setExistingPoliticians(politicians);
-      } catch (error) {
-        console.error('Error loading existing politicians:', error);
-      }
-    };
-    
-    loadExistingPoliticians();
-  }, []);
-
-  // Check for duplicates in the data
-  const checkForDuplicates = (data: BulkPoliticianData[]): Map<string, DuplicateCheckResult> => {
-    const results = new Map<string, DuplicateCheckResult>();
-    
-    data.forEach(entry => {
-      const normalizedName = entry.fullName.toLowerCase().trim();
-      const existingPolitician = existingPoliticians.find(p => 
-        p.name.fullName.toLowerCase().trim() === normalizedName
-      );
-      
-      if (existingPolitician) {
-        results.set(entry.fullName, {
-          isDuplicate: true,
-          existingPolitician,
-          action: 'skip' // Default action
-        });
-      } else {
-        results.set(entry.fullName, {
-          isDuplicate: false,
-          action: 'create'
-        });
-      }
-    });
-    
-    return results;
-  };
-
-  // Update duplicate action for a specific politician
-  const updateDuplicateAction = (fullName: string, action: 'skip' | 'update' | 'create') => {
-    const newResults = new Map(duplicateCheckResults);
-    const result = newResults.get(fullName);
-    if (result) {
-      result.action = action;
-      newResults.set(fullName, result);
-      setDuplicateCheckResults(newResults);
-    }
-  };
-
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file && file.type === 'text/csv') {
-      setCsvFile(file);
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setCsvData(e.target?.result as string);
-      };
-      reader.readAsText(file);
-    } else {
-      setError('Please select a valid CSV file');
-    }
-  };
-
-  const addManualEntry = () => {
-    setManualEntries([...manualEntries, {
-      fullName: '',
-      party: '',
-      constituency: '',
-      currentPosition: '',
-      assumedOffice: '',
-      dateOfBirth: '',
-      placeOfBirth: '',
-      gender: '',
-      nationality: '',
-      languages: '',
-      committees: '',
-      address: '',
-      email: '',
-      phone: '',
-      website: '',
-      photoUrl: '',
-      spouse: '',
-      children: '',
-      twitter: '',
-      facebook: '',
-    }]);
-  };
-
-  const removeManualEntry = (index: number) => {
-    if (manualEntries.length > 1) {
-      setManualEntries(manualEntries.filter((_, i) => i !== index));
-    }
-  };
-
-  const updateManualEntry = (index: number, field: keyof BulkPoliticianData, value: string) => {
-    const updated = [...manualEntries];
-    updated[index] = { ...updated[index], [field]: value };
-    setManualEntries(updated);
-  };
-
-  const downloadTemplate = () => {
-    const headers = [
-      'fullName', 'party', 'constituency', 'currentPosition', 'assumedOffice',
-      'dateOfBirth', 'placeOfBirth', 'gender', 'nationality', 'languages',
-      'committees', 'address', 'email', 'phone', 'website',
-      'photoUrl', 'spouse', 'children', 'twitter', 'facebook'
-    ];
-    
-    const csvContent = `data:text/csv;charset=utf-8,${headers.join(',')}\n`;
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
-    link.setAttribute('download', 'politicians_template.csv');
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-  const parseCSV = (csvText: string): BulkPoliticianData[] => {
-    const lines = csvText.trim().split('\n');
-    const headers = lines[0].split(',').map(h => h.trim());
-    const data: BulkPoliticianData[] = [];
+  const parseCSV = (csv: string): Partial<BulkPoliticianData>[] => {
+    const lines = csv.trim().split('\n');
+    const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+    const data: Partial<BulkPoliticianData>[] = [];
 
     for (let i = 1; i < lines.length; i++) {
-      const values = lines[i].split(',').map(v => v.trim());
+      const values = lines[i].split(',').map(v => v.trim().replace(/"/g, ''));
       const entry: any = {};
       
       headers.forEach((header, index) => {
         entry[header] = values[index] || '';
       });
       
-      data.push(entry as BulkPoliticianData);
+      data.push(entry as Partial<BulkPoliticianData>);
     }
 
     return data;
   };
 
-  const validateData = (data: BulkPoliticianData[]): string[] => {
+  const parseJSON = (jsonText: string): Partial<BulkPoliticianData>[] => {
+    try {
+      const parsed = JSON.parse(jsonText);
+      return Array.isArray(parsed) ? parsed : [parsed];
+    } catch (error) {
+      throw new Error('Invalid JSON format: ' + (error as Error).message);
+    }
+  };
+
+  // Helper function to check if a value is effectively empty (handles placeholder text)
+  const isEmptyValue = (value: string | undefined): boolean => {
+    if (!value) return true;
+    const trimmed = value.trim().toLowerCase();
+    return trimmed === '' || 
+           trimmed === 'not available' || 
+           trimmed === 'not specified' || 
+           trimmed === 'not specified in available data' ||
+           trimmed === 'not available in current data';
+  };
+
+  const validateData = (data: Partial<BulkPoliticianData>[]): ImportResult[] => {
+    const results: ImportResult[] = [];
+    
+    data.forEach((politician, index) => {
     const errors: string[] = [];
     
-    data.forEach((entry, index) => {
-      if (!entry.fullName.trim()) {
-        errors.push(`Row ${index + 1}: Full Name is required`);
+      if (isEmptyValue(politician.fullName)) {
+        errors.push('Full Name is required');
       }
-      if (!entry.party.trim()) {
-        errors.push(`Row ${index + 1}: Party is required`);
+      if (isEmptyValue(politician.party)) {
+        errors.push('Party is required');
       }
-      if (!entry.constituency.trim()) {
-        errors.push(`Row ${index + 1}: Constituency is required`);
+      // Make constituency optional - some politicians may not have specific constituency
+      // if (isEmptyValue(politician.constituency)) {
+      //   errors.push('Constituency is required');
+      // }
+      if (isEmptyValue(politician.currentPosition)) {
+        errors.push('Current Position is required');
       }
-      if (!entry.currentPosition.trim()) {
-        errors.push(`Row ${index + 1}: Current Position is required`);
+
+      if (errors.length > 0) {
+        results.push({
+          success: false,
+          message: `Row ${index + 1}: ${errors.join(', ')}`,
+          data: politician
+        });
+      } else {
+        results.push({
+          success: true,
+          message: `Row ${index + 1}: Valid`,
+          data: politician
+        });
       }
     });
 
-    return errors;
+    return results;
   };
 
-  const convertToPolitician = (data: BulkPoliticianData): Omit<Politician, 'id'> => {
+  // Helper function to parse languages (handles both comma and semicolon separators)
+  const parseLanguages = (languages: string | undefined): string[] => {
+    if (!languages || isEmptyValue(languages)) return [];
+    // Handle both comma and semicolon separators
+    return languages.split(/[,;]/).map(l => l.trim()).filter(Boolean);
+  };
+
+  // Helper function to parse comma-separated values
+  const parseCommaSeparated = (value: string | undefined): string[] => {
+    if (!value || isEmptyValue(value)) return [];
+    return value.split(',').map(v => v.trim()).filter(Boolean);
+  };
+
+  // Helper function to get clean value or undefined
+  const getCleanValue = (value: string | undefined): string | undefined => {
+    if (!value || isEmptyValue(value)) return undefined;
+    return value.trim();
+  };
+
+  const convertToPolitician = (data: Partial<BulkPoliticianData>): Omit<Politician, 'id'> => {
     return {
       name: {
-        fullName: data.fullName,
-        aliases: data.aliases ? data.aliases.split(',').map(a => a.trim()).filter(Boolean) : [],
+        fullName: data.fullName || '',
+        aliases: parseCommaSeparated(data.aliases),
       },
       personalDetails: {
         dateOfBirth: normalizeDate(data.dateOfBirth),
         placeOfBirth: data.placeOfBirth || '',
         gender: data.gender || 'Unknown',
         nationality: data.nationality || '',
-        languages: data.languages ? data.languages.split(',').map(l => l.trim()).filter(Boolean) : [],
+        languages: parseLanguages(data.languages),
       },
       contact: {
         address: data.address || '',
-        email: data.email || '',
-        phone: data.phone || '',
-        website: data.website || undefined,
+        email: getCleanValue(data.email) || '',
+        phone: getCleanValue(data.phone) || '',
+        website: getCleanValue(data.website),
       },
       photoUrl: data.photoUrl || '',
       family: {
-        spouse: data.spouse || undefined,
-        children: data.children ? data.children.split(',').map(c => c.trim()).filter(Boolean) : [],
+        spouse: getCleanValue(data.spouse),
+        children: parseCommaSeparated(data.children),
       },
       education: [],
-      party: data.party,
-      constituency: data.constituency,
+      party: data.party || '',
+      constituency: isEmptyValue(data.constituency) ? 'Not specified' : data.constituency || '',
       positions: {
         current: {
-          position: data.currentPosition,
+          position: data.currentPosition || '',
           assumedOffice: normalizeAssumedOffice(data.assumedOffice),
-          committees: data.committees ? data.committees.split(',').map(c => c.trim()).filter(Boolean) : [],
+          committees: parseCommaSeparated(data.committees),
         },
         history: [],
       },
@@ -300,485 +231,356 @@ export default function BulkAddPoliticiansPage() {
       newsMentions: [],
       speeches: [],
       socialMedia: {
-        twitter: data.twitter || undefined,
-        facebook: data.facebook || undefined,
-      },
+        twitter: getCleanValue(data.twitter),
+        facebook: getCleanValue(data.facebook)
+      }
     };
   };
 
-  const handleBulkSubmit = async (data: BulkPoliticianData[]) => {
-    setSubmitting(true);
-    setError(null);
-    setSuccess(null);
-    setProgress({ current: 0, total: data.length });
-
+  const handlePreview = () => {
     try {
-      const validationErrors = validateData(data);
-      if (validationErrors.length > 0) {
-        setError(`Validation errors:\n${validationErrors.join('\n')}`);
-        return;
-      }
-
-      let successCount = 0;
-      let errorCount = 0;
-
-      for (let i = 0; i < data.length; i++) {
-        const entry = data[i];
-        setProgress({ current: i + 1, total: data.length });
-        
-        try {
-          const politician = convertToPolitician(entry);
-          await PoliticianService.createPolitician(politician);
-          successCount++;
-        } catch (err) {
-          console.error(`Error creating politician ${entry.fullName}:`, err);
-          errorCount++;
-        }
-      }
-
-      if (successCount > 0) {
-        setSuccess(`Successfully created ${successCount} politician(s)${errorCount > 0 ? `, ${errorCount} failed` : ''}`);
-        setTimeout(() => {
-          router.push('/admin/politicians');
-        }, 2000);
-      } else {
-        setError('Failed to create any politicians. Please check your data and try again.');
-      }
-    } catch (err: any) {
-      setError(err?.message || 'Failed to process bulk creation');
-    } finally {
-      setSubmitting(false);
-      setProgress({ current: 0, total: 0 });
-    }
-  };
-
-  const handleCSVSubmit = () => {
-    if (!csvData.trim()) {
-      setError('Please upload a CSV file first');
-      return;
-    }
-
-    const parsedData = parseCSV(csvData);
-    const duplicates = checkForDuplicates(parsedData);
-    setDuplicateCheckResults(duplicates);
-    
-    // Check if there are any duplicates
-    const hasDuplicates = Array.from(duplicates.values()).some(result => result.isDuplicate);
-    
-    if (hasDuplicates) {
-      setShowDuplicateOptions(true);
-      setError('Duplicates found! Please review and choose actions for each duplicate below.');
-    } else {
-      handleBulkSubmit(parsedData);
-    }
-  };
-
-  const handleManualSubmit = () => {
-    const validEntries = manualEntries.filter(entry => 
-      entry.fullName.trim() && entry.party.trim() && entry.constituency.trim() && entry.currentPosition.trim()
-    );
-    
-    if (validEntries.length === 0) {
-      setError('Please fill in at least one valid entry');
-      return;
-    }
-
-    const duplicates = checkForDuplicates(validEntries);
-    setDuplicateCheckResults(duplicates);
-    
-    // Check if there are any duplicates
-    const hasDuplicates = Array.from(duplicates.values()).some(result => result.isDuplicate);
-    
-    if (hasDuplicates) {
-      setShowDuplicateOptions(true);
-      setError('Duplicates found! Please review and choose actions for each duplicate below.');
-    } else {
-      handleBulkSubmit(validEntries);
-    }
-  };
-
-  // Handle final submission with duplicate actions
-  const handleFinalSubmit = async (data: BulkPoliticianData[]) => {
-    setSubmitting(true);
-    setError(null);
-    setSuccess(null);
-    setProgress({ current: 0, total: data.length });
-
-    try {
-      const validationErrors = validateData(data);
-      if (validationErrors.length > 0) {
-        setError(`Validation errors:\n${validationErrors.join('\n')}`);
-        return;
-      }
-
-      let successCount = 0;
-      let errorCount = 0;
-      let skippedCount = 0;
-      let updatedCount = 0;
-
-      for (let i = 0; i < data.length; i++) {
-        const entry = data[i];
-        setProgress({ current: i + 1, total: data.length });
-        
-        const duplicateResult = duplicateCheckResults.get(entry.fullName);
-        
-        try {
-          if (duplicateResult?.action === 'skip') {
-            skippedCount++;
-            continue;
-          } else if (duplicateResult?.action === 'update' && duplicateResult.existingPolitician) {
-            // Update existing politician
-            const politician = convertToPolitician(entry);
-            await PoliticianService.updatePolitician(duplicateResult.existingPolitician.id, politician);
-            updatedCount++;
-          } else {
-            // Create new politician
-            const politician = convertToPolitician(entry);
-            await PoliticianService.createPolitician(politician);
-            successCount++;
-          }
-        } catch (err) {
-          console.error(`Error processing politician ${entry.fullName}:`, err);
-          errorCount++;
-        }
-      }
-
-      const messages = [];
-      if (successCount > 0) messages.push(`Created ${successCount} new politician(s)`);
-      if (updatedCount > 0) messages.push(`Updated ${updatedCount} existing politician(s)`);
-      if (skippedCount > 0) messages.push(`Skipped ${skippedCount} duplicate(s)`);
-      if (errorCount > 0) messages.push(`${errorCount} failed`);
-
-      setSuccess(messages.join(', '));
-      setShowDuplicateOptions(false);
+      let parsed: Partial<BulkPoliticianData>[];
       
-      setTimeout(() => {
-        router.push('/admin/politicians');
-      }, 2000);
-    } catch (err: any) {
-      setError(err?.message || 'Failed to process bulk creation');
-    } finally {
-      setSubmitting(false);
-      setProgress({ current: 0, total: 0 });
+      // Try to parse as JSON first, then CSV
+      try {
+        parsed = parseJSON(csvData);
+      } catch {
+        parsed = parseCSV(csvData);
+      }
+      
+      const validated = validateData(parsed);
+      setPreviewData(parsed);
+      setResults(validated);
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Invalid data format',
+        variant: 'destructive',
+      });
     }
   };
+
+  const handleImport = async () => {
+    if (results.some(r => !r.success)) {
+      toast({
+        title: 'Validation Error',
+        description: 'Please fix validation errors before importing',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setProgress(0);
+      
+      const validPoliticians = results
+        .filter(r => r.success)
+        .map(r => convertToPolitician(r.data as Partial<BulkPoliticianData>));
+
+      // Import in batches to avoid overwhelming the database
+      const batchSize = 5;
+      const batches = [];
+      
+      for (let i = 0; i < validPoliticians.length; i += batchSize) {
+        batches.push(validPoliticians.slice(i, i + batchSize));
+      }
+
+      let imported = 0;
+      for (const batch of batches) {
+        for (const politician of batch) {
+          await PoliticianService.createPolitician(politician);
+          imported++;
+          setProgress((imported / validPoliticians.length) * 100);
+        }
+      }
+
+      toast({
+        title: 'Success',
+        description: `Successfully imported ${imported} politicians`,
+      });
+
+          router.push('/admin/politicians');
+    } catch (error) {
+      console.error('Error importing politicians:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to import politicians',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const downloadCSVTemplate = () => {
+    const blob = new Blob([csvTemplate], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'politicians_template.csv';
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
+  const downloadJSONTemplate = () => {
+    const jsonString = JSON.stringify(jsonTemplate, null, 2);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'politicians_template.json';
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Check if it's a CSV or JSON file
+    const isCSV = file.name.toLowerCase().endsWith('.csv');
+    const isJSON = file.name.toLowerCase().endsWith('.json');
+    
+    if (!isCSV && !isJSON) {
+      toast({
+        title: 'Invalid File Type',
+        description: 'Please upload a CSV or JSON file',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setFileName(file.name);
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const content = e.target?.result as string;
+      setCsvData(content);
+      
+      // Auto-preview after file upload
+      try {
+        let parsed: Partial<BulkPoliticianData>[];
+        
+        if (isCSV) {
+          parsed = parseCSV(content);
+          } else {
+          parsed = parseJSON(content);
+        }
+        
+        const validated = validateData(parsed);
+        setPreviewData(parsed);
+        setResults(validated);
+        
+        toast({
+          title: 'File Uploaded',
+          description: `Successfully loaded ${parsed.length} politicians from ${file.name}`,
+        });
+      } catch (error) {
+        const fileType = isCSV ? 'CSV' : 'JSON';
+        toast({
+          title: 'Error',
+          description: `Invalid ${fileType} format in uploaded file: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          variant: 'destructive',
+        });
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const successCount = results.filter(r => r.success).length;
+  const errorCount = results.filter(r => !r.success).length;
 
   return (
-    <div className="w-full px-6 py-8 h-full overflow-y-auto">
-      <div className="mb-6">
-        <Link href="/admin/politicians">
-          <Button variant="outline" className="mb-4">
-            ← Back to Politicians
+    <div className="container mx-auto p-6">
+      <div className="flex items-center space-x-4 mb-6">
+        <Button
+          variant="ghost"
+          onClick={() => router.back()}
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back
           </Button>
-        </Link>
+        <div>
         <h1 className="text-3xl font-bold">Bulk Add Politicians</h1>
-        <p className="text-muted-foreground">Add multiple politicians at once using CSV upload or manual entry</p>
+          <p className="text-muted-foreground">
+            Import multiple politicians from CSV or JSON data
+          </p>
+        </div>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="csv">CSV Upload</TabsTrigger>
-          <TabsTrigger value="manual">Manual Entry</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="csv" className="space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Data Input */}
           <Card>
             <CardHeader>
-              <CardTitle>CSV Upload</CardTitle>
+            <CardTitle>Import Data</CardTitle>
+            <CardDescription>
+              Upload a CSV or JSON file, or paste your data below
+            </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-center gap-4">
-                <Button variant="outline" onClick={downloadTemplate}>
+            <div className="grid grid-cols-1 gap-2">
+              <div className="flex space-x-2">
+                <Button
+                  variant="outline"
+                  onClick={downloadCSVTemplate}
+                  className="flex-1"
+                >
                   <Download className="w-4 h-4 mr-2" />
-                  Download Template
+                  Download CSV Template
                 </Button>
-                <p className="text-sm text-muted-foreground">
-                  Download the CSV template and fill it with your data
-                </p>
-              </div>
-              
-              <div>
-                <Label htmlFor="csvFile">Upload CSV File</Label>
-                <Input
-                  id="csvFile"
-                  type="file"
-                  accept=".csv"
-                  onChange={handleFileUpload}
-                  className="mt-2"
-                />
-              </div>
-
-              {csvData && (
-                <div>
-                  <Label>Preview (first 3 rows)</Label>
-                  <Textarea
-                    value={csvData.split('\n').slice(0, 4).join('\n')}
-                    readOnly
-                    rows={4}
-                    className="mt-2 font-mono text-sm"
-                  />
-                </div>
-              )}
-
-              <Button 
-                onClick={handleCSVSubmit} 
-                disabled={submitting || !csvData}
-                className="w-full"
-              >
-                {submitting ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Processing CSV...
-                  </>
-                ) : (
-                  <>
-                    <Upload className="w-4 h-4 mr-2" />
-                    Process CSV
-                  </>
-                )}
-              </Button>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="manual" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>Manual Entry</CardTitle>
-                <Button onClick={addManualEntry} variant="outline" size="sm">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Entry
+                <Button
+                  variant="outline"
+                  onClick={downloadJSONTemplate}
+                  className="flex-1"
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Download JSON Template
                 </Button>
               </div>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {manualEntries.map((entry, index) => (
-                <Card key={index} className="p-4">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-semibold">Entry {index + 1}</h3>
-                    {manualEntries.length > 1 && (
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => removeManualEntry(index)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    )}
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor={`fullName-${index}`}>Full Name *</Label>
-                      <Input
-                        id={`fullName-${index}`}
-                        value={entry.fullName}
-                        onChange={(e) => updateManualEntry(index, 'fullName', e.target.value)}
-                        placeholder="Enter full name"
-                        required
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor={`party-${index}`}>Party *</Label>
-                      <Select value={entry.party} onValueChange={(value) => updateManualEntry(index, 'party', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select party" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Democratic Party">Democratic Party</SelectItem>
-                          <SelectItem value="Republican Party">Republican Party</SelectItem>
-                          <SelectItem value="Independent">Independent</SelectItem>
-                          <SelectItem value="Green Party">Green Party</SelectItem>
-                          <SelectItem value="Libertarian Party">Libertarian Party</SelectItem>
-                          <SelectItem value="Conservative Party">Conservative Party</SelectItem>
-                          <SelectItem value="Labour Party">Labour Party</SelectItem>
-                          <SelectItem value="Liberal Democrats">Liberal Democrats</SelectItem>
-                          <SelectItem value="Other">Other</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor={`constituency-${index}`}>Constituency *</Label>
-                      <Input
-                        id={`constituency-${index}`}
-                        value={entry.constituency}
-                        onChange={(e) => updateManualEntry(index, 'constituency', e.target.value)}
-                        placeholder="Enter constituency"
-                        required
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor={`currentPosition-${index}`}>Current Position *</Label>
-                      <Input
-                        id={`currentPosition-${index}`}
-                        value={entry.currentPosition}
-                        onChange={(e) => updateManualEntry(index, 'currentPosition', e.target.value)}
-                        placeholder="Enter position"
-                        required
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor={`email-${index}`}>Email</Label>
-                      <Input
-                        id={`email-${index}`}
-                        type="email"
-                        value={entry.email}
-                        onChange={(e) => updateManualEntry(index, 'email', e.target.value)}
-                        placeholder="email@example.com"
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor={`phone-${index}`}>Phone</Label>
-                      <Input
-                        id={`phone-${index}`}
-                        type="tel"
-                        value={entry.phone}
-                        onChange={(e) => updateManualEntry(index, 'phone', e.target.value)}
-                        placeholder="+1 (555) 123-4567"
-                      />
-                    </div>
-                  </div>
-                </Card>
-              ))}
-              
-              <Button 
-                onClick={handleManualSubmit} 
-                disabled={submitting}
-                className="w-full"
-              >
-                {submitting ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Creating Politicians...
-                  </>
-                ) : (
-                  <>
-                    <Plus className="w-4 h-4 mr-2" />
-                    Create All Politicians
-                  </>
-                )}
-              </Button>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-
-      {/* Duplicate Options */}
-      {showDuplicateOptions && (
-        <Card className="mt-6">
-          <CardHeader>
-            <CardTitle className="text-orange-600">⚠️ Duplicate Politicians Found</CardTitle>
-            <p className="text-sm text-muted-foreground">
-              The following politicians already exist in the database. Choose an action for each:
-            </p>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {Array.from(duplicateCheckResults.entries()).map(([fullName, result]) => {
-              if (!result.isDuplicate) return null;
-              
-              return (
-                <div key={fullName} className="p-4 border border-orange-200 rounded-lg bg-orange-50">
-                  <div className="flex items-center justify-between mb-3">
-                    <div>
-                      <h4 className="font-semibold text-orange-800">{fullName}</h4>
-                      <p className="text-sm text-orange-600">
-                        Existing: {result.existingPolitician?.party} - {result.existingPolitician?.constituency}
-                      </p>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        variant={result.action === 'skip' ? 'default' : 'outline'}
-                        onClick={() => updateDuplicateAction(fullName, 'skip')}
-                      >
-                        Skip
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant={result.action === 'update' ? 'default' : 'outline'}
-                        onClick={() => updateDuplicateAction(fullName, 'update')}
-                      >
-                        Update
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant={result.action === 'create' ? 'default' : 'outline'}
-                        onClick={() => updateDuplicateAction(fullName, 'create')}
-                      >
-                        Create New
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-            
-            <div className="flex gap-4 pt-4">
-              <Button
-                onClick={() => {
-                  const data = activeTab === 'csv' ? parseCSV(csvData) : manualEntries.filter(entry => 
-                    entry.fullName.trim() && entry.party.trim() && entry.constituency.trim() && entry.currentPosition.trim()
-                  );
-                  handleFinalSubmit(data);
-                }}
-                disabled={submitting}
-                className="flex-1"
-              >
-                {submitting ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Processing...
-                  </>
-                ) : (
-                  'Process with Selected Actions'
-                )}
-              </Button>
               <Button
                 variant="outline"
-                onClick={() => {
-                  setShowDuplicateOptions(false);
-                  setError(null);
-                }}
+                onClick={handlePreview}
+                disabled={!csvData.trim()}
+                className="w-full"
               >
-                Cancel
+                <FileText className="w-4 h-4 mr-2" />
+                Preview
               </Button>
+              </div>
+              
+            {/* File Upload Section */}
+            <div className="space-y-2">
+              <Label htmlFor="fileUpload">Upload CSV or JSON File</Label>
+              <div className="flex items-center space-x-2">
+                <input
+                  id="fileUpload"
+                  type="file"
+                  accept=".csv,.json"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                />
+              <Button 
+                  variant="outline"
+                  onClick={() => document.getElementById('fileUpload')?.click()}
+                  className="flex-1"
+                >
+                  <FileUp className="w-4 h-4 mr-2" />
+                  Choose CSV/JSON File
+                </Button>
+                {fileName && (
+                  <span className="text-sm text-muted-foreground">
+                    {fileName}
+                  </span>
+                )}
+              </div>
+                    </div>
+                    
+                    <div>
+              <Label htmlFor="csvData">CSV or JSON Data</Label>
+              <Textarea
+                id="csvData"
+                value={csvData}
+                onChange={(e) => setCsvData(e.target.value)}
+                placeholder="Paste your CSV or JSON data here..."
+                rows={15}
+                className="font-mono text-sm"
+                      />
+                    </div>
+            </CardContent>
+          </Card>
+
+        {/* Preview and Results */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Preview & Validation</CardTitle>
+            <CardDescription>
+              Review your data before importing
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {results.length > 0 && (
+              <>
+                <div className="grid grid-cols-2 gap-4">
+                  <Alert>
+                    <CheckCircle className="h-4 w-4" />
+                    <AlertDescription>
+                      {successCount} valid entries
+                    </AlertDescription>
+                  </Alert>
+                  {errorCount > 0 && (
+                    <Alert variant="destructive">
+                      <XCircle className="h-4 w-4" />
+                      <AlertDescription>
+                        {errorCount} errors
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                </div>
+
+                {errorCount > 0 && (
+                  <div className="space-y-2">
+                    <Label>Validation Errors</Label>
+                    <div className="max-h-32 overflow-y-auto space-y-1">
+                      {results
+                        .filter(r => !r.success)
+                        .map((result, index) => (
+                          <Alert key={index} variant="destructive" className="py-2">
+                            <AlertDescription className="text-xs">
+                              {result.message}
+                            </AlertDescription>
+                          </Alert>
+                        ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="space-y-2">
+                  <Label>Preview (first 3 entries)</Label>
+                  <div className="max-h-48 overflow-y-auto space-y-2">
+                    {previewData.slice(0, 3).map((politician, index) => (
+                      <div key={index} className="p-3 border rounded-lg text-sm">
+                        <div className="font-semibold">{politician.fullName}</div>
+                        <div className="text-muted-foreground">
+                          {politician.party} • {politician.currentPosition}
+                        </div>
+                        <div className="text-muted-foreground">
+                          {politician.constituency}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {loading && (
+                  <div className="space-y-2">
+                    <Label>Import Progress</Label>
+                    <Progress value={progress} className="w-full" />
+                    <p className="text-sm text-muted-foreground">
+                      {Math.round(progress)}% complete
+                    </p>
+                  </div>
+                )}
+
+              <Button
+                  onClick={handleImport}
+                  disabled={loading || errorCount > 0 || successCount === 0}
+                  className="w-full"
+                >
+                  <Upload className="w-4 h-4 mr-2" />
+                  {loading ? 'Importing...' : `Import ${successCount} Politicians`}
+              </Button>
+              </>
+            )}
+
+            {results.length === 0 && (
+              <div className="text-center py-8 text-muted-foreground">
+                <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <p>Upload or paste your data to see a preview</p>
             </div>
+            )}
           </CardContent>
         </Card>
-      )}
-
-      {submitting && progress.total > 0 && (
-        <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-md">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-blue-600 font-medium">Processing politicians...</p>
-            <span className="text-blue-600 text-sm">{progress.current} / {progress.total}</span>
-          </div>
-          <Progress value={(progress.current / progress.total) * 100} className="w-full" />
-        </div>
-      )}
-
-      {error && (
-        <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-md">
-          <p className="text-red-600 whitespace-pre-line">{error}</p>
-        </div>
-      )}
-
-      {success && (
-        <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-md">
-          <p className="text-green-600">{success}</p>
-        </div>
-      )}
-
-      <div className="mt-6 text-sm text-muted-foreground">
-        <p><strong>Required fields:</strong> Full Name, Party, Constituency, Current Position</p>
-        <p><strong>CSV Format:</strong> Download the template and fill in your data, then upload</p>
-        <p><strong>Manual Entry:</strong> Add entries one by one or use the "Add Entry" button</p>
       </div>
     </div>
   );
