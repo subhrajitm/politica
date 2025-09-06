@@ -129,28 +129,42 @@ export default function Home() {
     <div className="flex flex-col min-h-full">
       <section className="bg-gradient-to-br from-primary via-purple-600 to-indigo-600 text-primary-foreground relative">
         <div className="absolute inset-0 bg-repeat opacity-20 mix-blend-screen"></div>
-        <div className="container mx-auto text-center py-16 lg:py-24 px-4 relative">
+        
+        {/* Animated Background Shapes */}
+        <div className="absolute inset-0 overflow-hidden">
+          {/* Floating Circles */}
+          <div className="absolute top-20 left-10 w-20 h-20 bg-white/10 rounded-full animate-float"></div>
+          <div className="absolute top-40 right-20 w-16 h-16 bg-white/5 rounded-full animate-drift" style={{animationDelay: '1s'}}></div>
+          <div className="absolute bottom-40 left-20 w-24 h-24 bg-white/8 rounded-full animate-glow" style={{animationDelay: '2s'}}></div>
+          <div className="absolute bottom-20 right-10 w-12 h-12 bg-white/6 rounded-full animate-float" style={{animationDelay: '0.5s'}}></div>
+          
+          {/* Floating Squares */}
+          <div className="absolute top-60 left-1/4 w-8 h-8 bg-white/10 rotate-45 animate-drift" style={{animationDelay: '1.5s'}}></div>
+          <div className="absolute top-80 right-1/3 w-6 h-6 bg-white/8 rotate-45 animate-glow" style={{animationDelay: '2.5s'}}></div>
+          <div className="absolute bottom-60 left-1/3 w-10 h-10 bg-white/6 rotate-45 animate-float" style={{animationDelay: '0.8s'}}></div>
+          
+          {/* Floating Triangles */}
+          <div className="absolute top-32 right-1/4 w-0 h-0 border-l-[12px] border-r-[12px] border-b-[20px] border-l-transparent border-r-transparent border-b-white/10 animate-drift" style={{animationDelay: '3s'}}></div>
+          <div className="absolute bottom-32 left-1/4 w-0 h-0 border-l-[8px] border-r-[8px] border-b-[16px] border-l-transparent border-r-transparent border-b-white/8 animate-glow" style={{animationDelay: '1.2s'}}></div>
+          
+          {/* Moving Lines */}
+          <div className="absolute top-1/2 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent animate-slide" style={{animationDelay: '2s'}}></div>
+          <div className="absolute top-1/3 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/15 to-transparent animate-slide" style={{animationDelay: '4s'}}></div>
+          
+          {/* Additional Floating Elements */}
+          <div className="absolute top-1/4 left-1/2 w-4 h-4 bg-white/12 rounded-full animate-float" style={{animationDelay: '3.5s'}}></div>
+          <div className="absolute bottom-1/4 right-1/2 w-6 h-6 bg-white/8 rotate-45 animate-drift" style={{animationDelay: '1.8s'}}></div>
+          <div className="absolute top-3/4 left-1/3 w-3 h-3 bg-white/15 rounded-full animate-glow" style={{animationDelay: '2.8s'}}></div>
+        </div>
+        <div className="container mx-auto text-center py-16 lg:py-24 pb-32 px-4 relative z-10">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
           Who Speaks for You?
           </h1>
           <p className="text-lg max-w-3xl mx-auto mb-6">
           Navigate our all-inclusive directory to find the leaders responsible for representing you, wherever you are.
           </p>
-          <div className="flex justify-center mb-6 -space-x-4">
-            {politicians.slice(0, 5).map((p) => (
-              <ImageWithPlaceholder
-                key={p.id}
-                src={p.photoUrl}
-                alt={p.name.fullName}
-                width={40}
-                height={40}
-                className="rounded-full border-2 border-primary-foreground/80"
-                placeholder="user"
-              />
-            ))}
-          </div>
           <div
-            className="max-w-2xl mx-auto relative"
+            className="max-w-2xl mx-auto relative z-30 mb-8"
             ref={searchContainerRef}
           >
             <div className="bg-white rounded-lg p-2 shadow-lg">
@@ -175,23 +189,15 @@ export default function Home() {
               </form>
             </div>
             {showSuggestions && suggestions.length > 0 && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-lg z-10 text-left overflow-hidden">
+              <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-xl z-[9999] text-left overflow-hidden border border-gray-200">
                 <ul>
                   {suggestions.map((p) => (
                     <li key={p.id}>
                       <Link
                         href={`/politicians/${p.id}`}
-                        className="flex items-center gap-4 p-3 hover:bg-gray-100"
+                        className="block p-3 hover:bg-gray-100"
                         onClick={() => setShowSuggestions(false)}
                       >
-                        <ImageWithPlaceholder
-                          src={p.photoUrl}
-                          alt={p.name.fullName}
-                          width={40}
-                          height={40}
-                          className="rounded-full"
-                          placeholder="user"
-                        />
                         <div>
                           <p className="font-semibold text-gray-800">
                             {p.name.fullName}
