@@ -27,9 +27,22 @@ export class PoliticianService {
 
       if (error) throw error
 
+      // Deduplicate politicians by name (case-insensitive)
+      const uniquePoliticians = new Map<string, any>()
+      
+      politicians.forEach(politician => {
+        const normalizedName = politician.full_name.toLowerCase().trim()
+        
+        // If we haven't seen this name before, or if this entry has more complete data
+        if (!uniquePoliticians.has(normalizedName) || 
+            this.isMoreCompletePolitician(politician, uniquePoliticians.get(normalizedName))) {
+          uniquePoliticians.set(normalizedName, politician)
+        }
+      })
+
       // Return basic politician data without all the detailed relationships
       // This prevents the N+1 query problem that was causing infinite loading
-      return politicians.map(politician => this.mapToPolitician(politician))
+      return Array.from(uniquePoliticians.values()).map(politician => this.mapToPolitician(politician))
     } catch (error) {
       console.error('Error fetching politicians:', error)
       throw error
@@ -46,8 +59,21 @@ export class PoliticianService {
 
       if (error) throw error
 
+      // Deduplicate politicians by name (case-insensitive)
+      const uniquePoliticians = new Map<string, any>()
+      
+      politicians.forEach(politician => {
+        const normalizedName = politician.full_name.toLowerCase().trim()
+        
+        // If we haven't seen this name before, or if this entry has more complete data
+        if (!uniquePoliticians.has(normalizedName) || 
+            this.isMoreCompletePolitician(politician, uniquePoliticians.get(normalizedName))) {
+          uniquePoliticians.set(normalizedName, politician)
+        }
+      })
+
       const politiciansWithDetails = await Promise.all(
-        politicians.map(async (politician) => {
+        Array.from(uniquePoliticians.values()).map(async (politician) => {
           return await this.getPoliticianWithDetails(politician.id)
         })
       )
@@ -497,8 +523,21 @@ export class PoliticianService {
 
       if (error) throw error
 
+      // Deduplicate politicians by name (case-insensitive)
+      const uniquePoliticians = new Map<string, any>()
+      
+      data.forEach(politician => {
+        const normalizedName = politician.full_name.toLowerCase().trim()
+        
+        // If we haven't seen this name before, or if this entry has more complete data
+        if (!uniquePoliticians.has(normalizedName) || 
+            this.isMoreCompletePolitician(politician, uniquePoliticians.get(normalizedName))) {
+          uniquePoliticians.set(normalizedName, politician)
+        }
+      })
+
       const politiciansWithDetails = await Promise.all(
-        data.map(async (politician) => {
+        Array.from(uniquePoliticians.values()).map(async (politician) => {
           return await this.getPoliticianWithDetails(politician.id)
         })
       )
@@ -521,8 +560,21 @@ export class PoliticianService {
 
       if (error) throw error
 
+      // Deduplicate politicians by name (case-insensitive)
+      const uniquePoliticians = new Map<string, any>()
+      
+      data.forEach(politician => {
+        const normalizedName = politician.full_name.toLowerCase().trim()
+        
+        // If we haven't seen this name before, or if this entry has more complete data
+        if (!uniquePoliticians.has(normalizedName) || 
+            this.isMoreCompletePolitician(politician, uniquePoliticians.get(normalizedName))) {
+          uniquePoliticians.set(normalizedName, politician)
+        }
+      })
+
       const politiciansWithDetails = await Promise.all(
-        data.map(async (politician) => {
+        Array.from(uniquePoliticians.values()).map(async (politician) => {
           return await this.getPoliticianWithDetails(politician.id)
         })
       )
@@ -532,6 +584,39 @@ export class PoliticianService {
       console.error('Error fetching politicians by party:', error)
       throw error
     }
+  }
+
+  // Helper method to determine which politician entry has more complete data
+  private static isMoreCompletePolitician(newPolitician: any, existingPolitician: any): boolean {
+    // Count non-null/non-empty fields for each politician
+    const getCompletenessScore = (politician: any) => {
+      let score = 0
+      const fields = [
+        'photo_url', 'email', 'phone', 'website', 'address', 
+        'date_of_birth', 'place_of_birth', 'spouse', 'children',
+        'current_position', 'assumed_office', 'party', 'constituency'
+      ]
+      
+      fields.forEach(field => {
+        if (politician[field] && politician[field] !== '' && politician[field] !== '/user.png') {
+          score++
+        }
+      })
+      
+      return score
+    }
+    
+    const newScore = getCompletenessScore(newPolitician)
+    const existingScore = getCompletenessScore(existingPolitician)
+    
+    // If scores are equal, prefer the one with a more recent created_at or updated_at
+    if (newScore === existingScore) {
+      const newDate = new Date(newPolitician.updated_at || newPolitician.created_at || 0)
+      const existingDate = new Date(existingPolitician.updated_at || existingPolitician.created_at || 0)
+      return newDate > existingDate
+    }
+    
+    return newScore > existingScore
   }
 
   // Map database row to Politician object (lightweight version)

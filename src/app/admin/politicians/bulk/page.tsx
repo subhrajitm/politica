@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { PoliticianService } from '@/lib/politicianService';
 import type { Politician } from '@/lib/types';
@@ -38,6 +38,13 @@ interface BulkPoliticianData {
   children: string;
   twitter: string;
   facebook: string;
+  aliases?: string;
+}
+
+interface DuplicateCheckResult {
+  isDuplicate: boolean;
+  existingPolitician?: Politician;
+  action: 'skip' | 'update' | 'create';
 }
 
 export default function BulkAddPoliticiansPage() {
@@ -47,6 +54,9 @@ export default function BulkAddPoliticiansPage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [progress, setProgress] = useState({ current: 0, total: 0 });
+  const [existingPoliticians, setExistingPoliticians] = useState<Politician[]>([]);
+  const [duplicateCheckResults, setDuplicateCheckResults] = useState<Map<string, DuplicateCheckResult>>(new Map());
+  const [showDuplicateOptions, setShowDuplicateOptions] = useState(false);
   
   // CSV upload state
   const [csvData, setCsvData] = useState<string>('');
@@ -77,6 +87,58 @@ export default function BulkAddPoliticiansPage() {
       facebook: '',
     }
   ]);
+
+  // Load existing politicians on component mount
+  useEffect(() => {
+    const loadExistingPoliticians = async () => {
+      try {
+        const politicians = await PoliticianService.getAllPoliticians();
+        setExistingPoliticians(politicians);
+      } catch (error) {
+        console.error('Error loading existing politicians:', error);
+      }
+    };
+    
+    loadExistingPoliticians();
+  }, []);
+
+  // Check for duplicates in the data
+  const checkForDuplicates = (data: BulkPoliticianData[]): Map<string, DuplicateCheckResult> => {
+    const results = new Map<string, DuplicateCheckResult>();
+    
+    data.forEach(entry => {
+      const normalizedName = entry.fullName.toLowerCase().trim();
+      const existingPolitician = existingPoliticians.find(p => 
+        p.name.fullName.toLowerCase().trim() === normalizedName
+      );
+      
+      if (existingPolitician) {
+        results.set(entry.fullName, {
+          isDuplicate: true,
+          existingPolitician,
+          action: 'skip' // Default action
+        });
+      } else {
+        results.set(entry.fullName, {
+          isDuplicate: false,
+          action: 'create'
+        });
+      }
+    });
+    
+    return results;
+  };
+
+  // Update duplicate action for a specific politician
+  const updateDuplicateAction = (fullName: string, action: 'skip' | 'update' | 'create') => {
+    const newResults = new Map(duplicateCheckResults);
+    const result = newResults.get(fullName);
+    if (result) {
+      result.action = action;
+      newResults.set(fullName, result);
+      setDuplicateCheckResults(newResults);
+    }
+  };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -225,6 +287,18 @@ export default function BulkAddPoliticiansPage() {
       electoralHistory: [],
       policyStances: [],
       votingRecords: [],
+      legislativeAchievements: [],
+      ratings: [],
+      campaignFinance: {
+        totalReceipts: '0',
+        totalDisbursements: '0',
+        cashOnHand: '0',
+        debt: '0',
+        topContributors: []
+      },
+      relationships: [],
+      newsMentions: [],
+      speeches: [],
       socialMedia: {
         twitter: data.twitter || undefined,
         facebook: data.facebook || undefined,
@@ -285,7 +359,18 @@ export default function BulkAddPoliticiansPage() {
     }
 
     const parsedData = parseCSV(csvData);
-    handleBulkSubmit(parsedData);
+    const duplicates = checkForDuplicates(parsedData);
+    setDuplicateCheckResults(duplicates);
+    
+    // Check if there are any duplicates
+    const hasDuplicates = Array.from(duplicates.values()).some(result => result.isDuplicate);
+    
+    if (hasDuplicates) {
+      setShowDuplicateOptions(true);
+      setError('Duplicates found! Please review and choose actions for each duplicate below.');
+    } else {
+      handleBulkSubmit(parsedData);
+    }
   };
 
   const handleManualSubmit = () => {
@@ -298,7 +383,84 @@ export default function BulkAddPoliticiansPage() {
       return;
     }
 
-    handleBulkSubmit(validEntries);
+    const duplicates = checkForDuplicates(validEntries);
+    setDuplicateCheckResults(duplicates);
+    
+    // Check if there are any duplicates
+    const hasDuplicates = Array.from(duplicates.values()).some(result => result.isDuplicate);
+    
+    if (hasDuplicates) {
+      setShowDuplicateOptions(true);
+      setError('Duplicates found! Please review and choose actions for each duplicate below.');
+    } else {
+      handleBulkSubmit(validEntries);
+    }
+  };
+
+  // Handle final submission with duplicate actions
+  const handleFinalSubmit = async (data: BulkPoliticianData[]) => {
+    setSubmitting(true);
+    setError(null);
+    setSuccess(null);
+    setProgress({ current: 0, total: data.length });
+
+    try {
+      const validationErrors = validateData(data);
+      if (validationErrors.length > 0) {
+        setError(`Validation errors:\n${validationErrors.join('\n')}`);
+        return;
+      }
+
+      let successCount = 0;
+      let errorCount = 0;
+      let skippedCount = 0;
+      let updatedCount = 0;
+
+      for (let i = 0; i < data.length; i++) {
+        const entry = data[i];
+        setProgress({ current: i + 1, total: data.length });
+        
+        const duplicateResult = duplicateCheckResults.get(entry.fullName);
+        
+        try {
+          if (duplicateResult?.action === 'skip') {
+            skippedCount++;
+            continue;
+          } else if (duplicateResult?.action === 'update' && duplicateResult.existingPolitician) {
+            // Update existing politician
+            const politician = convertToPolitician(entry);
+            await PoliticianService.updatePolitician(duplicateResult.existingPolitician.id, politician);
+            updatedCount++;
+          } else {
+            // Create new politician
+            const politician = convertToPolitician(entry);
+            await PoliticianService.createPolitician(politician);
+            successCount++;
+          }
+        } catch (err) {
+          console.error(`Error processing politician ${entry.fullName}:`, err);
+          errorCount++;
+        }
+      }
+
+      const messages = [];
+      if (successCount > 0) messages.push(`Created ${successCount} new politician(s)`);
+      if (updatedCount > 0) messages.push(`Updated ${updatedCount} existing politician(s)`);
+      if (skippedCount > 0) messages.push(`Skipped ${skippedCount} duplicate(s)`);
+      if (errorCount > 0) messages.push(`${errorCount} failed`);
+
+      setSuccess(messages.join(', '));
+      setShowDuplicateOptions(false);
+      
+      setTimeout(() => {
+        router.push('/admin/politicians');
+      }, 2000);
+    } catch (err: any) {
+      setError(err?.message || 'Failed to process bulk creation');
+    } finally {
+      setSubmitting(false);
+      setProgress({ current: 0, total: 0 });
+    }
   };
 
   return (
@@ -506,6 +668,90 @@ export default function BulkAddPoliticiansPage() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Duplicate Options */}
+      {showDuplicateOptions && (
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle className="text-orange-600">⚠️ Duplicate Politicians Found</CardTitle>
+            <p className="text-sm text-muted-foreground">
+              The following politicians already exist in the database. Choose an action for each:
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {Array.from(duplicateCheckResults.entries()).map(([fullName, result]) => {
+              if (!result.isDuplicate) return null;
+              
+              return (
+                <div key={fullName} className="p-4 border border-orange-200 rounded-lg bg-orange-50">
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <h4 className="font-semibold text-orange-800">{fullName}</h4>
+                      <p className="text-sm text-orange-600">
+                        Existing: {result.existingPolitician?.party} - {result.existingPolitician?.constituency}
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant={result.action === 'skip' ? 'default' : 'outline'}
+                        onClick={() => updateDuplicateAction(fullName, 'skip')}
+                      >
+                        Skip
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant={result.action === 'update' ? 'default' : 'outline'}
+                        onClick={() => updateDuplicateAction(fullName, 'update')}
+                      >
+                        Update
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant={result.action === 'create' ? 'default' : 'outline'}
+                        onClick={() => updateDuplicateAction(fullName, 'create')}
+                      >
+                        Create New
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+            
+            <div className="flex gap-4 pt-4">
+              <Button
+                onClick={() => {
+                  const data = activeTab === 'csv' ? parseCSV(csvData) : manualEntries.filter(entry => 
+                    entry.fullName.trim() && entry.party.trim() && entry.constituency.trim() && entry.currentPosition.trim()
+                  );
+                  handleFinalSubmit(data);
+                }}
+                disabled={submitting}
+                className="flex-1"
+              >
+                {submitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  'Process with Selected Actions'
+                )}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowDuplicateOptions(false);
+                  setError(null);
+                }}
+              >
+                Cancel
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {submitting && progress.total > 0 && (
         <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-md">
