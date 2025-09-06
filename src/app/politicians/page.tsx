@@ -5,7 +5,8 @@ import { useState, useMemo, Suspense, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { differenceInYears } from 'date-fns';
 import { PoliticianService } from '@/lib/politicianService';
-import type { Politician } from '@/lib/types';
+import { PoliticalPartyService } from '@/lib/politicalPartyService';
+import type { Politician, PoliticalParty } from '@/lib/types';
 import PoliticianCard from '@/components/PoliticianCard';
 import { Input } from '@/components/ui/input';
 import {
@@ -31,6 +32,7 @@ function PoliticiansPageContent() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [ageRange, setAgeRange] = useState<[number, number]>([25, 100]);
   const [politicians, setPoliticians] = useState<Politician[]>([]);
+  const [parties, setParties] = useState<PoliticalParty[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -41,29 +43,36 @@ function PoliticiansPageContent() {
     }
   }, [searchParams]);
 
-  // Load politicians from Supabase
+  // Load politicians and parties from Supabase
   useEffect(() => {
-    async function loadPoliticians() {
+    async function loadData() {
       try {
         setLoading(true);
         setError(null);
-        const data = await PoliticianService.getAllPoliticians();
-        setPoliticians(data);
+        const [politiciansData, partiesData] = await Promise.all([
+          PoliticianService.getAllPoliticians(),
+          PoliticalPartyService.getAllParties()
+        ]);
+        setPoliticians(politiciansData);
+        setParties(partiesData);
       } catch (err) {
-        console.error('Error loading politicians:', err);
-        setError('Failed to load politicians. Please try again later.');
+        console.error('Error loading data:', err);
+        setError('Failed to load data. Please try again later.');
       } finally {
         setLoading(false);
       }
     }
 
-    loadPoliticians();
+    loadData();
   }, []);
 
-  const parties = useMemo(() => {
-    const allParties = politicians.map((p) => p.party);
-    return [...Array.from(new Set(allParties))].sort();
-  }, [politicians]);
+  const availableParties = useMemo(() => {
+    // Get unique parties from both database and politician data
+    const dbParties = parties.map(p => p.name);
+    const politicianParties = politicians.map(p => p.party);
+    const allParties = [...new Set([...dbParties, ...politicianParties])];
+    return allParties.sort();
+  }, [parties, politicians]);
 
   const states = useMemo(() => {
     const allStates = politicians
@@ -155,7 +164,7 @@ function PoliticiansPageContent() {
            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-2 md:col-span-2">
             <MultiSelectFilter
               title="Party"
-              options={parties.map(p => ({ label: p, value: p }))}
+              options={availableParties.map(p => ({ label: p, value: p }))}
               selectedValues={partyFilter}
               onValueChange={setPartyFilter}
             />

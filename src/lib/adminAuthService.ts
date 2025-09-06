@@ -187,34 +187,28 @@ export class AdminAuthService {
         return null;
       }
       
-      // First try to get the session
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      // Get session and user in parallel
+      const [sessionResult, userResult] = await Promise.all([
+        supabase.auth.getSession(),
+        supabase.auth.getUser()
+      ]);
       
-      if (sessionError) {
-        console.error('AdminAuthService: Error getting session:', sessionError);
+      const { data: { session }, error: sessionError } = sessionResult;
+      const { data: { user }, error: userError } = userResult;
+      
+      if (sessionError || userError) {
+        console.error('AdminAuthService: Error getting session/user:', sessionError || userError);
         return null;
       }
       
-      if (!session) {
-        console.log('AdminAuthService: No session found');
-        return null;
-      }
-      
-      const { data: { user }, error } = await supabase.auth.getUser();
-      
-      if (error) {
-        console.error('AdminAuthService: Error getting user:', error);
-        return null;
-      }
-      
-      if (!user) {
-        console.log('AdminAuthService: No user found');
+      if (!session || !user) {
+        console.log('AdminAuthService: No session or user found');
         return null;
       }
 
       console.log('AdminAuthService: User found:', user.email);
 
-      // Check if user is an admin
+      // Check if user is an admin (optimized check)
       const isAdmin = await this.isUserAdmin(user);
       if (!isAdmin) {
         console.log('AdminAuthService: User is not an admin');
@@ -223,34 +217,48 @@ export class AdminAuthService {
 
       console.log('AdminAuthService: User is admin, getting profile...');
 
-      // Get admin user profile
-      const { data: adminUser, error: adminError } = await supabase
+      // Get admin user profile with timeout
+      const profilePromise = supabase
         .from('admin_profiles')
         .select('*')
         .eq('id', user.id)
         .single();
 
-      if (adminError) {
-        console.log('AdminAuthService: No admin profile found, creating one...', adminError.message);
-        // If no admin profile exists, create one
+      const timeoutPromise = new Promise<null>((_, reject) => {
+        setTimeout(() => reject(new Error('Profile fetch timeout')), 5000);
+      });
+
+      try {
+        const { data: adminUser, error: adminError } = await Promise.race([
+          profilePromise,
+          timeoutPromise
+        ]) as any;
+
+        if (adminError) {
+          console.log('AdminAuthService: No admin profile found, creating one...', adminError.message);
+          // If no admin profile exists, create one
+          return await this.getOrCreateAdminUser(user);
+        }
+
+        if (!adminUser) {
+          console.log('AdminAuthService: Admin profile is null, creating one...');
+          return await this.getOrCreateAdminUser(user);
+        }
+
+        console.log('AdminAuthService: Admin profile found:', adminUser.email);
+
+        return {
+          id: adminUser.id,
+          email: adminUser.email,
+          name: adminUser.name,
+          role: adminUser.role,
+          created_at: adminUser.created_at,
+          last_login: adminUser.last_login,
+        };
+      } catch (profileError) {
+        console.log('AdminAuthService: Profile fetch failed, creating one...', profileError);
         return await this.getOrCreateAdminUser(user);
       }
-
-      if (!adminUser) {
-        console.log('AdminAuthService: Admin profile is null, creating one...');
-        return await this.getOrCreateAdminUser(user);
-      }
-
-      console.log('AdminAuthService: Admin profile found:', adminUser.email);
-
-      return {
-        id: adminUser.id,
-        email: adminUser.email,
-        name: adminUser.name,
-        role: adminUser.role,
-        created_at: adminUser.created_at,
-        last_login: adminUser.last_login,
-      };
     } catch (error) {
       console.error('AdminAuthService: Error getting current user:', error);
       return null;

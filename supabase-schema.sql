@@ -147,6 +147,46 @@ CREATE TABLE IF NOT EXISTS social_media (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Create political_parties table
+CREATE TABLE IF NOT EXISTS political_parties (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name TEXT NOT NULL,
+  name_local TEXT, -- Local language name
+  country_code TEXT NOT NULL, -- ISO 3166-1 alpha-2 country code
+  country_name TEXT NOT NULL,
+  ideology TEXT, -- e.g., "Social Democratic", "Conservative", "Liberal"
+  political_position TEXT, -- e.g., "Centre-left", "Far-right", "Centre"
+  founded_year INTEGER,
+  current_leader TEXT,
+  headquarters TEXT,
+  website TEXT,
+  logo_url TEXT,
+  description TEXT,
+  membership_count INTEGER,
+  is_ruling_party BOOLEAN DEFAULT FALSE,
+  is_parliamentary BOOLEAN DEFAULT FALSE,
+  is_regional BOOLEAN DEFAULT FALSE, -- For regional/state parties
+  region_state TEXT, -- For regional parties
+  electoral_performance JSONB, -- Store election results
+  social_media JSONB, -- Store social media handles
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(name, country_code) -- Prevent duplicate parties in same country
+);
+
+-- Create party_affiliations table to link politicians to parties
+CREATE TABLE IF NOT EXISTS party_affiliations (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  politician_id TEXT NOT NULL REFERENCES politicians(id) ON DELETE CASCADE,
+  party_id UUID NOT NULL REFERENCES political_parties(id) ON DELETE CASCADE,
+  position_in_party TEXT, -- e.g., "Member", "Leader", "Deputy Leader"
+  joined_date DATE,
+  left_date DATE,
+  is_current BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(politician_id, party_id, is_current) -- One current affiliation per party
+);
+
 -- Create user_favourites table
 CREATE TABLE IF NOT EXISTS user_favourites (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -175,6 +215,19 @@ CREATE INDEX IF NOT EXISTS idx_social_media_politician_id ON social_media(politi
 CREATE INDEX IF NOT EXISTS idx_user_favourites_user_id ON user_favourites(user_id);
 CREATE INDEX IF NOT EXISTS idx_user_favourites_politician_id ON user_favourites(politician_id);
 
+-- Indexes for political parties
+CREATE INDEX IF NOT EXISTS idx_political_parties_country_code ON political_parties(country_code);
+CREATE INDEX IF NOT EXISTS idx_political_parties_name ON political_parties(name);
+CREATE INDEX IF NOT EXISTS idx_political_parties_ideology ON political_parties(ideology);
+CREATE INDEX IF NOT EXISTS idx_political_parties_ruling ON political_parties(is_ruling_party);
+CREATE INDEX IF NOT EXISTS idx_political_parties_parliamentary ON political_parties(is_parliamentary);
+CREATE INDEX IF NOT EXISTS idx_political_parties_regional ON political_parties(is_regional);
+
+-- Indexes for party affiliations
+CREATE INDEX IF NOT EXISTS idx_party_affiliations_politician_id ON party_affiliations(politician_id);
+CREATE INDEX IF NOT EXISTS idx_party_affiliations_party_id ON party_affiliations(party_id);
+CREATE INDEX IF NOT EXISTS idx_party_affiliations_current ON party_affiliations(is_current);
+
 -- Create a function to update the updated_at timestamp
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
@@ -195,6 +248,17 @@ BEGIN
     END IF;
 END $$;
 
+-- Create trigger for political_parties table
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_political_parties_updated_at') THEN
+        CREATE TRIGGER update_political_parties_updated_at 
+            BEFORE UPDATE ON political_parties 
+            FOR EACH ROW 
+            EXECUTE FUNCTION update_updated_at_column();
+    END IF;
+END $$;
+
 -- Enable Row Level Security (RLS) - but with permissive policies for now
 ALTER TABLE politicians ENABLE ROW LEVEL SECURITY;
 ALTER TABLE work_history ENABLE ROW LEVEL SECURITY;
@@ -209,6 +273,8 @@ ALTER TABLE relationships ENABLE ROW LEVEL SECURITY;
 ALTER TABLE news_mentions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE speeches ENABLE ROW LEVEL SECURITY;
 ALTER TABLE social_media ENABLE ROW LEVEL SECURITY;
+ALTER TABLE political_parties ENABLE ROW LEVEL SECURITY;
+ALTER TABLE party_affiliations ENABLE ROW LEVEL SECURITY;
 
 -- Create permissive policies for migration and development
 -- These can be tightened later for production
@@ -326,6 +392,24 @@ DO $$
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow all operations on social_media' AND tablename = 'social_media') THEN
         CREATE POLICY "Allow all operations on social_media" ON social_media
+            FOR ALL USING (true) WITH CHECK (true);
+    END IF;
+END $$;
+
+-- Political parties table
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow all operations on political_parties' AND tablename = 'political_parties') THEN
+        CREATE POLICY "Allow all operations on political_parties" ON political_parties
+            FOR ALL USING (true) WITH CHECK (true);
+    END IF;
+END $$;
+
+-- Party affiliations table
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow all operations on party_affiliations' AND tablename = 'party_affiliations') THEN
+        CREATE POLICY "Allow all operations on party_affiliations" ON party_affiliations
             FOR ALL USING (true) WITH CHECK (true);
     END IF;
 END $$;

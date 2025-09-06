@@ -3,8 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { PoliticianService } from '@/lib/politicianService';
-import type { Politician } from '@/lib/types';
-import { normalizeDate, normalizeAssumedOffice } from '@/lib/dateUtils';
+import { PoliticalPartyService } from '@/lib/politicalPartyService';
+import type { Politician, PoliticalParty } from '@/lib/types';
+import { normalizeDate, normalizeAssumedOffice, dateToMonthFormat, monthToDateFormat } from '@/lib/dateUtils';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -52,14 +53,26 @@ export default function EditPoliticianPage() {
   const [customNationality, setCustomNationality] = useState('');
   const [aiLoading, setAiLoading] = useState(false);
   const [aiAutofillName, setAiAutofillName] = useState('');
+  const [parties, setParties] = useState<PoliticalParty[]>([]);
+  const [selectedPartyId, setSelectedPartyId] = useState('');
 
 
 
   useEffect(() => {
     if (politicianId) {
       loadPolitician();
+      loadParties();
     }
   }, [politicianId]);
+
+  async function loadParties() {
+    try {
+      const data = await PoliticalPartyService.getAllParties();
+      setParties(data);
+    } catch (error) {
+      console.error('Error loading parties:', error);
+    }
+  }
 
   async function loadPolitician() {
     try {
@@ -72,7 +85,7 @@ export default function EditPoliticianPage() {
         setAliases(data.name.aliases?.join(', ') || '');
         setConstituency(data.constituency || '');
         setCurrentPosition(data.positions.current.position || '');
-        setAssumedOffice(data.positions.current.assumedOffice || '');
+        setAssumedOffice(dateToMonthFormat(data.positions.current.assumedOffice) || '');
         setDateOfBirth(data.personalDetails.dateOfBirth || '');
         setPlaceOfBirth(data.personalDetails.placeOfBirth || '');
         setGender(data.personalDetails.gender || '');
@@ -87,13 +100,19 @@ export default function EditPoliticianPage() {
         setChildren(data.personalDetails.children?.join(', ') || '');
         setTwitter(data.socialMedia?.twitter || '');
         setFacebook(data.socialMedia?.facebook || '');
-        // Handle custom party logic
-        const predefinedParties = ['Democratic Party', 'Republican Party', 'Independent', 'Green Party', 'Libertarian Party', 'Conservative Party', 'Labour Party', 'Liberal Democrats', 'Scottish National Party', 'Plaid Cymru', 'Sinn Féin', 'Democratic Unionist Party', 'Alliance Party', 'Social Democratic and Labour Party', 'Ulster Unionist Party'];
-        if (data.party && !predefinedParties.includes(data.party)) {
-          setCustomParty(data.party);
-          setParty('Other');
-        } else {
-          setParty(data.party || '');
+        // Handle party logic - check if party exists in database
+        if (data.party) {
+          const existingParty = parties.find(p => p.name === data.party);
+          if (existingParty) {
+            setSelectedPartyId(existingParty.id);
+            setParty(existingParty.name);
+            setCustomParty('');
+          } else {
+            // Party not found in database, treat as custom party
+            setSelectedPartyId('other');
+            setCustomParty(data.party);
+            setParty('Other');
+          }
         }
         // Handle custom nationality logic
         const predefinedNationalities = ['American', 'British', 'Canadian', 'Australian', 'Indian', 'Chinese', 'Japanese', 'German', 'French', 'Italian', 'Spanish', 'Russian', 'Brazilian', 'Mexican', 'South African'];
@@ -131,20 +150,22 @@ export default function EditPoliticianPage() {
       
       // Update form fields with AI data
       if (d.fullName) setFullName(d.fullName);
-      // Handle party selection - check if it's a predefined party or custom
+      // Handle party selection - check if it's in the database or custom
       if (d.party) {
-        const predefinedParties = ['Democratic Party', 'Republican Party', 'Independent', 'Green Party', 'Libertarian Party', 'Conservative Party', 'Labour Party', 'Liberal Democrats', 'Scottish National Party', 'Plaid Cymru', 'Sinn Féin', 'Democratic Unionist Party', 'Alliance Party', 'Social Democratic and Labour Party', 'Ulster Unionist Party'];
-        if (predefinedParties.includes(d.party)) {
-          setParty(d.party);
+        const existingParty = parties.find(p => p.name === d.party);
+        if (existingParty) {
+          setSelectedPartyId(existingParty.id);
+          setParty(existingParty.name);
           setCustomParty('');
         } else {
+          setSelectedPartyId('other');
           setParty('Other');
           setCustomParty(d.party);
         }
       }
       if (d.constituency) setConstituency(d.constituency);
       if (d.currentPosition) setCurrentPosition(d.currentPosition);
-      if (d.assumedOffice) setAssumedOffice(normalizeAssumedOffice(d.assumedOffice));
+      if (d.assumedOffice) setAssumedOffice(dateToMonthFormat(d.assumedOffice));
       if (d.dateOfBirth) setDateOfBirth(normalizeDate(d.dateOfBirth));
       if (d.placeOfBirth) setPlaceOfBirth(d.placeOfBirth);
       if (d.gender) setGender(d.gender);
@@ -196,14 +217,14 @@ export default function EditPoliticianPage() {
           fullName,
           aliases: aliases ? aliases.split(',').map(s => s.trim()).filter(Boolean) : [],
         },
-        party: party === 'Other' ? customParty : party,
+        party: selectedPartyId === 'other' ? customParty : party,
         constituency,
         positions: {
           ...politician.positions,
           current: {
             ...politician.positions.current,
             position: currentPosition,
-            assumedOffice: normalizeAssumedOffice(assumedOffice) || politician.positions.current.assumedOffice,
+            assumedOffice: monthToDateFormat(assumedOffice) || politician.positions.current.assumedOffice,
             committees: committees ? committees.split(',').map(s => s.trim()).filter(Boolean) : [],
           },
         },
@@ -352,32 +373,39 @@ export default function EditPoliticianPage() {
               </div>
               <div>
                 <Label htmlFor="party">Party *</Label>
-
-                <Select value={party} onValueChange={setParty} required>
+                <Select
+                  value={selectedPartyId}
+                  onValueChange={(value) => {
+                    setSelectedPartyId(value);
+                    const selectedParty = parties.find(p => p.id === value);
+                    setParty(selectedParty?.name || '');
+                  }}
+                  required
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select political party" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Democratic Party">Democratic Party</SelectItem>
-                    <SelectItem value="Republican Party">Republican Party</SelectItem>
-                    <SelectItem value="Independent">Independent</SelectItem>
-                    <SelectItem value="Green Party">Green Party</SelectItem>
-                    <SelectItem value="Libertarian Party">Libertarian Party</SelectItem>
-                    <SelectItem value="Conservative Party">Conservative Party</SelectItem>
-                    <SelectItem value="Labour Party">Labour Party</SelectItem>
-                    <SelectItem value="Liberal Democrats">Liberal Democrats</SelectItem>
-                    <SelectItem value="Scottish National Party">Scottish National Party</SelectItem>
-                    <SelectItem value="Plaid Cymru">Plaid Cymru</SelectItem>
-                    <SelectItem value="Sinn Féin">Sinn Féin</SelectItem>
-                    <SelectItem value="Democratic Unionist Party">Democratic Unionist Party</SelectItem>
-                    <SelectItem value="Alliance Party">Alliance Party</SelectItem>
-                    <SelectItem value="Social Democratic and Labour Party">Social Democratic and Labour Party</SelectItem>
-                    <SelectItem value="Ulster Unionist Party">Ulster Unionist Party</SelectItem>
-                    <SelectItem value="Other">Other</SelectItem>
+                    {parties.map((party) => (
+                      <SelectItem key={party.id} value={party.id}>
+                        <div className="flex items-center space-x-2">
+                          {party.logoUrl && (
+                            <img
+                              src={party.logoUrl}
+                              alt={`${party.name} logo`}
+                              className="w-4 h-4 rounded-full object-cover"
+                            />
+                          )}
+                          <span>{party.name}</span>
+                          <span className="text-muted-foreground text-xs">({party.countryName})</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                    <SelectItem value="other">Other (Custom Party)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-              {party === 'Other' && (
+              {selectedPartyId === 'other' && (
                 <div>
                   <Label htmlFor="customParty">Custom Party Name *</Label>
                   <Input

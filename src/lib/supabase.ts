@@ -20,6 +20,112 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 export type Database = {
   public: {
     Tables: {
+      political_parties: {
+        Row: {
+          id: string
+          name: string
+          name_local: string | null
+          country_code: string
+          country_name: string
+          ideology: string | null
+          political_position: string | null
+          founded_year: number | null
+          current_leader: string | null
+          headquarters: string | null
+          website: string | null
+          logo_url: string | null
+          description: string | null
+          membership_count: number | null
+          is_ruling_party: boolean
+          is_parliamentary: boolean
+          is_regional: boolean
+          region_state: string | null
+          electoral_performance: any | null
+          social_media: any | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          name_local?: string | null
+          country_code: string
+          country_name: string
+          ideology?: string | null
+          political_position?: string | null
+          founded_year?: number | null
+          current_leader?: string | null
+          headquarters?: string | null
+          website?: string | null
+          logo_url?: string | null
+          description?: string | null
+          membership_count?: number | null
+          is_ruling_party?: boolean
+          is_parliamentary?: boolean
+          is_regional?: boolean
+          region_state?: string | null
+          electoral_performance?: any | null
+          social_media?: any | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          name_local?: string | null
+          country_code?: string
+          country_name?: string
+          ideology?: string | null
+          political_position?: string | null
+          founded_year?: number | null
+          current_leader?: string | null
+          headquarters?: string | null
+          website?: string | null
+          logo_url?: string | null
+          description?: string | null
+          membership_count?: number | null
+          is_ruling_party?: boolean
+          is_parliamentary?: boolean
+          is_regional?: boolean
+          region_state?: string | null
+          electoral_performance?: any | null
+          social_media?: any | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      party_affiliations: {
+        Row: {
+          id: string
+          politician_id: string
+          party_id: string
+          position_in_party: string | null
+          joined_date: string | null
+          left_date: string | null
+          is_current: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          politician_id: string
+          party_id: string
+          position_in_party?: string | null
+          joined_date?: string | null
+          left_date?: string | null
+          is_current?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          politician_id?: string
+          party_id?: string
+          position_in_party?: string | null
+          joined_date?: string | null
+          left_date?: string | null
+          is_current?: boolean
+          created_at?: string
+        }
+      }
       politicians: {
         Row: {
           id: string

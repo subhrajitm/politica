@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, Users, Settings, Home, Plus, LogOut, User } from 'lucide-react';
+import { LayoutDashboard, Users, Settings, Home, Plus, LogOut, User, Building2, Upload } from 'lucide-react';
 import { SidebarProvider, Sidebar, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
 import { LogoIcon } from '@/lib/icons';
@@ -65,7 +65,9 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
   const navItems = [
     { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/admin/politicians', label: 'Politicians', icon: Users },
-    { href: '/admin/politicians/bulk', label: 'Bulk Add', icon: Plus },
+    { href: '/admin/politicians/bulk', label: 'Bulk Add Politicians', icon: Plus },
+    { href: '/admin/parties', label: 'Political Parties', icon: Building2 },
+    { href: '/admin/parties/bulk', label: 'Bulk Import Parties', icon: Upload },
     { href: '/admin/user-management', label: 'User Management', icon: User },
     { href: '/admin/settings', label: 'Settings', icon: Settings },
   ];

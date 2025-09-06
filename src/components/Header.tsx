@@ -27,6 +27,7 @@ export default function Header() {
   
   const navLinks = [
     { name: 'Find Politicians', href: '/politicians' },
+    { name: 'Political Parties', href: '/parties' },
     { name: 'Browse by Role', href: '/browse' },
     { name: 'Browse by Country', href: '/browse/countries' },
     { name: 'Browse by Map', href: '/browse/map' },

@@ -159,3 +159,55 @@ export function normalizeAssumedOffice(dateString: string | undefined | null): s
   // Otherwise, use the general normalize function
   return normalizeDate(trimmed);
 }
+
+/**
+ * Converts a date string to YYYY-MM format for month inputs
+ */
+export function dateToMonthFormat(dateString: string | undefined | null): string {
+  if (!dateString || typeof dateString !== 'string') {
+    return '';
+  }
+
+  const trimmed = dateString.trim();
+  
+  // If it's already in YYYY-MM format, return as is
+  if (/^\d{4}-\d{2}$/.test(trimmed)) {
+    return trimmed;
+  }
+
+  // If it's in YYYY-MM-DD format, extract YYYY-MM
+  if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+    return trimmed.substring(0, 7); // Returns YYYY-MM
+  }
+
+  // Try to normalize and then convert
+  const normalized = normalizeDate(trimmed);
+  if (normalized && normalized !== '1970-01-01') {
+    return normalized.substring(0, 7); // Returns YYYY-MM
+  }
+
+  return '';
+}
+
+/**
+ * Converts a month format (YYYY-MM) to full date format (YYYY-MM-DD)
+ */
+export function monthToDateFormat(monthString: string | undefined | null): string {
+  if (!monthString || typeof monthString !== 'string') {
+    return '1970-01-01';
+  }
+
+  const trimmed = monthString.trim();
+  
+  // If it's already in YYYY-MM-DD format, return as is
+  if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+    return trimmed;
+  }
+
+  // If it's in YYYY-MM format, add -01
+  if (/^\d{4}-\d{2}$/.test(trimmed)) {
+    return `${trimmed}-01`;
+  }
+
+  return '1970-01-01';
+}

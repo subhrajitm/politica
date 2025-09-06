@@ -4,6 +4,59 @@ export type WorkHistoryItem = {
   contributions: string;
 };
 
+export type ElectoralPerformance = {
+  election: string;
+  year: number;
+  votes?: number;
+  percentage?: number;
+  seats?: number;
+  result: 'Won' | 'Lost' | 'Coalition' | 'Opposition';
+};
+
+export type SocialMedia = {
+  twitter?: string;
+  facebook?: string;
+  instagram?: string;
+  youtube?: string;
+  website?: string;
+};
+
+export type PoliticalParty = {
+  id: string;
+  name: string;
+  nameLocal?: string;
+  countryCode: string;
+  countryName: string;
+  ideology?: string;
+  politicalPosition?: string;
+  foundedYear?: number;
+  currentLeader?: string;
+  headquarters?: string;
+  website?: string;
+  logoUrl?: string;
+  description?: string;
+  membershipCount?: number;
+  isRulingParty: boolean;
+  isParliamentary: boolean;
+  isRegional: boolean;
+  regionState?: string;
+  electoralPerformance?: ElectoralPerformance[];
+  socialMedia?: SocialMedia;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type PartyAffiliation = {
+  id: string;
+  politicianId: string;
+  partyId: string;
+  positionInParty?: string;
+  joinedDate?: string;
+  leftDate?: string;
+  isCurrent: boolean;
+  createdAt: string;
+};
+
 export type Politician = {
   id: string;
   name: {

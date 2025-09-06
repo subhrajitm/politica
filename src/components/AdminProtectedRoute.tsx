@@ -19,6 +19,7 @@ export default function AdminProtectedRoute({
 
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
+    let isMounted = true;
     
     const checkAuth = async () => {
       try {
@@ -27,11 +28,13 @@ export default function AdminProtectedRoute({
         // Add timeout to prevent infinite loading
         const authPromise = AdminAuthService.getCurrentUser();
         const timeoutPromise = new Promise<null>((_, reject) => {
-          timeoutId = setTimeout(() => reject(new Error('Auth check timeout')), 10000); // 10 second timeout
+          timeoutId = setTimeout(() => reject(new Error('Auth check timeout')), 15000); // 15 second timeout
         });
         
         const currentUser = await Promise.race([authPromise, timeoutPromise]);
         console.log('AdminProtectedRoute: Auth check result:', currentUser);
+        
+        if (!isMounted) return;
         
         setUser(currentUser);
         
@@ -41,18 +44,28 @@ export default function AdminProtectedRoute({
         }
       } catch (error) {
         console.error('AdminProtectedRoute: Auth check error:', error);
+        
+        if (!isMounted) return;
+        
         setUser(null);
-        // Only redirect if it's not a session missing error (which is expected for unauthenticated users)
-        if (error instanceof Error && !error.message.includes('Auth session missing')) {
-          console.log('AdminProtectedRoute: Unexpected error, redirecting to login');
-          router.push('/admin/login');
-        } else {
-          console.log('AdminProtectedRoute: Session missing, redirecting to login');
-          router.push('/admin/login');
+        
+        // Handle different types of errors
+        if (error instanceof Error) {
+          if (error.message.includes('Auth check timeout')) {
+            console.log('AdminProtectedRoute: Auth check timed out, redirecting to login');
+          } else if (error.message.includes('Auth session missing')) {
+            console.log('AdminProtectedRoute: Session missing, redirecting to login');
+          } else {
+            console.log('AdminProtectedRoute: Unexpected error, redirecting to login');
+          }
         }
+        
+        router.push('/admin/login');
       } finally {
-        clearTimeout(timeoutId);
-        setLoading(false);
+        if (isMounted) {
+          clearTimeout(timeoutId);
+          setLoading(false);
+        }
       }
     };
 
@@ -61,6 +74,8 @@ export default function AdminProtectedRoute({
     // Listen for auth state changes
     const { data: { subscription } } = AdminAuthService.onAuthStateChange((user) => {
       console.log('AdminProtectedRoute: Auth state changed:', user);
+      if (!isMounted) return;
+      
       setUser(user);
       if (!user) {
         router.push('/admin/login');
@@ -68,6 +83,7 @@ export default function AdminProtectedRoute({
     });
 
     return () => {
+      isMounted = false;
       clearTimeout(timeoutId);
       subscription?.unsubscribe();
     };

@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { PoliticianService } from '@/lib/politicianService';
-import type { Politician } from '@/lib/types';
+import { PoliticalPartyService } from '@/lib/politicalPartyService';
+import type { Politician, PoliticalParty } from '@/lib/types';
 import { normalizeDate, normalizeAssumedOffice } from '@/lib/dateUtils';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -24,6 +25,8 @@ export default function NewPoliticianPage() {
   const [fullName, setFullName] = useState('');
   const [aliases, setAliases] = useState(''); // comma-separated
   const [party, setParty] = useState('');
+  const [selectedPartyId, setSelectedPartyId] = useState('');
+  const [parties, setParties] = useState<PoliticalParty[]>([]);
   const [constituency, setConstituency] = useState('');
   const [currentPosition, setCurrentPosition] = useState('');
   const [assumedOffice, setAssumedOffice] = useState('');
@@ -44,6 +47,19 @@ export default function NewPoliticianPage() {
   const [facebook, setFacebook] = useState('');
   const [customParty, setCustomParty] = useState('');
   const [customNationality, setCustomNationality] = useState('');
+
+  // Load parties on component mount
+  useEffect(() => {
+    const loadParties = async () => {
+      try {
+        const partiesData = await PoliticalPartyService.getAllParties();
+        setParties(partiesData);
+      } catch (error) {
+        console.error('Error loading parties:', error);
+      }
+    };
+    loadParties();
+  }, []);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiAutofillName, setAiAutofillName] = useState('');
 
@@ -60,7 +76,7 @@ export default function NewPoliticianPage() {
       }
       
       // Validate required fields
-      if (party === 'Other' && !customParty) {
+      if (selectedPartyId === 'other' && !customParty) {
         throw new Error('Please enter a custom party name when selecting "Other".');
       }
       
@@ -92,7 +108,7 @@ export default function NewPoliticianPage() {
           phone: phone || 'Unknown',
           website: website || undefined,
         },
-        photoUrl: photoUrl || 'https://via.placeholder.com/400x400?text=No+Photo',
+        photoUrl: photoUrl || 'https://via.placeholder.com/400x400/cccccc/666666?text=No+Photo',
         family: {
           spouse: spouse || undefined,
           children: children
@@ -101,7 +117,7 @@ export default function NewPoliticianPage() {
             .filter(Boolean),
         },
         education: [],
-        party: party === 'Other' ? customParty : party,
+        party: selectedPartyId === 'other' ? customParty : party,
         constituency,
         positions: {
           current: {
@@ -289,32 +305,39 @@ export default function NewPoliticianPage() {
             </div>
             <div>
               <Label htmlFor="party">Party</Label>
-
-              <Select value={party} onValueChange={setParty} required>
+              <Select 
+                value={selectedPartyId} 
+                onValueChange={(value) => {
+                  setSelectedPartyId(value);
+                  const selectedParty = parties.find(p => p.id === value);
+                  setParty(selectedParty?.name || '');
+                }} 
+                required
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select political party" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Democratic Party">Democratic Party</SelectItem>
-                  <SelectItem value="Republican Party">Republican Party</SelectItem>
-                  <SelectItem value="Independent">Independent</SelectItem>
-                  <SelectItem value="Green Party">Green Party</SelectItem>
-                  <SelectItem value="Libertarian Party">Libertarian Party</SelectItem>
-                  <SelectItem value="Conservative Party">Conservative Party</SelectItem>
-                  <SelectItem value="Labour Party">Labour Party</SelectItem>
-                  <SelectItem value="Liberal Democrats">Liberal Democrats</SelectItem>
-                  <SelectItem value="Scottish National Party">Scottish National Party</SelectItem>
-                  <SelectItem value="Plaid Cymru">Plaid Cymru</SelectItem>
-                  <SelectItem value="Sinn Féin">Sinn Féin</SelectItem>
-                  <SelectItem value="Democratic Unionist Party">Democratic Unionist Party</SelectItem>
-                  <SelectItem value="Alliance Party">Alliance Party</SelectItem>
-                  <SelectItem value="Social Democratic and Labour Party">Social Democratic and Labour Party</SelectItem>
-                  <SelectItem value="Ulster Unionist Party">Ulster Unionist Party</SelectItem>
-                  <SelectItem value="Other">Other</SelectItem>
+                  {parties.map((party) => (
+                    <SelectItem key={party.id} value={party.id}>
+                      <div className="flex items-center space-x-2">
+                        {party.logoUrl && (
+                          <img
+                            src={party.logoUrl}
+                            alt={`${party.name} logo`}
+                            className="w-4 h-4 rounded-full object-cover"
+                          />
+                        )}
+                        <span>{party.name}</span>
+                        <span className="text-muted-foreground text-xs">({party.countryName})</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                  <SelectItem value="other">Other (Custom Party)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            {party === 'Other' && (
+            {selectedPartyId === 'other' && (
               <div>
                 <Label htmlFor="customParty">Custom Party Name *</Label>
                 <Input
