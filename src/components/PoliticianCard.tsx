@@ -23,8 +23,8 @@ export default function PoliticianCard({ politician }: PoliticianCardProps) {
           'group-hover:shadow-lg group-hover:border-primary/50 group-hover:-translate-y-1'
         )}
       >
-        <CardContent className="p-3 flex flex-col h-full">
-            <div className="relative w-full aspect-square mb-3">
+        <CardContent className="p-2 flex flex-col h-full">
+            <div className="relative w-full aspect-square mb-2">
               <ImageWithPlaceholder
                 src={politician.photoUrl}
                 alt={`Photo of ${politician.name.fullName}`}
@@ -35,30 +35,32 @@ export default function PoliticianCard({ politician }: PoliticianCardProps) {
               />
             </div>
             <div className='flex-grow'>
-              <div className='flex justify-between items-start gap-2'>
+              <div className='flex justify-between items-start gap-1'>
                 <Link href={`/politicians/${politician.id}`} className="flex-grow">
-                  <h3 className="font-semibold text-base leading-tight group-hover:text-primary">
+                  <h3 className="font-semibold text-sm leading-tight group-hover:text-primary line-clamp-2">
                     {politician.name.fullName}
                   </h3>
                 </Link>
                 <div className="flex-shrink-0">
-                  <PartyLogo party={politician.party} className="w-7 h-7" />
+                  <PartyLogo party={politician.party} className="w-5 h-5" />
                 </div>
               </div>
-              <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-                <MapPin className="w-3 h-3" />
-                {politician.constituency}
+              <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1 line-clamp-1">
+                <MapPin className="w-3 h-3 flex-shrink-0" />
+                <span className="truncate">{politician.constituency}</span>
               </p>
             </div>
-            <div className="mt-3 flex items-center justify-between pt-3 border-t">
-              <Badge variant="secondary" className="font-normal text-xs">{politician.positions.current.position}</Badge>
+            <div className="mt-2 flex items-center justify-between pt-2 border-t">
+              <Badge variant="secondary" className="font-normal text-xs px-1.5 py-0.5 line-clamp-1">
+                {politician.positions.current.position}
+              </Badge>
               <FavouriteButton 
                 politicianId={politician.id}
                 politicianName={politician.name.fullName}
                 variant="ghost"
                 size="sm"
                 showText={false}
-                className="opacity-0 group-hover:opacity-100 transition-opacity"
+                className="opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6"
               />
             </div>
         </CardContent>
