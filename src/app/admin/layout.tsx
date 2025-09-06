@@ -7,7 +7,6 @@ import { usePathname, useRouter } from 'next/navigation';
 import { LayoutDashboard, Users, Settings, Home, Plus, LogOut, User, Building2, Upload } from 'lucide-react';
 import { SidebarProvider, Sidebar, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
-import { LogoIcon } from '@/lib/icons';
 import { Button } from '@/components/ui/button';
 import { AdminAuthService } from '@/lib/adminAuthService';
 import { useToast } from '@/hooks/use-toast';
@@ -102,8 +101,7 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
           <div className="flex flex-col h-full">
             <div className="h-14 flex items-center px-4 border-b">
                <div className="flex items-center gap-2 font-bold">
-                <LogoIcon className="h-6 w-6 text-primary" />
-                <span className="group-data-[collapsible=icon]:hidden">Admin</span>
+                <span className="group-data-[collapsible=icon]:hidden">ournation.co</span>
               </div>
             </div>
             <div className="flex-1 overflow-y-auto">

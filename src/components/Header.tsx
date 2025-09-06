@@ -3,7 +3,6 @@ import Link from 'next/link';
 import { Menu, LayoutDashboard, LogIn, Heart } from 'lucide-react';
 import { Button } from './ui/button';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from './ui/sheet';
-import { LogoIcon } from '@/lib/icons';
 import { useSettings } from '@/hooks/use-settings';
 import { useAuth } from '@/contexts/AuthContext';
 import AuthModal from './auth/AuthModal';
@@ -40,9 +39,8 @@ export default function Header() {
     <header className="bg-background/80 backdrop-blur-sm border-b sticky top-0 z-20">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-14">
-          <Link href="/" className="flex items-center gap-2 text-lg font-bold text-gray-800">
-            <LogoIcon className="h-5 w-5 text-primary" />
-            {siteName || 'OurNation'}
+          <Link href="/" className="text-lg font-bold text-gray-800">
+            ournation.co
           </Link>
 
           <nav className="hidden lg:flex items-center gap-4">
@@ -95,9 +93,8 @@ export default function Header() {
                 <SheetHeader className="text-left">
                    <SheetTitle className="sr-only">Menu</SheetTitle>
                    <SheetDescription className="sr-only">Main navigation menu</SheetDescription>
-                   <Link href="/" className="flex items-center gap-2 text-xl font-bold text-gray-800 mb-4">
-                      <LogoIcon className="h-6 w-6 text-primary" />
-                      {siteName || 'OurNation'}
+                   <Link href="/" className="text-xl font-bold text-gray-800 mb-4">
+                      ournation.co
                     </Link>
                 </SheetHeader>
                 <nav className="flex flex-col gap-4 mt-4">

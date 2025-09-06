@@ -2,6 +2,44 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Grain Overlay Effect */
+.grain-overlay {
+  position: relative;
+  overflow: hidden;
+}
+
+.grain-overlay::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: 
+    radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px),
+    radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px),
+    radial-gradient(circle, rgba(255,255,255,0.08) 1px, transparent 1px);
+  background-size: 20px 20px, 30px 30px, 25px 25px;
+  background-position: 0 0, 10px 10px, 5px 5px;
+  opacity: 0.4;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  animation: grain 0.8s steps(10) infinite;
+}
+
+@keyframes grain {
+  0%, 100% { transform: translate(0, 0); }
+  10% { transform: translate(-5%, -10%); }
+  20% { transform: translate(-15%, 5%); }
+  30% { transform: translate(7%, -25%); }
+  40% { transform: translate(-5%, 25%); }
+  50% { transform: translate(-15%, 10%); }
+  60% { transform: translate(15%, 0%); }
+  70% { transform: translate(0%, 15%); }
+  80% { transform: translate(3%, 35%); }
+  90% { transform: translate(-10%, 10%); }
+}
+
 
 @layer base {
   :root {
