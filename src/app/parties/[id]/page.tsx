@@ -1,88 +1,47 @@
-'use client';
-
-import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Globe, MapPin, Users, Calendar, Building, Crown, Vote } from 'lucide-react';
 import { PoliticalPartyService } from '@/lib/politicalPartyService';
 import { PoliticalParty } from '@/lib/types';
+import Link from 'next/link';
 
-export default function PartyDetailPage() {
-  const params = useParams();
-  const router = useRouter();
-  const partyId = params.id as string;
+interface PartyDetailPageProps {
+  params: Promise<{ id: string }>;
+}
+
+export default async function PartyDetailPage({ params }: PartyDetailPageProps) {
+  const { id: partyId } = await params;
   
-  const [party, setParty] = useState<PoliticalParty | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  let party: PoliticalParty | null = null;
 
-  useEffect(() => {
-    loadParty();
-  }, [partyId]);
-
-  const loadParty = async () => {
-    try {
-      setLoading(true);
-      const data = await PoliticalPartyService.getPartyById(partyId);
-      if (data) {
-        setParty(data);
-      } else {
-        setError('Political party not found');
-      }
-    } catch (err) {
-      console.error('Error loading party:', err);
-      setError('Failed to load political party');
-    } finally {
-      setLoading(false);
+  try {
+    party = await PoliticalPartyService.getPartyById(partyId);
+    if (!party) {
+      notFound();
     }
-  };
-
-  if (loading) {
-    return (
-      <div className="container mx-auto p-6">
-        <div className="flex items-center justify-center h-64">
-          <div className="text-lg">Loading political party...</div>
-        </div>
-      </div>
-    );
+  } catch (err) {
+    console.error('Error loading party:', err);
+    notFound();
   }
 
-  if (error || !party) {
-    return (
-      <div className="container mx-auto p-6">
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <h2 className="text-2xl font-bold mb-2">Party Not Found</h2>
-            <p className="text-muted-foreground mb-4">{error}</p>
-            <Button onClick={() => router.back()}>
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Go Back
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  const getPartyTypeBadges = () => {
+  const getPartyTypeBadges = (party: PoliticalParty) => {
     const badges = [];
     if (party.isRulingParty) badges.push({ label: 'Ruling Party', variant: 'default' as const, icon: Crown });
-    if (party.isParliamentary) badges.push({ label: 'Parliamentary', variant: 'secondary' as const, icon: Vote });
-    if (party.isRegional) badges.push({ label: 'Regional Party', variant: 'outline' as const, icon: MapPin });
+    if (party.isParliamentary) badges.push({ label: 'Parliamentary', variant: 'secondary' as const, icon: Building });
+    if (party.isRegional) badges.push({ label: 'Regional', variant: 'outline' as const, icon: MapPin });
     return badges;
   };
 
   return (
     <div className="container mx-auto p-6">
       <div className="flex items-center space-x-4 mb-6">
-        <Button
-          variant="ghost"
-          onClick={() => router.back()}
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back
+        <Button variant="ghost" asChild>
+          <Link href="/parties">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back
+          </Link>
         </Button>
         <div className="flex-1">
           <div className="flex items-center space-x-4">
@@ -117,7 +76,7 @@ export default function PartyDetailPage() {
             </CardHeader>
             <CardContent>
               <div className="flex flex-wrap gap-2">
-                {getPartyTypeBadges().map((badge, index) => (
+                {getPartyTypeBadges(party).map((badge, index) => (
                   <Badge key={index} variant={badge.variant} className="flex items-center space-x-1">
                     <badge.icon className="w-3 h-3" />
                     <span>{badge.label}</span>
@@ -145,25 +104,36 @@ export default function PartyDetailPage() {
           {party.electoralPerformance && party.electoralPerformance.length > 0 && (
             <Card>
               <CardHeader>
-                <CardTitle>Electoral Performance</CardTitle>
+                <CardTitle className="flex items-center space-x-2">
+                  <Vote className="w-5 h-5" />
+                  <span>Electoral Performance</span>
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {party.electoralPerformance.map((election, index) => (
-                    <div key={index} className="flex justify-between items-center p-3 bg-muted rounded-lg">
-                      <div>
-                        <div className="font-medium">{election.election}</div>
-                        <div className="text-sm text-muted-foreground">{election.year}</div>
+                    <div key={index} className="border rounded-lg p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="font-medium">{election.election}</h4>
+                        <span className="text-sm text-muted-foreground">{election.year}</span>
                       </div>
-                      <div className="text-right">
-                        <Badge variant={election.result === 'Won' ? 'default' : 'secondary'}>
-                          {election.result}
-                        </Badge>
-                        {election.percentage && (
-                          <div className="text-sm text-muted-foreground mt-1">
-                            {election.percentage}%
-                          </div>
-                        )}
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                        <div>
+                          <span className="text-muted-foreground">Votes:</span>
+                          <p className="font-medium">{election.votes || 'N/A'}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Percentage:</span>
+                          <p className="font-medium">{election.percentage || 'N/A'}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Seats:</span>
+                          <p className="font-medium">{election.seats || 'N/A'}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Result:</span>
+                          <p className="font-medium">{election.result || 'N/A'}</p>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -173,106 +143,141 @@ export default function PartyDetailPage() {
           )}
         </div>
 
-        {/* Sidebar Information */}
+        {/* Sidebar */}
         <div className="space-y-6">
-          {/* Basic Details */}
+          {/* Basic Information */}
           <Card>
             <CardHeader>
               <CardTitle>Basic Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               {party.ideology && (
-                <div className="flex items-center space-x-2">
-                  <Badge variant="outline">{party.ideology}</Badge>
+                <div className="flex items-start space-x-3">
+                  <Building className="w-4 h-4 mt-1 text-muted-foreground" />
+                  <div>
+                    <p className="text-sm font-medium">Ideology</p>
+                    <p className="text-sm text-muted-foreground">{party.ideology}</p>
+                  </div>
                 </div>
               )}
               
               {party.politicalPosition && (
-                <div className="flex items-center space-x-2">
-                  <span className="text-sm font-medium">Position:</span>
-                  <Badge variant="secondary">{party.politicalPosition}</Badge>
+                <div className="flex items-start space-x-3">
+                  <Users className="w-4 h-4 mt-1 text-muted-foreground" />
+                  <div>
+                    <p className="text-sm font-medium">Political Position</p>
+                    <p className="text-sm text-muted-foreground">{party.politicalPosition}</p>
+                  </div>
                 </div>
               )}
-
+              
               {party.foundedYear && (
-                <div className="flex items-center space-x-2">
-                  <Calendar className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-sm">Founded: {party.foundedYear}</span>
+                <div className="flex items-start space-x-3">
+                  <Calendar className="w-4 h-4 mt-1 text-muted-foreground" />
+                  <div>
+                    <p className="text-sm font-medium">Founded</p>
+                    <p className="text-sm text-muted-foreground">{party.foundedYear}</p>
+                  </div>
                 </div>
               )}
-
+              
               {party.currentLeader && (
-                <div className="flex items-center space-x-2">
-                  <Users className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-sm">Leader: {party.currentLeader}</span>
+                <div className="flex items-start space-x-3">
+                  <Crown className="w-4 h-4 mt-1 text-muted-foreground" />
+                  <div>
+                    <p className="text-sm font-medium">Current Leader</p>
+                    <p className="text-sm text-muted-foreground">{party.currentLeader}</p>
+                  </div>
                 </div>
               )}
-
+              
               {party.membershipCount && (
-                <div className="flex items-center space-x-2">
-                  <Users className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-sm">Members: {party.membershipCount.toLocaleString()}</span>
-                </div>
-              )}
-
-              {party.headquarters && (
-                <div className="flex items-center space-x-2">
-                  <Building className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-sm">{party.headquarters}</span>
-                </div>
-              )}
-
-              {party.regionState && (
-                <div className="flex items-center space-x-2">
-                  <MapPin className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-sm">Region: {party.regionState}</span>
+                <div className="flex items-start space-x-3">
+                  <Users className="w-4 h-4 mt-1 text-muted-foreground" />
+                  <div>
+                    <p className="text-sm font-medium">Membership</p>
+                    <p className="text-sm text-muted-foreground">{party.membershipCount.toLocaleString()} members</p>
+                  </div>
                 </div>
               )}
             </CardContent>
           </Card>
 
-          {/* Links */}
+          {/* Location */}
           <Card>
             <CardHeader>
-              <CardTitle>Links</CardTitle>
+              <CardTitle>Location</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-start space-x-3">
+                <MapPin className="w-4 h-4 mt-1 text-muted-foreground" />
+                <div>
+                  <p className="text-sm font-medium">{party.countryName}</p>
+                  {party.regionState && (
+                    <p className="text-sm text-muted-foreground">{party.regionState}</p>
+                  )}
+                  {party.headquarters && (
+                    <p className="text-sm text-muted-foreground mt-1">{party.headquarters}</p>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Social Media & Website */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Online Presence</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               {party.website && (
-                <Button
-                  variant="outline"
-                  className="w-full justify-start"
-                  onClick={() => window.open(party.website, '_blank')}
-                >
-                  <Globe className="w-4 h-4 mr-2" />
-                  Official Website
-                </Button>
-              )}
-
-              {party.socialMedia && (
-                <div className="space-y-2">
-                  {party.socialMedia.twitter && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full justify-start"
-                      onClick={() => window.open(`https://twitter.com/${party.socialMedia.twitter}`, '_blank')}
-                    >
-                      <span className="mr-2">🐦</span>
-                      Twitter
-                    </Button>
-                  )}
-                  {party.socialMedia.facebook && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full justify-start"
-                      onClick={() => window.open(`https://facebook.com/${party.socialMedia.facebook}`, '_blank')}
-                    >
-                      <span className="mr-2">📘</span>
-                      Facebook
-                    </Button>
-                  )}
+                <div className="flex items-center space-x-2">
+                  <Globe className="w-4 h-4 text-muted-foreground" />
+                  <a
+                    href={party.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-primary hover:underline"
+                  >
+                    Official Website
+                  </a>
                 </div>
+              )}
+              
+              {party.socialMedia && (
+                <>
+                  {party.socialMedia.twitter && (
+                    <div className="flex items-center space-x-2">
+                      <div className="w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
+                        <span className="text-white text-xs font-bold">𝕏</span>
+                      </div>
+                      <a
+                        href={`https://twitter.com/${party.socialMedia.twitter}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm text-primary hover:underline"
+                      >
+                        @{party.socialMedia.twitter}
+                      </a>
+                    </div>
+                  )}
+                  
+                  {party.socialMedia.facebook && (
+                    <div className="flex items-center space-x-2">
+                      <div className="w-4 h-4 bg-blue-600 rounded-full flex items-center justify-center">
+                        <span className="text-white text-xs font-bold">f</span>
+                      </div>
+                      <a
+                        href={`https://facebook.com/${party.socialMedia.facebook}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm text-primary hover:underline"
+                      >
+                        {party.socialMedia.facebook}
+                      </a>
+                    </div>
+                  )}
+                </>
               )}
             </CardContent>
           </Card>

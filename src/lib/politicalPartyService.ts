@@ -36,17 +36,39 @@ export class PoliticalPartyService {
     }
   }
 
-  // Get party by ID
+  // Get party by ID (optimized with better error handling)
   static async getPartyById(id: string): Promise<PoliticalParty | null> {
     try {
+      console.log('Fetching party by ID:', id);
+      
+      // Validate ID format (should be UUID)
+      if (!id || typeof id !== 'string' || id.length < 10) {
+        console.error('Invalid party ID format:', id);
+        return null;
+      }
+
       const { data, error } = await supabase
         .from('political_parties')
         .select('*')
         .eq('id', id)
         .single();
 
-      if (error) throw error;
-      return data ? this.mapToPoliticalParty(data) : null;
+      if (error) {
+        console.error('Supabase error fetching party:', error);
+        if (error.code === 'PGRST116') {
+          // No rows returned
+          return null;
+        }
+        throw error;
+      }
+
+      if (!data) {
+        console.log('No party found with ID:', id);
+        return null;
+      }
+
+      console.log('Successfully fetched party:', data.name);
+      return this.mapToPoliticalParty(data);
     } catch (error) {
       console.error('Error fetching party by ID:', error);
       throw error;
