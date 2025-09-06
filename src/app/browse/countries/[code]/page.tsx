@@ -43,7 +43,7 @@ export default function CountryStatesPage() {
           {states.map((s) => (
             <Link
               key={s.name}
-              href={`/politicians?state=${encodeURIComponent(s.name)}`}
+              href={`/politicians/state/${encodeURIComponent(s.name)}`}
               className="block group"
             >
               <Card className="p-4 h-full transition-all duration-300 group-hover:shadow-lg group-hover:border-primary/50 group-hover:-translate-y-0.5">

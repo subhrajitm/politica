@@ -101,7 +101,7 @@ export default function WorldMap() {
           // Click handler
           el.addEventListener("click", () => {
             const iso2 = countryCode.toLowerCase();
-            router.push(`/browse/countries/${iso2}`);
+            router.push(`/politicians/country/${iso2}`);
           });
 
           // Hover handlers
