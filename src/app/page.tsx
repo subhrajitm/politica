@@ -190,14 +190,60 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-8 bg-background border-b">
-        <div className="container mx-auto">
-          <div className="flex flex-wrap justify-center items-center gap-x-8 gap-y-2 text-gray-500 text-sm font-semibold">
-            <span>Parliament of India</span>
-            <span>Election Commission</span>
-            <span>MyNeta</span>
-            <span>PRS India</span>
-            <span>Data.gov.in</span>
+      <section className="py-4 bg-gradient-to-r from-primary/5 via-purple-50/50 to-indigo-50/50 border-b">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+            {/* Quick Stats */}
+            <div className="md:col-span-1 text-center md:text-left">
+              <div className="text-xl font-bold text-primary">{politicians.length.toLocaleString()}</div>
+              <div className="text-xs text-muted-foreground">Active Politicians</div>
+            </div>
+            
+            {/* Quick Access Buttons */}
+            <div className="md:col-span-3">
+              <div className="flex flex-wrap justify-center md:justify-end items-center gap-1.5">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="text-xs h-7 px-3 bg-white/80 hover:bg-primary hover:text-white transition-all duration-200"
+                  onClick={() => router.push('/politicians?q=Prime Minister')}
+                >
+                  Prime Minister
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="text-xs h-7 px-3 bg-white/80 hover:bg-primary hover:text-white transition-all duration-200"
+                  onClick={() => router.push('/politicians?q=Chief Minister')}
+                >
+                  Chief Ministers
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="text-xs h-7 px-3 bg-white/80 hover:bg-primary hover:text-white transition-all duration-200"
+                  onClick={() => router.push('/browse/map')}
+                >
+                  Browse by Map
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="text-xs h-7 px-3 bg-white/80 hover:bg-primary hover:text-white transition-all duration-200"
+                  onClick={() => router.push('/parties')}
+                >
+                  Political Parties
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="text-xs h-7 px-3 bg-white/80 hover:bg-primary hover:text-white transition-all duration-200"
+                  onClick={() => router.push('/browse/countries')}
+                >
+                  Browse by Country
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       </section>

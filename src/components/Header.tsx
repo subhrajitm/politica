@@ -43,16 +43,18 @@ export default function Header() {
             ournation.co
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-4">
+          <nav className="hidden lg:flex items-center gap-6">
             {navLinks.map((link) => (
-              <Link key={link.name} href={link.href} className="text-xs font-medium text-gray-600 hover:text-primary">
+              <Link key={link.name} href={link.href} className="text-sm font-semibold text-gray-700 hover:text-primary transition-colors duration-200 relative group">
                 {link.name}
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-200 group-hover:w-full"></span>
               </Link>
             ))}
             {!loading && user && userNavLinks.map((link) => (
-              <Link key={link.name} href={link.href} className="text-xs font-medium text-gray-600 hover:text-primary flex items-center gap-1">
-                <link.icon className="w-3 h-3" />
+              <Link key={link.name} href={link.href} className="text-sm font-semibold text-gray-700 hover:text-primary transition-colors duration-200 flex items-center gap-2 relative group">
+                <link.icon className="w-4 h-4" />
                 {link.name}
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-200 group-hover:w-full"></span>
               </Link>
             ))}
           </nav>
