@@ -24,6 +24,44 @@ type CountryItem = {
   stateProvinces?: { name: string }[];
 };
 
+// Helper function to check if a politician's nationality matches a country
+function isPoliticianFromCountry(nationality: string, countryName: string): boolean {
+  const nationalityLower = nationality.toLowerCase();
+  const countryLower = countryName.toLowerCase();
+  
+  // Direct match
+  if (nationalityLower === countryLower) {
+    return true;
+  }
+  
+  // Special mappings for common nationality-to-country conversions
+  const nationalityToCountryMap: Record<string, string> = {
+    'nepali': 'nepal',
+    'indian': 'india',
+    'american': 'united states',
+    'british': 'united kingdom',
+    'canadian': 'canada',
+    'australian': 'australia',
+    'chinese': 'china',
+    'japanese': 'japan',
+    'german': 'germany',
+    'french': 'france',
+    'italian': 'italy',
+    'spanish': 'spain',
+    'russian': 'russia',
+    'brazilian': 'brazil',
+    'mexican': 'mexico',
+    'south african': 'south africa'
+  };
+  
+  const mappedCountry = nationalityToCountryMap[nationalityLower];
+  if (mappedCountry && mappedCountry === countryLower) {
+    return true;
+  }
+  
+  return false;
+}
+
 export default function StatePoliticiansPage() {
   const params = useParams();
   const countryCode = String(params?.code || '').toUpperCase();
@@ -46,10 +84,22 @@ export default function StatePoliticiansPage() {
         const allPoliticians = await PoliticianService.getAllPoliticians();
         
         // Filter politicians by state using improved matching
-        const statePoliticians = allPoliticians.filter(politician => {
-          const state = extractStateFromConstituency(politician.constituency, politician.personalDetails.nationality);
-          return state === stateName;
-        });
+        let statePoliticians: Politician[];
+        
+        if (stateName === 'Other') {
+          // For "Other" category, show politicians from this country that are not mapped to any state
+          statePoliticians = allPoliticians.filter(politician => {
+            const state = extractStateFromConstituency(politician.constituency, politician.personalDetails.nationality);
+            const politicianCountry = politician.personalDetails.nationality;
+            return !state && politicianCountry && isPoliticianFromCountry(politicianCountry, country?.name || '');
+          });
+        } else {
+          // Normal case: filter by state
+          statePoliticians = allPoliticians.filter(politician => {
+            const state = extractStateFromConstituency(politician.constituency, politician.personalDetails.nationality);
+            return state === stateName;
+          });
+        }
         
         setPoliticians(statePoliticians);
       } catch (err) {
@@ -186,9 +236,14 @@ export default function StatePoliticiansPage() {
         </div>
         
         <div className="text-center">
-          <h1 className="text-3xl md:text-4xl font-bold mb-2">{stateName}</h1>
+          <h1 className="text-3xl md:text-4xl font-bold mb-2">
+            {stateName === 'Other' ? 'Other Politicians' : stateName}
+          </h1>
           <p className="text-sm text-muted-foreground mb-4">
-            Political leaders from {stateName}, {country.name}
+            {stateName === 'Other' 
+              ? `Political leaders from ${country?.name} not associated with specific states`
+              : `Political leaders from ${stateName}, ${country?.name}`
+            }
           </p>
           
           {!loading && (

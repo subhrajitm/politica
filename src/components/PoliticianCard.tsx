@@ -12,9 +12,70 @@ import FavouriteButton from './FavouriteButton';
 
 type PoliticianCardProps = {
   politician: Politician;
+  viewMode?: 'grid' | 'list';
 };
 
-export default function PoliticianCard({ politician }: PoliticianCardProps) {
+export default function PoliticianCard({ politician, viewMode = 'grid' }: PoliticianCardProps) {
+  if (viewMode === 'list') {
+    return (
+      <div className="group block">
+        <Card
+          className={cn(
+            'transition-all duration-300',
+            'group-hover:shadow-lg group-hover:border-primary/50 group-hover:-translate-y-1'
+          )}
+        >
+          <CardContent className="p-4">
+            <div className="flex items-center gap-4">
+              <div className="relative w-16 h-16 flex-shrink-0">
+                <ImageWithPlaceholder
+                  src={politician.photoUrl}
+                  alt={`Photo of ${politician.name.fullName}`}
+                  fill
+                  className="rounded-md"
+                  sizes="64px"
+                  placeholder="user"
+                />
+              </div>
+              
+              <div className="flex-grow min-w-0">
+                <div className="flex items-start justify-between gap-2">
+                  <Link href={`/politicians/${politician.id}`} className="flex-grow min-w-0">
+                    <h3 className="font-semibold text-lg leading-tight group-hover:text-primary line-clamp-1">
+                      {politician.name.fullName}
+                    </h3>
+                  </Link>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <PartyLogo party={politician.party} className="w-6 h-6" />
+                    <FavouriteButton 
+                      politicianId={politician.id}
+                      politicianName={politician.name.fullName}
+                      variant="ghost"
+                      size="sm"
+                      showText={false}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8"
+                    />
+                  </div>
+                </div>
+                
+                <div className="mt-1 flex items-center gap-4 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-1">
+                    <MapPin className="w-4 h-4 flex-shrink-0" />
+                    <span className="truncate">{politician.constituency}</span>
+                  </div>
+                  <Badge variant="secondary" className="font-normal text-xs px-2 py-1">
+                    {politician.positions.current.position}
+                  </Badge>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Grid view (default)
   return (
     <div className="group block">
       <Card
